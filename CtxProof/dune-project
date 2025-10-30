@@ -1,0 +1,24 @@
+(lang dune 3.19)
+
+(name ctxproof)
+
+(generate_opam_files true)
+
+(source
+ (github warpdynamicsltd/ctxproof))
+
+(authors "Michal Stanislaw Wojcik")
+
+(maintainers "Michal Stanislaw Wojcik")
+
+(license LICENSE)
+
+(documentation https://github.com/warpdynamicsltd/ctxproof)
+
+(package
+ (name ctxproof)
+ (synopsis "Automated Proof Checker")
+ (description "Automated Proof Checker")
+ (depends ocaml)
+ (tags
+  ("proof checker")))

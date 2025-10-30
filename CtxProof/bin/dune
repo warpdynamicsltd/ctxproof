@@ -1,0 +1,4 @@
+(executable
+ (public_name ctxproof)
+ (name main)
+ (libraries ctxproof))

@@ -27,12 +27,10 @@ rule token = parse
   | '['                  { LBRACK }
   | ']'                  { RBRACK }
   | '\''                 { QUOTE }
-  | ['a'-'z''A'-'Z']['a'-'z''A'-'Z''0'-'9''_']* as id {
-      match id with
-      | "true"  -> TRUE
-      | "false" -> FALSE
-      | _       -> IDENT id
-    }
+  | "$false"             { FALSE }
+  | "$true"              { TRUE }
+  | ['a'-'z']['a'-'z''A'-'Z''0'-'9''_']* as cname { CNAME(cname) }
+  | ['A'-'Z']['a'-'z''A'-'Z''0'-'9''_']* as vname { VNAME(vname) }
   | ['0'-'9']+ as num        { INT (int_of_string num) }
   | "\"" ([^ '\"'])* "\"" as str { STRING (String.sub str 1 (String.length str - 2)) }
   | eof                  { EOF }

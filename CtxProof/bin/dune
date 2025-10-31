@@ -1,8 +1,6 @@
-(ocamllex lexer)
-(ocamlyacc parser)
 (executable
  (public_name ctxproof)
- (modules printer types lexer parser main)
+ (modules main)
  (flags (:standard -w -37 -w -34))
  (name main)
  (libraries ctxproof))

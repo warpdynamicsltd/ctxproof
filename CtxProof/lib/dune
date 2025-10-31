@@ -1,2 +1,5 @@
+(ocamllex lexer)
+(ocamlyacc parser)
 (library
+ (modules printer types lexer parser)
  (name ctxproof))

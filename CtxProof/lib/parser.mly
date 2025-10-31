@@ -2,7 +2,8 @@
 open Types
 %}
 
-%token <string> IDENT
+%token <string> CNAME
+%token <string> VNAME
 %token <int> INT
 %token <string> STRING
 %token FOF DOT COMMA COLON LPAREN RPAREN
@@ -26,7 +27,7 @@ statements:
 | /* empty */         { [] }
 
 statement:
-  FOF LPAREN IDENT COMMA IDENT COMMA fof_formula COMMA annotation_opt RPAREN DOT
+  FOF LPAREN CNAME COMMA CNAME COMMA fof_formula COMMA annotation_opt RPAREN DOT
     { Statement {name = $3; formula_role = $5; formula = $7; annotation = $9} }
 
 annotation_opt:
@@ -49,22 +50,22 @@ fof_formula:
 | LPAREN fof_formula RPAREN    { $2 }
 
 atom:
-  IDENT LPAREN terms RPAREN    { Pred($1, $3) }
-| IDENT                        { Pred($1, []) }
+  CNAME LPAREN terms RPAREN    { Pred($1, $3) }
+| CNAME                        { Pred($1, []) }
 | term EQUAL term              { Pred("=", [$1; $3]) }
 | term NEQ term                { Not(Pred("=", [$1; $3])) }
 
 vars:
-  IDENT COMMA vars             { $1 :: $3 }
-| IDENT                        { [$1] }
+  CNAME COMMA vars             { $1 :: $3 }
+| CNAME                        { [$1] }
 
 terms:
   term COMMA terms             { $1 :: $3 }
 | term                         { [$1] }
 
 term:
-  IDENT LPAREN terms RPAREN    { Func($1, $3) }
-| IDENT
+  CNAME LPAREN terms RPAREN    { Func($1, $3) }
+| CNAME
     { if String.length $1 > 0 && Char.uppercase_ascii $1.[0] = $1.[0]
       then Var $1 else Const $1 }
 | INT                          { Const (string_of_int $1) }

@@ -1,10 +1,9 @@
+open Printer
+
 let _ =
-          try
-            let lexbuf = Lexing.from_channel stdin in
-            while true do
-              let result = Parser.main Lexer.token lexbuf in
-                print_int result; print_newline(); flush stdout
-            done
-          with Lexer.Eof ->
-            exit 0
-(* let () = print_endline "Hello, World!" *)
+      let lexbuf = Lexing.from_channel stdin in
+      let result = Parser.input Lexer.token lexbuf in
+      List.iter (fun s -> print_endline (string_of_statement s)) result
+      
+          
+(*let () = print_string (string_of_statement (Statement {name="a"; formula_role="a"; formula = True; annotation = "a"}) )*)

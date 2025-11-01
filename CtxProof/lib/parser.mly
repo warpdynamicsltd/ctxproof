@@ -1,5 +1,9 @@
 %{
-open Types
+  open Types
+  exception CxError of string
+
+  let cx_error msg pos =
+    (CxError ("syntax error: " ^msg ^ " at " ^ Parser_utils.location_to_string pos))
 %}
 
 %token <string> UWORD
@@ -16,23 +20,30 @@ open Types
 %token EOF
 
 %start input
-%type <Types.fof_statement list> input
+/*%type <Types.fof_statement list> input*/
+%type <Types.first_order_formula>  input
 %%
 
 input:
-  statements EOF { $1 }
+  fof_formula EOF {$1}
+/*  statements EOF { $1 }
+| error { raise (cx_error "expected proof" $startpos) }*/
 
 statements:
   statement statements { $1 :: $2 }
 | /* empty */         { [] }
+| error { raise (cx_error "expected statement list" $startpos) }
 
 statement:
   FOF LPAREN LWORD COMMA LWORD COMMA fof_formula annotation_opt RPAREN DOT
     { Statement {name = $3; formula_role = $5; formula = $7; annotation = $8} }
 
+  | error { raise (cx_error "expected statement" $startpos) }
+
 annotation_opt:
   COMMA STRING { $2 }
 |        { "" }
+| error { raise (cx_error "expected annotation" $startpos)}
 
 fof_formula:
   TRUE                         { True }
@@ -48,24 +59,43 @@ fof_formula:
     { List.fold_right (fun v acc -> Exists(v, acc)) $3 $6 }
 | atom                         { $1 }
 | LPAREN fof_formula RPAREN    { $2 }
+| error { raise (cx_error "expected formula" $startpos) }
+
+pred_symbol:
+  LWORD                        { $1 }
+| error { raise (cx_error "expected predicate symbol" $startpos) }
+
+func_symbol:
+  LWORD                        { $1 }
+| error { raise (cx_error "expected function symbol" $startpos) }
 
 atom:
-  LWORD LPAREN terms RPAREN    { Pred($1, $3) }
-| LWORD                        { Pred($1, []) }
-| term EQUAL term              { Pred("=", [$1; $3]) }
-| term NEQ term                { Not(Pred("=", [$1; $3])) }
+  pred_symbol LPAREN terms RPAREN          { Pred($1, $3) }
+| pred_symbol                              { Pred($1, []) }
+| term EQUAL term                          { Pred("=", [$1; $3]) }
+| term NEQ term                            { Not(Pred("=", [$1; $3])) }
+| error { raise (cx_error "expected atom formula" $startpos) }
 
 vars:
-  LWORD COMMA vars             { $1 :: $3 }
-| LWORD                        { [$1] }
+  var COMMA vars             { $1 :: $3 }
+| var                        { [$1] }
+| error { raise (cx_error "expected var list" $startpos) }
+
+var:
+  UWORD                        { $1 }
+| error { raise (cx_error "expected variable" $startpos) }
+
+const:
+  LWORD                        { $1 }
+| error { raise (cx_error "expected constant" $startpos) }
 
 terms:
   term COMMA terms             { $1 :: $3 }
 | term                         { [$1] }
+| error { raise (cx_error "expected term list" $startpos) }
 
 term:
-  LWORD LPAREN terms RPAREN    { Func($1, $3) }
-| LWORD
-    { if String.length $1 > 0 && Char.uppercase_ascii $1.[0] = $1.[0]
-      then Var $1 else Const $1 }
-| INT                          { Const (string_of_int $1) }
+  func_symbol LPAREN terms RPAREN     { Func($1, $3) }
+| var                                 { Var $1 }
+| const                               { Const $1 }
+| error { raise (cx_error "expected term" $startpos) }

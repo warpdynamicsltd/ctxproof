@@ -2,5 +2,5 @@
 (menhir 
 (modules parser))
 (library
- (modules printer types lexer parser)
+ (modules printer types lexer parser_utils parser)
  (name ctxproof))

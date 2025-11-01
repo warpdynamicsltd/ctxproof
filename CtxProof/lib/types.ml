@@ -23,6 +23,8 @@ type first_order_formula =
   | Exists of string * first_order_formula                 (* Existential quantifier *)
 
 
+type inference =
+  | Inference of {name: string; formula_role: string; formula: first_order_formula; annotation: string}
 
 type fof_statement =
   | Statement of {name: string; formula_role: string; formula: first_order_formula; annotation: string}

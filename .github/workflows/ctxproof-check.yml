@@ -17,6 +17,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - run: sudo apt install -y build-essential cmake clang zlib1g-dev libgmp-dev python3 curl opam
+      - run: sudo apt install -y libgmp-dev opam
       - run: ./install.sh
       

@@ -29,8 +29,8 @@ rule token = parse
   | '\''                 { QUOTE }
   | "$false"             { FALSE }
   | "$true"              { TRUE }
-  | ['a'-'z']['a'-'z''A'-'Z''0'-'9''_']* as cname { CNAME(cname) }
-  | ['A'-'Z']['a'-'z''A'-'Z''0'-'9''_']* as vname { VNAME(vname) }
+  | ['a'-'z']['a'-'z''A'-'Z''0'-'9''_']* as cname { LWORD(cname) }
+  | ['A'-'Z']['a'-'z''A'-'Z''0'-'9''_']* as vname { UWORD(vname) }
   | ['0'-'9']+ as num        { INT (int_of_string num) }
   | "\"" ([^ '\"'])* "\"" as str { STRING (String.sub str 1 (String.length str - 2)) }
   | eof                  { EOF }

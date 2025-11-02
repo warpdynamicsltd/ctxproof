@@ -20,14 +20,19 @@
 %token EOF
 
 %start input
+%start wff
 /*%type <Types.fof_statement list> input*/
 %type <Types.first_order_formula>  input
+%type <Types.first_order_formula>  wff
 %%
 
 input:
   fof_formula EOF {$1}
 /*  statements EOF { $1 }
 | error { raise (cx_error "expected proof" $startpos) }*/
+
+wff:
+  fof_formula EOF {$1}
 
 statements:
   statement statements { $1 :: $2 }
@@ -46,20 +51,23 @@ annotation_opt:
 | error { raise (cx_error "expected annotation" $startpos)}
 
 fof_formula:
-  TRUE                         { True }
-| FALSE                        { False }
-| NOT fof_formula              { Not $2 }
-| fof_formula AND fof_formula  { And($1, $3) }
-| fof_formula OR fof_formula   { Or($1, $3) }
-| fof_formula IMPLIES fof_formula { Implies($1, $3) }
-| fof_formula IFF fof_formula     { Iff($1, $3) }
-| FORALL LBRACK vars RBRACK COLON fof_formula
+| NOT primary              { Not $2 }
+| primary AND primary  { And($1, $3) }
+| primary OR primary   { Or($1, $3) }
+| primary IMPLIES primary { Implies($1, $3) }
+| primary IFF primary     { Iff($1, $3) }
+| FORALL LBRACK vars RBRACK COLON primary
     { List.fold_right (fun v acc -> Forall(v, acc)) $3 $6 }
-| EXISTS LBRACK vars RBRACK COLON fof_formula
+| EXISTS LBRACK vars RBRACK COLON primary
     { List.fold_right (fun v acc -> Exists(v, acc)) $3 $6 }
-| atom                         { $1 }
-| LPAREN fof_formula RPAREN    { $2 }
+| primary                         { $1 }
+(*| LPAREN fof_formula RPAREN    { $2 }*)
 | error { raise (cx_error "expected formula" $startpos) }
+
+primary:
+| atom { $1 }
+| LPAREN fof_formula RPAREN { $2 }
+| error { raise (cx_error "expected primary formula" $startpos) }
 
 pred_symbol:
   LWORD                        { $1 }
@@ -70,10 +78,12 @@ func_symbol:
 | error { raise (cx_error "expected function symbol" $startpos) }
 
 atom:
-  pred_symbol LPAREN terms RPAREN          { Pred($1, $3) }
+  TRUE                                     { True }
+| FALSE                                    { False }
+| pred_symbol LPAREN terms RPAREN          { Pred($1, $3) }
 | pred_symbol                              { Pred($1, []) }
 | term EQUAL term                          { Pred("=", [$1; $3]) }
-| term NEQ term                            { Not(Pred("=", [$1; $3])) }
+(*| term NEQ term                            { Not(Pred("=", [$1; $3])) }*)
 | error { raise (cx_error "expected atom formula" $startpos) }
 
 vars:

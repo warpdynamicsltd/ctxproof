@@ -14,16 +14,13 @@ rule token = parse
   | ":"                  { COLON }
   | "=>"                 { IMPLIES }
   | "<=>"                { IFF }
-(*  | "<~>"                { NIFF }*)
   | "~|"                 { NOR }
-  | "~&"                 { NAND }
   | "&"                  { AND }
   | "|"                  { OR }
   | "~"                  { NOT }
   | "!"                  { FORALL }
   | "?"                  { EXISTS }
   | "="                  { EQUAL }
-  | "!="                 { NEQ }
   | '['                  { LBRACK }
   | ']'                  { RBRACK }
   | '\''                 { QUOTE }

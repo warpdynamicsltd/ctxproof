@@ -17,7 +17,7 @@ let run () =
   assert_eq __LINE__ parse_string "q(a)" (Pred ("q", [Const "a"]));
   assert_eq __LINE__ parse_string "q(X,Y,Z)" (Pred ("q", [Var "X"; Var "Y"; Var "Z"]));
   assert_eq __LINE__ parse_string "X=Y" (Pred ("=", [Var "X"; Var "Y"]));
-  (*assert_eq __LINE__ parse_string "f(X)=g(Y)" (Pred ("=", [Func ("f", [Var "X"]); Func ("g", [Var "Y"])]));*)
+  assert_eq __LINE__ parse_string "f(X)=g(Y)" (Pred ("=", [Func ("f", [Var "X"]); Func ("g", [Var "Y"])]));
   assert_eq __LINE__ parse_string "a=b" (Pred ("=", [Const "a"; Const "b"]));
   assert_eq __LINE__ parse_string "(p) & (q)" (And (Pred ("p", []), Pred ("q", [])));
   assert_eq __LINE__ parse_string "p & q" (And (Pred ("p", []), Pred ("q", [])));
@@ -161,4 +161,39 @@ let run () =
   assert_eq __LINE__ parse_string "? [X]: ( ! [Y,Z]: p(X,Y,Z) )" (Exists ("X", Forall ("Y", Forall ("Z", Pred ("p", [Var "X"; Var "Y"; Var "Z"])))));
   assert_eq __LINE__ parse_string "! [X]: ( ( p(X) & q(X) ) <=> r(X) )" (Forall ("X", Iff (And (Pred ("p", [Var "X"]), Pred ("q", [Var "X"])), Pred ("r", [Var "X"]))));
   assert_eq __LINE__ parse_string "? [X]: ( ( p(X) | q(X) ) => r(X) )" (Exists ("X", Implies (Or (Pred ("p", [Var "X"]), Pred ("q", [Var "X"])), Pred ("r", [Var "X"]))));
-  ()
+
+  (* Equality between function terms variants *)
+assert_eq __LINE__ parse_string "f(X)=g(Y)" (Pred ("=", [Func ("f", [Var "X"]); Func ("g", [Var "Y"])]));
+assert_eq __LINE__ parse_string "f(X)=g(Y,Z)" (Pred ("=", [Func ("f", [Var "X"]); Func ("g", [Var "Y"; Var "Z"])]));
+assert_eq __LINE__ parse_string "f(f(X)) = g(g(Y))" (Pred ("=", [Func ("f", [Func ("f", [Var "X"])]); Func ("g", [Func ("g", [Var "Y"])])]));
+
+(* Equality with variables and constants mix *)
+assert_eq __LINE__ parse_string "X = f(X)" (Pred ("=", [Var "X"; Func ("f", [Var "X"])]));
+assert_eq __LINE__ parse_string "f(X) = X" (Pred ("=", [Func ("f", [Var "X"]); Var "X"]));
+assert_eq __LINE__ parse_string "a = f(a)" (Pred ("=", [Const "a"; Func ("f", [Const "a"])]));
+assert_eq __LINE__ parse_string "f(a) = a" (Pred ("=", [Func ("f", [Const "a"]); Const "a"]));
+
+(* Equality inside larger formulas *)
+assert_eq __LINE__ parse_string "(f(X)=g(Y)) & p(X)" (And (Pred ("=", [Func ("f", [Var "X"]); Func ("g", [Var "Y"])]), Pred ("p", [Var "X"])));
+assert_eq __LINE__ parse_string "p(X) => (f(X)=f(X))" (Implies (Pred ("p", [Var "X"]), Pred ("=", [Func ("f", [Var "X"]); Func ("f", [Var "X"])])));
+assert_eq __LINE__ parse_string "(a=b) <=> q(a,b)" (Iff (Pred ("=", [Const "a"; Const "b"]), Pred ("q", [Const "a"; Const "b"])));
+
+(* If your grammar requires parentheses for nullary predicates, test these: *)
+(* Uncomment these if you adopted pred() form for nullary predicates. *)
+(*
+assert_eq __LINE__ parse_string "p()" (Pred ("p", []));
+assert_eq __LINE__ parse_string "(p()) & (q())" (And (Pred ("p", []), Pred ("q", [])));
+assert_eq __LINE__ parse_string "~(p())" (Not (Pred ("p", [])));
+*)
+
+(* Function vs constant disambiguation in terms *)
+assert_eq __LINE__ parse_string "p(f(a), a)" (Pred ("p", [Func ("f", [Const "a"]); Const "a"]));
+assert_eq __LINE__ parse_string "p(a, f(a))" (Pred ("p", [Const "a"; Func ("f", [Const "a"])]));
+assert_eq __LINE__ parse_string "p(f(a,b), g(c,d))" (Pred ("p", [Func ("f", [Const "a"; Const "b"]); Func ("g", [Const "c"; Const "d"])]));
+assert_eq __LINE__ parse_string "p(f(g(a)), h(k(b)))" (Pred ("p", [Func ("f", [Func ("g", [Const "a"])]); Func ("h", [Func ("k", [Const "b"])])]));
+
+(* Quantifiers around equalities *)
+assert_eq __LINE__ parse_string "! [X]: f(X)=X" (Forall ("X", Pred ("=", [Func ("f", [Var "X"]); Var "X"])));
+assert_eq __LINE__ parse_string "? [X]: X=f(X)" (Exists ("X", Pred ("=", [Var "X"; Func ("f", [Var "X"])])));
+assert_eq __LINE__ parse_string "! [X,Y]: f(X)=g(Y)" (Forall ("X", Forall ("Y", Pred ("=", [Func ("f", [Var "X"]); Func ("g", [Var "Y"])]))));
+()

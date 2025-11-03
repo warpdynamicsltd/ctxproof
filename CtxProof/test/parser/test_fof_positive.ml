@@ -123,8 +123,8 @@ let run () =
   assert_eq __LINE__ parse_string "? [X,Y]: ( p(X) | q(Y) )" (Exists ("X", Exists ("Y", Or (Pred ("p", [Var "X"]), Pred ("q", [Var "Y"])))));
   assert_eq __LINE__ parse_string "! [X]: ( p(f(X)) => q(g(X)) )" (Forall ("X", Implies (Pred ("p", [Func ("f", [Var "X"])]), Pred ("q", [Func ("g", [Var "X"])]))));
   assert_eq __LINE__ parse_string "? [X]: ( p(f(X)) & q(g(X)) )" (Exists ("X", And (Pred ("p", [Func ("f", [Var "X"])]), Pred ("q", [Func ("g", [Var "X"])]))));
-  (* assert_eq __LINE__ parse_string "! [X]: ( f(X)=X )" (Forall ("X", Pred ("=", [Func ("f", [Var "X"]); Var "X"]))); *)
-  (* assert_eq __LINE__ parse_string "? [X]: X=f(X)" (Exists ("X", Pred ("=", [Var "X"; Func ("f", [Var "X"])]))); *)
+  assert_eq __LINE__ parse_string "! [X]: ( f(X)=X )" (Forall ("X", Pred ("=", [Func ("f", [Var "X"]); Var "X"])));
+  assert_eq __LINE__ parse_string "? [X]: X=f(X)" (Exists ("X", Pred ("=", [Var "X"; Func ("f", [Var "X"])])));
   assert_eq __LINE__ parse_string "! [X]: ( p(X) | ( ~p(X) ) )" (Forall ("X", Or (Pred ("p", [Var "X"]), Not (Pred ("p", [Var "X"])))));
   assert_eq __LINE__ parse_string "? [X]: ( ~(p(X) & q(X)) )" (Exists ("X", Not (And (Pred ("p", [Var "X"]), Pred ("q", [Var "X"])))));
   assert_eq __LINE__ parse_string "p(f(X,Y), h(a, b))" (Pred ("p", [Func ("f", [Var "X"; Var "Y"]); Func ("h", [Const "a"; Const "b"])]));
@@ -142,9 +142,6 @@ let run () =
   assert_eq __LINE__ parse_string "( p(X) & p(Y) ) => p(Z)" (Implies (And (Pred ("p", [Var "X"]), Pred ("p", [Var "Y"])), Pred ("p", [Var "Z"])));
   assert_eq __LINE__ parse_string "( p(a) & p(b) ) => p(c)" (Implies (And (Pred ("p", [Const "a"]), Pred ("p", [Const "b"])), Pred ("p", [Const "c"])));
   assert_eq __LINE__ parse_string "( p(X) | p(Y) ) <=> p(Z)" (Iff (Or (Pred ("p", [Var "X"]), Pred ("p", [Var "Y"])), Pred ("p", [Var "Z"])));
-  (* keep this commented if your grammar doesn’t allow predicate-in-terms equality *)
-  (* assert_eq __LINE__ parse_string "p(f(X)) = p(f(X))" (Pred ("=", [Pred ("p", [Func ("f", [Var "X"])]); Pred ("p", [Func ("f", [Var "X"])])])); *)
-  (* assert_eq __LINE__ parse_string "f(f(X)) = f(f(X))" (Pred ("=", [Func ("f", [Func ("f", [Var "X"])]); Func ("f", [Func ("f", [Var "X"])])])); *)
   assert_eq __LINE__ parse_string "X = X" (Pred ("=", [Var "X"; Var "X"]));
   assert_eq __LINE__ parse_string "a = a" (Pred ("=", [Const "a"; Const "a"]));
   assert_eq __LINE__ parse_string "p(X) & (q(Y) | (r(Z) & s(W)))" (And (Pred ("p", [Var "X"]), Or (Pred ("q", [Var "Y"]), And (Pred ("r", [Var "Z"]), Pred ("s", [Var "W"])))));
@@ -152,7 +149,7 @@ let run () =
   assert_eq __LINE__ parse_string "~((p) & (q))" (Not (And (Pred ("p", []), Pred ("q", []))));
   assert_eq __LINE__ parse_string "~((p(X)) | (q(Y)))" (Not (Or (Pred ("p", [Var "X"]), Pred ("q", [Var "Y"]))));
   assert_eq __LINE__ parse_string "! [X]: ( ~(~p(X)) )" (Forall ("X", Not (Not (Pred ("p", [Var "X"])))));
-  (* assert_eq __LINE__ parse_string "? [X]: ~(~(p(X) & q(X)))" (Exists ("X", Not (Not (And (Pred ("p", [Var "X"]), Pred ("q", [Var "X"])))))); *)
+  assert_eq __LINE__ parse_string "? [X]: ( ~(~(p(X) & q(X))) )" (Exists ("X", Not (Not (And (Pred ("p", [Var "X"]), Pred ("q", [Var "X"]))))));
   assert_eq __LINE__ parse_string "! [X]: (p(X))" (Forall ("X", Pred ("p", [Var "X"])));
   assert_eq __LINE__ parse_string "? [X]: (p(X))" (Exists ("X", Pred ("p", [Var "X"])));
   assert_eq __LINE__ parse_string "! [X,Y,Z]: p(X,Y,Z)" (Forall ("X", Forall ("Y", Forall ("Z", Pred ("p", [Var "X"; Var "Y"; Var "Z"])))));
@@ -177,14 +174,6 @@ assert_eq __LINE__ parse_string "f(a) = a" (Pred ("=", [Func ("f", [Const "a"]);
 assert_eq __LINE__ parse_string "(f(X)=g(Y)) & p(X)" (And (Pred ("=", [Func ("f", [Var "X"]); Func ("g", [Var "Y"])]), Pred ("p", [Var "X"])));
 assert_eq __LINE__ parse_string "p(X) => (f(X)=f(X))" (Implies (Pred ("p", [Var "X"]), Pred ("=", [Func ("f", [Var "X"]); Func ("f", [Var "X"])])));
 assert_eq __LINE__ parse_string "(a=b) <=> q(a,b)" (Iff (Pred ("=", [Const "a"; Const "b"]), Pred ("q", [Const "a"; Const "b"])));
-
-(* If your grammar requires parentheses for nullary predicates, test these: *)
-(* Uncomment these if you adopted pred() form for nullary predicates. *)
-(*
-assert_eq __LINE__ parse_string "p()" (Pred ("p", []));
-assert_eq __LINE__ parse_string "(p()) & (q())" (And (Pred ("p", []), Pred ("q", [])));
-assert_eq __LINE__ parse_string "~(p())" (Not (Pred ("p", [])));
-*)
 
 (* Function vs constant disambiguation in terms *)
 assert_eq __LINE__ parse_string "p(f(a), a)" (Pred ("p", [Func ("f", [Const "a"]); Const "a"]));

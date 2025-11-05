@@ -9,7 +9,9 @@ rule token = parse
   | "("                  { LPAREN }
   | ")"                  { RPAREN }
   | ","                  { COMMA }
+  | "."                  { DOT }
   | ":"                  { COLON }
+  | ";"                  { SEMICOLON }
   | "=>"                 { IMPLIES }
   | "<=>"                { IFF }
   | "&"                  { AND }
@@ -20,9 +22,12 @@ rule token = parse
   | "="                  { EQUAL }
   | '['                  { LBRACK }
   | ']'                  { RBRACK }
+  | "{"                  { LCURL }
+  | "}"                  { RCURL }
   | "$false"             { FALSE }
   | "$true"              { TRUE }
   | ['a'-'z']['a'-'z''A'-'Z''0'-'9''_']* as cname { LWORD(cname) }
   | ['A'-'Z']['a'-'z''A'-'Z''0'-'9''_']* as vname { UWORD(vname) }
+  | ['0'-'9']+ as lxm    { INT(Z.of_string lxm) }
   | eof                  { EOF }
   | _ as c               { raise (Error ("Illegal character: " ^ String.make 1 c)) }

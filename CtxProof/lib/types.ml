@@ -1,12 +1,11 @@
 type reference =
-  | Ref of int list
+  | Ref of Z.t list
 
 (* Type for terms (constants, variables, function applications) *)
 type term =
   | Var of string                                          (* Variables *)
   | Const of string                                        (* Constants *)
-  | ContextConst of int                                    (* Conetxt bound const refered by int which means the depth of context *)
-  | SkolemConst of int list                                (* Skolem Const refered by int list with the same meaning as in Ref *)
+  | SkolemConst of Z.t list                                (* Skolem Const refered by int list with the same meaning as in Ref *)
   | Func of string * term list                             (* Function symbols with arguments *)
 
 (* Type for first-order logic formulas *)
@@ -26,5 +25,5 @@ type first_order_formula =
 type inference =
   | Inference of {name: string; formula_role: string; formula: first_order_formula; annotation: string}
 
-type fof_statement =
-  | Statement of {name: string; formula_role: string; formula: first_order_formula; annotation: string}
+type statement =
+  | Statement of {ref: reference; formula: first_order_formula; mode: string; formulas: first_order_formula list; terms: term list }

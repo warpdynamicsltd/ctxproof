@@ -8,7 +8,9 @@
 
 %token <string> UWORD
 %token <string> LWORD
-%token COMMA COLON LPAREN RPAREN
+%token <Z.t> INT
+%token COMMA DOT COLON LPAREN RPAREN SEMICOLON
+%token LCURL RCURL
 %token AND OR NOT IMPLIES IFF
 %token FORALL EXISTS
 %token TRUE FALSE
@@ -18,8 +20,12 @@
 
 %start input
 %start wff
+%start ref
+%start line
 %type <Types.first_order_formula>  input
 %type <Types.first_order_formula>  wff
+%type <Types.reference>           ref
+%type <Types.statement>           line
 %%
 
 input:
@@ -27,6 +33,31 @@ input:
 
 wff:
   fof_formula EOF {$1}
+
+ref:
+  reference EOF {$1}
+
+line:
+  ref=reference formula=fof_formula LCURL mode=UWORD RCURL formulas=formulas_arg terms=terms_arg    { Statement {ref; formula; mode; formulas; terms} }
+
+reference:
+  integers { Ref $1 }
+
+integers:
+  INT { [$1] }
+| INT DOT integers { $1 :: $3 }
+
+terms_arg:
+  LCURL RCURL { [] }
+| LCURL terms RCURL { $2 }
+
+formulas_arg:
+  LCURL RCURL { [] }
+| LCURL formulas RCURL { $2 }
+
+formulas:
+  fof_formula { [$1] }
+| fof_formula SEMICOLON formulas { $1 :: $3 }
 
 fof_formula:
 | NOT primary                       { Not $2 }

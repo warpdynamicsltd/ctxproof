@@ -20,6 +20,6 @@
  (name ctxproof)
  (synopsis "Automated Proof Checker")
  (description "Automated Proof Checker")
- (depends ocaml menhir)
+ (depends ocaml zarith menhir)
  (tags
   ("proof checker")))

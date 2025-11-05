@@ -4,4 +4,5 @@
 (modules parser))
 (library
  (modules printer types lexer parser_utils fof_utils parser)
- (name ctxproof))
+ (name ctxproof)
+ (libraries zarith))

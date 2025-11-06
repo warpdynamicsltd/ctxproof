@@ -26,6 +26,7 @@
 %type <Types.first_order_formula>  wff
 %type <Types.reference>           ref
 %type <Types.statement>           line
+%type <Types.generalized_formula> generalized_formula
 %%
 
 input:
@@ -56,8 +57,12 @@ formulas_arg:
 | LCURL formulas RCURL { $2 }
 
 formulas:
-  fof_formula { [$1] }
-| fof_formula SEMICOLON formulas { $1 :: $3 }
+  generalized_formula { [$1] }
+| generalized_formula SEMICOLON formulas { $1 :: $3 }
+
+generalized_formula:
+  reference { Reference $1 }
+| fof_formula { Formula $1 }
 
 fof_formula:
 | NOT primary                       { Not $2 }

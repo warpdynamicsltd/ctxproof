@@ -21,11 +21,13 @@ let run () =
   assert_eq __LINE__ statement_of_string "0 $true {MOD} {} {}" 
     (Statement {ref=make_ref ["0"]; formula=True; mode="MOD"; formulas=[]; terms=[]});
   assert_eq __LINE__ statement_of_string "0 $true {MOD} {$true} {}" 
-    (Statement {ref=make_ref ["0"]; formula=True; mode="MOD"; formulas=[True]; terms=[]});
+    (Statement {ref=make_ref ["0"]; formula=True; mode="MOD"; formulas=[Formula True]; terms=[]});
   assert_eq __LINE__ statement_of_string "0 $true {MOD} {$true; $false} {}" 
-    (Statement {ref=make_ref ["0"]; formula=True; mode="MOD"; formulas=[True; False]; terms=[]});
+    (Statement {ref=make_ref ["0"]; formula=True; mode="MOD"; formulas=[Formula True; Formula False]; terms=[]});
   assert_eq __LINE__ statement_of_string "0 $true {MOD} {} {X}" 
     (Statement {ref=make_ref ["0"]; formula=True; mode="MOD"; formulas=[]; terms=[Var "X"]});
   assert_eq __LINE__ statement_of_string "0 $true {MOD} {} {f(c)}" 
     (Statement {ref=make_ref ["0"]; formula=True; mode="MOD"; formulas=[]; terms=[Func ("f", [Const "c"])]});
+  assert_eq __LINE__ statement_of_string "0 $true {MOD} {$true; 0.1} {}" 
+    (Statement {ref=make_ref ["0"]; formula=True; mode="MOD"; formulas=[Formula True; Reference (make_ref ["0";"1"])]; terms=[]});
 

@@ -21,9 +21,20 @@ type first_order_formula =
   | Forall of string * first_order_formula                 (* Universal quantifier *)
   | Exists of string * first_order_formula                 (* Existential quantifier *)
 
+type generalized_formula =
+  | Reference of reference
+  | Formula of first_order_formula
+
 
 type inference =
   | Inference of {name: string; formula_role: string; formula: first_order_formula; annotation: string}
 
 type statement =
-  | Statement of {ref: reference; formula: first_order_formula; mode: string; formulas: first_order_formula list; terms: term list }
+  | Statement of 
+      {
+        ref: reference; 
+        formula: first_order_formula; 
+        mode: string; 
+        formulas: generalized_formula list; 
+        terms: term list 
+      }

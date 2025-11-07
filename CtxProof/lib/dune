@@ -3,7 +3,7 @@
 (menhir 
 (modules parser)
 (flags
-  (--compile-errors parser.messages)
+  (--compile-errors lib/parser.messages)
   (--exn-carries-state))
 )
 (library

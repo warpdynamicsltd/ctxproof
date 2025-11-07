@@ -26,6 +26,7 @@ rule token = parse
   | "}"                  { RCURL }
   | "$false"             { FALSE }
   | "$true"              { TRUE }
+  | "sk."                { SK }
   | ['a'-'z']['a'-'z''A'-'Z''0'-'9''_']* as cname { LWORD(cname) }
   | ['A'-'Z']['a'-'z''A'-'Z''0'-'9''_']* as vname { UWORD(vname) }
   | ['0'-'9']+ as lxm    { INT(Z.of_string lxm) }

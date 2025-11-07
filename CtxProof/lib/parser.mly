@@ -9,7 +9,7 @@
 %token <string> UWORD
 %token <string> LWORD
 %token <Z.t> INT
-%token COMMA DOT COLON LPAREN RPAREN SEMICOLON
+%token COMMA DOT COLON LPAREN RPAREN SEMICOLON SK
 %token LCURL RCURL
 %token AND OR NOT IMPLIES IFF
 %token FORALL EXISTS
@@ -22,21 +22,27 @@
 %start wff
 %start ref
 %start line
-%type <Types.first_order_formula>  input
-%type <Types.first_order_formula>  wff
+%start lines
+%type <Types.statement list>      input
+%type <Types.first_order_formula> wff
 %type <Types.reference>           ref
 %type <Types.statement>           line
 %type <Types.generalized_formula> generalized_formula
+%type <Types.statement list>      lines
 %%
 
 input:
-  fof_formula EOF {$1}
+  lines EOF {$1}
 
 wff:
   fof_formula EOF {$1}
 
 ref:
   reference EOF {$1}
+
+lines:
+| line { [$1] }
+| line lines { $1 :: $2 }
 
 line:
   ref=reference formula=fof_formula LCURL mode=UWORD RCURL formulas=formulas_arg terms=terms_arg    { Statement {ref; formula; mode; formulas; terms} }
@@ -65,7 +71,6 @@ generalized_formula:
 | fof_formula { Formula $1 }
 
 fof_formula:
-| NOT primary                       { Not $2 }
 | primary AND primary               { And($1, $3) }
 | primary OR primary                { Or($1, $3) }
 | primary IMPLIES primary           { Implies($1, $3) }
@@ -79,6 +84,7 @@ fof_formula:
 
 primary:
 | atom { $1 }
+| NOT primary                       { Not $2 }
 | LPAREN fof_formula RPAREN { $2 }
 
 atomic_name:
@@ -110,5 +116,7 @@ terms:
 
 term:
   atomic_name LPAREN terms RPAREN     { Func($1, $3) }
+| SK integers LPAREN terms RPAREN     { SkolemFunc($2, $4) }
 | var                                 { Var $1 }
 | const                               { Const $1 }
+| SK integers                         { SkolemConst $2 }

@@ -185,4 +185,73 @@ assert_eq __LINE__ parse_string "p(f(g(a)), h(k(b)))" (Pred ("p", [Func ("f", [F
 assert_eq __LINE__ parse_string "! [X]: f(X)=X" (Forall ("X", Pred ("=", [Func ("f", [Var "X"]); Var "X"])));
 assert_eq __LINE__ parse_string "? [X]: X=f(X)" (Exists ("X", Pred ("=", [Var "X"; Func ("f", [Var "X"])])));
 assert_eq __LINE__ parse_string "! [X,Y]: f(X)=g(Y)" (Forall ("X", Forall ("Y", Pred ("=", [Func ("f", [Var "X"]); Func ("g", [Var "Y"])]))));
+
+(* Additional Skolem-constant parsing examples *)
+assert_eq __LINE__ parse_string "p(sk.0.1)" (Pred ("p", [SkolemConst [Z.of_int 0; Z.of_int 1]]));
+assert_eq __LINE__ parse_string "q(sk.2)" (Pred ("q", [SkolemConst [Z.of_int 2]]));
+assert_eq __LINE__ parse_string "q(sk.3.4)" (Pred ("q", [SkolemConst [Z.of_int 3; Z.of_int 4]]));
+assert_eq __LINE__ parse_string "p(sk.1, sk.2)" (Pred ("p", [SkolemConst [Z.of_int 1]; SkolemConst [Z.of_int 2]]));
+assert_eq __LINE__ parse_string "p(f(sk.5))" (Pred ("p", [Func ("f", [SkolemConst [Z.of_int 5]])]));
+assert_eq __LINE__ parse_string "p(f(sk.1.2), g(sk.3))" (Pred ("p", [Func ("f", [SkolemConst [Z.of_int 1; Z.of_int 2]]); Func ("g", [SkolemConst [Z.of_int 3]])]));
+assert_eq __LINE__ parse_string "sk.7 = sk.7" (Pred ("=", [SkolemConst [Z.of_int 7]; SkolemConst [Z.of_int 7]]));
+assert_eq __LINE__ parse_string "f(sk.8) = g(sk.9)" (Pred ("=", [Func ("f", [SkolemConst [Z.of_int 8]]); Func ("g", [SkolemConst [Z.of_int 9]])]));
+assert_eq __LINE__ parse_string "a = sk.10.0" (Pred ("=", [Const "a"; SkolemConst [Z.of_int 10; Z.of_int 0]]));
+assert_eq __LINE__ parse_string "p(sk.0.2) & q(sk.0.2)" (And (Pred ("p", [SkolemConst [Z.of_int 0; Z.of_int 2]]), Pred ("q", [SkolemConst [Z.of_int 0; Z.of_int 2]])));
+assert_eq __LINE__ parse_string "p(sk.4) | q(sk.4)" (Or (Pred ("p", [SkolemConst [Z.of_int 4]]), Pred ("q", [SkolemConst [Z.of_int 4]])));
+assert_eq __LINE__ parse_string "p(sk.6) => q(sk.6)" (Implies (Pred ("p", [SkolemConst [Z.of_int 6]]), Pred ("q", [SkolemConst [Z.of_int 6]])));
+assert_eq __LINE__ parse_string "p(sk.1) <=> q(sk.1)" (Iff (Pred ("p", [SkolemConst [Z.of_int 1]]), Pred ("q", [SkolemConst [Z.of_int 1]])));
+assert_eq __LINE__ parse_string "~p(sk.2.2)" (Not (Pred ("p", [SkolemConst [Z.of_int 2; Z.of_int 2]])));
+assert_eq __LINE__ parse_string "p(h(sk.3, sk.4))" (Pred ("p", [Func ("h", [SkolemConst [Z.of_int 3]; SkolemConst [Z.of_int 4]])]));
+assert_eq __LINE__ parse_string "p(h(f(sk.5)), g(sk.6.7))" (Pred ("p", [Func ("h", [Func ("f", [SkolemConst [Z.of_int 5]])]); Func ("g", [SkolemConst [Z.of_int 6; Z.of_int 7]])]));
+assert_eq __LINE__ parse_string "(p(sk.8) & q(sk.9)) | r(sk.8.9)" (Or (And (Pred ("p", [SkolemConst [Z.of_int 8]]), Pred ("q", [SkolemConst [Z.of_int 9]])), Pred ("r", [SkolemConst [Z.of_int 8; Z.of_int 9]])));
+assert_eq __LINE__ parse_string "p(f(g(sk.1.0)))" (Pred ("p", [Func ("f", [Func ("g", [SkolemConst [Z.of_int 1; Z.of_int 0]])])]));
+assert_eq __LINE__ parse_string "p(sk.11) & ( ~(q(sk.11)) )" (And (Pred ("p", [SkolemConst [Z.of_int 11]]), Not (Pred ("q", [SkolemConst [Z.of_int 11]]))));
+assert_eq __LINE__ parse_string "(f(sk.2.3)=f(sk.2.3)) <=> p(sk.2.3)" (Iff (Pred ("=", [Func ("f", [SkolemConst [Z.of_int 2; Z.of_int 3]]); Func ("f", [SkolemConst [Z.of_int 2; Z.of_int 3]])]), Pred ("p", [SkolemConst [Z.of_int 2; Z.of_int 3]])));
+assert_eq __LINE__ parse_string "p(sk.12.34)" (Pred ("p", [SkolemConst [Z.of_int 12; Z.of_int 34]]));
+
+
+(* Additional Skolem-function parsing examples using "sk" prefix *)
+
+assert_eq __LINE__ parse_string "p(sk.1(a))"
+  (Pred ("p", [SkolemFunc ([Z.of_int 1], [Const "a"])]));
+assert_eq __LINE__ parse_string "p(sk.2.3(X,Y))"
+  (Pred ("p", [SkolemFunc ([Z.of_int 2; Z.of_int 3], [Var "X"; Var "Y"])]));
+assert_eq __LINE__ parse_string "f(sk.4(b,c)) = g(sk.4(b,c))"
+  (Pred ("=", [Func ("f", [SkolemFunc ([Z.of_int 4], [Const "b"; Const "c"])]);
+               Func ("g", [SkolemFunc ([Z.of_int 4], [Const "b"; Const "c"])])]));
+assert_eq __LINE__ parse_string "p(sk.7(X), sk.7(Y))"
+  (Pred ("p", [SkolemFunc ([Z.of_int 7], [Var "X"]); SkolemFunc ([Z.of_int 7], [Var "Y"])]));
+assert_eq __LINE__ parse_string "p(sk.8.0(f(a)))"
+  (Pred ("p", [SkolemFunc ([Z.of_int 8; Z.of_int 0], [Func ("f", [Const "a"])])]));
+assert_eq __LINE__ parse_string "p(f(sk.9(Z)), g(sk.9(Z)))"
+  (Pred ("p", [Func ("f", [SkolemFunc ([Z.of_int 9], [Var "Z"])]);
+               Func ("g", [SkolemFunc ([Z.of_int 9], [Var "Z"])])]));
+assert_eq __LINE__ parse_string "~q(sk.10.11(a,b))"
+  (Not (Pred ("q", [SkolemFunc ([Z.of_int 10; Z.of_int 11], [Const "a"; Const "b"])])));
+assert_eq __LINE__ parse_string "p(sk.12(X)) & q(sk.12(Y))"
+  (And (Pred ("p", [SkolemFunc ([Z.of_int 12], [Var "X"])]),
+       Pred ("q", [SkolemFunc ([Z.of_int 12], [Var "Y"])])));
+assert_eq __LINE__ parse_string "p(sk.13.14(X)) | r(sk.13.14(f(X)))"
+  (Or (Pred ("p", [SkolemFunc ([Z.of_int 13; Z.of_int 14], [Var "X"])]),
+      Pred ("r", [SkolemFunc ([Z.of_int 13; Z.of_int 14], [Func ("f", [Var "X"])])])));
+assert_eq __LINE__ parse_string "p(sk.16.1(a,b)) <=> q(sk.16.1(b,a))"
+  (Iff (Pred ("p", [SkolemFunc ([Z.of_int 16; Z.of_int 1], [Const "a"; Const "b"])]),
+       Pred ("q", [SkolemFunc ([Z.of_int 16; Z.of_int 1], [Const "b"; Const "a"])])));
+assert_eq __LINE__ parse_string "f(sk.17(X,Y), sk.18(Z))"
+  (Pred ("f", [SkolemFunc ([Z.of_int 17], [Var "X"; Var "Y"]);
+               SkolemFunc ([Z.of_int 18], [Var "Z"])]));
+assert_eq __LINE__ parse_string "! [X]: p(sk.24(X))"
+  (Forall ("X", Pred ("p", [SkolemFunc ([Z.of_int 24], [Var "X"])])));
+assert_eq __LINE__ parse_string "? [X]: ( r(sk.25.26(X,X)) & s(sk.25.26(a,b)) )"
+  (Exists ("X", And (Pred ("r", [SkolemFunc ([Z.of_int 25; Z.of_int 26], [Var "X"; Var "X"])]),
+                    Pred ("s", [SkolemFunc ([Z.of_int 25; Z.of_int 26], [Const "a"; Const "b"])]))));
+assert_eq __LINE__ parse_string "p(f(sk.27(g(X))))"
+  (Pred ("p", [Func ("f", [SkolemFunc ([Z.of_int 27], [Func ("g", [Var "X"])])])]));
+assert_eq __LINE__ parse_string "((p(sk.28(X)) => q(sk.28(X))) & (q(sk.28(X)) => r(sk.28(X)))) => (p(sk.28(X)) => r(sk.28(X)))"
+  (Implies (And (Implies (Pred ("p", [SkolemFunc ([Z.of_int 28], [Var "X"])]),
+                         Pred ("q", [SkolemFunc ([Z.of_int 28], [Var "X"])])),
+                     Implies (Pred ("q", [SkolemFunc ([Z.of_int 28], [Var "X"])]),
+                              Pred ("r", [SkolemFunc ([Z.of_int 28], [Var "X"])]))),
+           Implies (Pred ("p", [SkolemFunc ([Z.of_int 28], [Var "X"])]),
+                    Pred ("r", [SkolemFunc ([Z.of_int 28], [Var "X"])]))));
 ()

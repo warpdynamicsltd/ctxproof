@@ -1,0 +1,101 @@
+# ---------- Top-level ----------
+
+input: EOF
+## Expected at least one statement (line) before end of input.
+
+lines: line
+## Expected another line or end of file after the previous statement.
+
+line: reference formula LCURL mode RCURL formulas_arg terms_arg
+## Expected a reference (number list), a formula, mode in { ... }, and formula/term blocks.
+
+# ---------- References ----------
+
+reference: INT
+## A reference must be an integer or a dot-separated list of integers.
+
+integers: INT DOT
+## Expected integer after '.' in reference list.
+
+# ---------- Formula sections ----------
+
+fof_formula: primary AND primary
+## Expected a valid formula on both sides of 'and'.
+
+fof_formula: primary OR primary
+## Expected a valid formula on both sides of 'or'.
+
+fof_formula: primary IMPLIES primary
+## Expected a valid formula on both sides of 'implies'.
+
+fof_formula: primary IFF primary
+## Expected a valid formula on both sides of 'iff'.
+
+fof_formula: FORALL LBRACK vars RBRACK COLON primary
+## After 'forall [vars]', expected ':' followed by a formula.
+
+fof_formula: EXISTS LBRACK vars RBRACK COLON primary
+## After 'exists [vars]', expected ':' followed by a formula.
+
+fof_formula: primary
+## Expected a valid formula (maybe missing an operator or parenthesis?).
+
+# ---------- Primary expressions ----------
+
+primary: LPAREN fof_formula RPAREN
+## Unmatched or misplaced parentheses in formula.
+
+primary: NOT primary
+## 'not' must be followed by a valid formula.
+
+# ---------- Atomic formulas ----------
+
+atom: term EQUAL term
+## Expected two valid terms around '='.
+
+predicate: atomic_name LPAREN terms RPAREN
+## Expected '(' after predicate name, followed by comma-separated terms, and ')'.
+
+atomic_name: LWORD
+## Expected a lowercase word (identifier) as atomic name.
+
+# ---------- Quantified variables ----------
+
+vars: var COMMA vars
+## Expected another variable after comma.
+
+var: UWORD
+## Expected an uppercase word as variable name.
+
+# ---------- Terms ----------
+
+terms: term COMMA terms
+## Expected another term after comma.
+
+term: atomic_name LPAREN terms RPAREN
+## Expected '(' after function name, and ')' after arguments.
+
+term: SK integers LPAREN terms RPAREN
+## Expected Skolem function of form 'sk<int>(args)'.
+
+term: SK integers
+## Expected integer index after 'sk' for Skolem constant.
+
+# ---------- Miscellaneous structural blocks ----------
+
+formulas_arg: LCURL RCURL
+## Expected '{ formulas }' block or '{}' for empty formula list.
+
+terms_arg: LCURL RCURL
+## Expected '{ terms }' block or '{}' for empty term list.
+
+formulas: generalized_formula SEMICOLON formulas
+## Expected ';' between multiple formulas.
+
+generalized_formula: fof_formula
+## Expected a formula or a reference inside formula list.
+
+# ---------- Error recovery hooks ----------
+
+fof_formula: error
+## Expected formula (found invalid token or unexpected structure).

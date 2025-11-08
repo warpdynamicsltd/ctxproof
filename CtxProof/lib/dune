@@ -3,11 +3,10 @@
 (menhir 
 (modules parser)
 (flags
-  (--compile-errors lib/parser.messages)
+  (--compile-errors parser.messages)
   (--exn-carries-state))
 )
 (library
 (modules printer types lexer parser_utils fof_utils parser)
 (name ctxproof)
-(data_files parser.messages)
 (libraries zarith))

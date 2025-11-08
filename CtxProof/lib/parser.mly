@@ -58,7 +58,7 @@ integers:
 terms_arg:
   LCURL RCURL { [] }
 | LCURL terms RCURL { $2 }
-| _ { raise (cx_error "expected terms arg" $startpos) }
+| error { raise (cx_error "expected terms arg" $startpos) }
 
 formulas_arg:
   LCURL RCURL { [] }

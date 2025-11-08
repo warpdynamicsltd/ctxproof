@@ -46,6 +46,7 @@ lines:
 
 line:
   ref=reference formula=fof_formula LCURL mode=UWORD RCURL formulas=formulas_arg terms=terms_arg    { Statement {ref; formula; mode; formulas; terms} }
+| error { raise (cx_error "expected line" $startpos) }
 
 reference:
   integers { Ref $1 }
@@ -57,6 +58,7 @@ integers:
 terms_arg:
   LCURL RCURL { [] }
 | LCURL terms RCURL { $2 }
+| _ { raise (cx_error "expected terms arg" $startpos) }
 
 formulas_arg:
   LCURL RCURL { [] }

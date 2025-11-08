@@ -9,7 +9,7 @@ let () =
             print_string("OK");
             print_newline();
             
-      with e -> print_string (Printexc.to_string e); print_newline();
+      with Parser.Error i -> prerr_endline (string_of_int i);
       
             
       

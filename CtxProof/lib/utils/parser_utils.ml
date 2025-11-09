@@ -5,4 +5,4 @@ let position p =
 
 let location_to_string sp =
   let sl, sc = position sp in
-  (Printf.sprintf "line %d:%d" sl sc)
+  (Printf.sprintf "at line %d, character %d" sl (sc + 1))

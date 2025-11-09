@@ -1,9 +1,9 @@
 %{
   open Types
-  exception CxError of string
+  open Errors
 
   let cx_error msg pos =
-    (CxError ("syntax error: " ^msg ^ " at " ^ Parser_utils.location_to_string pos))
+    (CxError (msg ^ " " ^ Parser_utils.location_to_string pos))
 %}
 
 %token <string> UWORD
@@ -45,8 +45,8 @@ lines:
 | line lines { $1 :: $2 }
 
 line:
-  ref=reference formula=fof_formula LCURL mode=UWORD RCURL formulas=formulas_arg terms=terms_arg    { Statement {ref; formula; mode; formulas; terms} }
-| error { raise (cx_error "expected line" $startpos) }
+  ref=reference formula=fof_formula mode=mode_arg formulas=formulas_arg terms=terms_arg { Statement {ref; formula; mode; formulas; terms} }
+| error { raise (cx_error "expected statement" $startpos) }
 
 reference:
   integers { Ref $1 }
@@ -54,6 +54,9 @@ reference:
 integers:
   INT { [$1] }
 | INT DOT integers { $1 :: $3 }
+
+mode_arg:
+ LCURL UWORD RCURL { $2 }
 
 terms_arg:
   LCURL RCURL { [] }
@@ -115,6 +118,7 @@ const:
 terms:
   term COMMA terms             { $1 :: $3 }
 | term                         { [$1] }
+| error { raise (cx_error "expected terms" $startpos) }
 
 term:
   atomic_name LPAREN terms RPAREN     { Func($1, $3) }
@@ -122,3 +126,4 @@ term:
 | var                                 { Var $1 }
 | const                               { Const $1 }
 | SK integers                         { SkolemConst $2 }
+| error { raise (cx_error "expected term" $startpos) }

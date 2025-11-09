@@ -2,14 +2,19 @@ open Ctxproof
 (*open Printer*)
 
 let () =
-      try
-            let lexbuf = Lexing.from_channel stdin in
-            let _ = Parser.input Lexer.token lexbuf
-            in
-            print_string("OK");
-            print_newline();
-            
-      with Parser.Error i -> prerr_endline (string_of_int i);
+      let lexbuf = Lexing.from_channel stdin in
+            try
+                  
+                  let _ = Parser.input Lexer.token lexbuf
+                  in
+                  print_string("parsed OK");
+                  print_newline();
+                  
+            with 
+             | Parser.Error _ -> prerr_endline ("malformed expression " ^ Parser_utils.location_to_string lexbuf.Lexing.lex_start_p)
+             | Lexer.Error _ -> prerr_endline ("illegal character " ^ Parser_utils.location_to_string lexbuf.Lexing.lex_start_p)
+             | Errors.CxError m -> prerr_endline m;
+             
       
             
       

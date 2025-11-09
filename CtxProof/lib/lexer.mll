@@ -1,11 +1,19 @@
 {
   open Parser
   exception Error of string
+
+  let new_line (lexbuf : Lexing.lexbuf) =
+    let pos = lexbuf.Lexing.lex_curr_p in
+    lexbuf.Lexing.lex_curr_p <- {
+      pos with
+      Lexing.pos_lnum = pos.Lexing.pos_lnum + 1;
+      Lexing.pos_bol = pos.Lexing.pos_cnum;  (* not lex_curr_pos *)
+    }
 }
 
 rule token = parse
-  | [' ' '\t' '\r' '\n'] { token lexbuf }           (* skip whitespace *)
-  | "%" [^ '\n' ]*       { token lexbuf }           (* skip TPTP comments *)
+  | [' ' '\t' '\r']+     { token lexbuf }
+  | ['\n']               { new_line lexbuf; token lexbuf }
   | "("                  { LPAREN }
   | ")"                  { RPAREN }
   | ","                  { COMMA }

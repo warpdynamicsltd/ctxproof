@@ -45,7 +45,7 @@ lines:
 | line lines { $1 :: $2 }
 
 line:
-  ref=reference formula=fof_formula mode=mode_arg formulas=formulas_arg terms=terms_arg { Statement {ref; formula; mode; formulas; terms} }
+  ref=reference formula=fof_formula mode=mode_arg formulas=formulas_arg terms=terms_arg { Statement {ref; formula; mode; formulas; terms; pos=($startpos) } }
 | error { raise (cx_error "expected statement" $startpos) }
 
 reference:

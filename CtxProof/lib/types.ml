@@ -37,5 +37,6 @@ type statement =
         formula: first_order_formula; 
         mode: string; 
         formulas: generalized_formula list; 
-        terms: term list 
+        terms: term list;
+        pos: Lexing.position 
       }

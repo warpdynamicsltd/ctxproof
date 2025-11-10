@@ -11,8 +11,6 @@ let init_pos s =
   let lexbuf =  Lexing.from_string s in
   lexbuf.lex_start_p
 
-let make_ref l = Ref (List.map Z.of_string l)
-
 
 let run () =
   assert_eq __LINE__ parse_ref "0" (make_ref ["0"]);

@@ -213,6 +213,9 @@ let run () =
   assert (not_wff "? X]: p(X)");
   assert (not_wff "! [X Y Z]: p(X,Y,Z)");
   assert (not_wff "? [X Y Z]: p(X,Y,Z)");
+  assert (not_wff "! [X]: p(X) & p(Y) & p(Z)");
+  assert (not_wff "? [X,Y]: p(X,Y) & q(Y,X)");
+  assert (not_wff "? [X,Y]: p(X) & q(Y)");
 
   (* Misordered equality *)
   assert (not_wff "=X");

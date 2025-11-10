@@ -1,9 +1,10 @@
 %{
   open Types
-  open Errors
+  (*open Errors*)
 
-  let cx_error msg pos =
-    (CxError (msg ^ " " ^ Parser_utils.location_to_string pos))
+  (*let cx_error msg pos =
+    (CxError (msg ^ " " ^ Parser_utils.location_to_string pos))*)
+
 %}
 
 %token <string> UWORD
@@ -46,7 +47,7 @@ lines:
 
 line:
   ref=reference formula=fof_formula mode=mode_arg formulas=formulas_arg terms=terms_arg { Statement {ref; formula; mode; formulas; terms; pos=($startpos) } }
-| error { raise (cx_error "expected statement" $startpos) }
+(*| error { raise (cx_error "expected statement" $startpos) }*)
 
 reference:
   integers { Ref $1 }
@@ -61,7 +62,7 @@ mode_arg:
 terms_arg:
   LCURL RCURL { [] }
 | LCURL terms RCURL { $2 }
-| error { raise (cx_error "expected terms arg" $startpos) }
+(*| error { raise (cx_error "expected terms arg" $startpos) }*)
 
 formulas_arg:
   LCURL RCURL { [] }
@@ -85,7 +86,7 @@ fof_formula:
 | EXISTS LBRACK vars RBRACK COLON primary
     { List.fold_right (fun v acc -> Exists(v, acc)) $3 $6 }
 | primary                           { $1 }
-| error { raise (cx_error "expected formula" $startpos) }
+(*| error { raise (cx_error "expected formula" $startpos) }*)
 
 primary:
 | atom { $1 }
@@ -118,7 +119,7 @@ const:
 terms:
   term COMMA terms             { $1 :: $3 }
 | term                         { [$1] }
-| error { raise (cx_error "expected terms" $startpos) }
+(*| error { raise (cx_error "expected terms" $startpos) }*)
 
 term:
   atomic_name LPAREN terms RPAREN     { Func($1, $3) }
@@ -126,4 +127,4 @@ term:
 | var                                 { Var $1 }
 | const                               { Const $1 }
 | SK integers                         { SkolemConst $2 }
-| error { raise (cx_error "expected term" $startpos) }
+(*| error { raise (cx_error "expected term" $startpos) }*)

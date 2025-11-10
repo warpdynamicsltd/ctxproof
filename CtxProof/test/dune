@@ -4,6 +4,7 @@
  (modules 
   test_fof_positive
   test_fof_negative
+  test_logic_ops
   test_line
   tutils 
   test_main)

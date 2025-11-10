@@ -27,8 +27,8 @@ type generalized_formula =
   | Formula of first_order_formula
 
 
-type inference =
-  | Inference of {name: string; formula_role: string; formula: first_order_formula; annotation: string}
+(*type inference =
+  | Inference of {name: string; formula_role: string; formula: first_order_formula; annotation: string}*)
 
 type statement =
   | Statement of 

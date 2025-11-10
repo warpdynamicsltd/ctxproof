@@ -1,3 +1,8 @@
+open Ctxproof
+open Types
+
+let make_ref l = Ref (List.map Z.of_string l)
+
 let assert_eq number f arg expected =
   let actual =
     try 

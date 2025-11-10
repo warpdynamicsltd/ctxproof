@@ -34,6 +34,8 @@ let run () =
   assert_eq __LINE__ parse_string "~(p(X) & q(X))" (Not (And (Pred ("p", [Var "X"]), Pred ("q", [Var "X"]))));
   assert_eq __LINE__ parse_string "! [X]: p(X)" (Forall ("X", Pred ("p", [Var "X"])));
   assert_eq __LINE__ parse_string "? [X]: p(X)" (Exists ("X", Pred ("p", [Var "X"])));
+  assert_eq __LINE__ parse_string "! [X]: ~p(X)" (Forall ("X", Not (Pred ("p", [Var "X"]))));
+  assert_eq __LINE__ parse_string "? [X]: ~p(X)" (Exists ("X", Not( Pred ("p", [Var "X"]))));
   assert_eq __LINE__ parse_string "! [X,Y]: p(X,Y)" (Forall ("X", Forall ("Y", Pred ("p", [Var "X"; Var "Y"]))));
   assert_eq __LINE__ parse_string "? [X,Y]: p(X,Y)" (Exists ("X", Exists ("Y", Pred ("p", [Var "X"; Var "Y"]))));
   assert_eq __LINE__ parse_string "! [X]: (p(X) & q(X))" (Forall ("X", And (Pred ("p", [Var "X"]), Pred ("q", [Var "X"]))));
@@ -55,7 +57,9 @@ let run () =
   assert_eq __LINE__ parse_string "~(p => q)" (Not (Implies (Pred ("p", []), Pred ("q", []))));
   assert_eq __LINE__ parse_string "~(p <=> q)" (Not (Iff (Pred ("p", []), Pred ("q", []))));
   assert_eq __LINE__ parse_string "! [X]: (~(p(X)))" (Forall ("X", Not (Pred ("p", [Var "X"]))));
+  assert_eq __LINE__ parse_string "! [X]: ( ~p(X) )" (Forall ("X", Not (Pred ("p", [Var "X"]))));
   assert_eq __LINE__ parse_string "? [X]: (~(p(X)))" (Exists ("X", Not (Pred ("p", [Var "X"]))));
+  assert_eq __LINE__ parse_string "? [X]: ( ~p(X) )" (Exists ("X", Not (Pred ("p", [Var "X"]))));
   assert_eq __LINE__ parse_string "! [X]: ( p(X) => q(X) )" (Forall ("X", Implies (Pred ("p", [Var "X"]), Pred ("q", [Var "X"]))));
   assert_eq __LINE__ parse_string "? [X]: ( p(X) <=> q(X) )" (Exists ("X", Iff (Pred ("p", [Var "X"]), Pred ("q", [Var "X"]))));
   assert_eq __LINE__ parse_string "(p(X) & q(Y)) & r(Z)" (And (And (Pred ("p", [Var "X"]), Pred ("q", [Var "Y"])), Pred ("r", [Var "Z"])));
@@ -73,11 +77,16 @@ let run () =
   assert_eq __LINE__ parse_string "p(h(f(a),g(b)))" (Pred ("p", [Func ("h", [Func ("f", [Const "a"]); Func ("g", [Const "b"])])]));
   assert_eq __LINE__ parse_string "p(X) & (~(q(X)))" (And (Pred ("p", [Var "X"]), Not (Pred ("q", [Var "X"]))));
   assert_eq __LINE__ parse_string "( ~p(X) ) | q(X)" (Or (Not (Pred ("p", [Var "X"])), Pred ("q", [Var "X"])));
+  assert_eq __LINE__ parse_string "~p(X) | q(X)" (Or (Not (Pred ("p", [Var "X"])), Pred ("q", [Var "X"])));
   assert_eq __LINE__ parse_string "( ~p ) | ( ~q )" (Or (Not (Pred ("p", [])), Not (Pred ("q", []))));
+  assert_eq __LINE__ parse_string "~p | ~q" (Or (Not (Pred ("p", [])), Not (Pred ("q", []))));
   assert_eq __LINE__ parse_string "( ~(p & q) ) | r" (Or (Not (And (Pred ("p", []), Pred ("q", []))), Pred ("r", [])));
   assert_eq __LINE__ parse_string "p & ( ~(q | r) )" (And (Pred ("p", []), Not (Or (Pred ("q", []), Pred ("r", [])))));
+  assert_eq __LINE__ parse_string "p & ~(q | r)" (And (Pred ("p", []), Not (Or (Pred ("q", []), Pred ("r", [])))));
   assert_eq __LINE__ parse_string "! [X]: ( p(X) & ( ~q(X) ) )" (Forall ("X", And (Pred ("p", [Var "X"]), Not (Pred ("q", [Var "X"])))));
+  assert_eq __LINE__ parse_string "! [X]: ( p(X) & ~q(X) )" (Forall ("X", And (Pred ("p", [Var "X"]), Not (Pred ("q", [Var "X"])))));
   assert_eq __LINE__ parse_string "? [X]: ( (~p(X)) | q(X) )" (Exists ("X", Or (Not (Pred ("p", [Var "X"])), Pred ("q", [Var "X"]))));
+  assert_eq __LINE__ parse_string "? [X]: ( ~p(X) | q(X) )" (Exists ("X", Or (Not (Pred ("p", [Var "X"])), Pred ("q", [Var "X"]))));
   assert_eq __LINE__ parse_string "? [X,Y]: ( p(X,Y) & q(Y,X) )" (Exists ("X", Exists ("Y", And (Pred ("p", [Var "X"; Var "Y"]), Pred ("q", [Var "Y"; Var "X"])))));
   assert_eq __LINE__ parse_string "! [X,Y]: p(f(X),g(Y))" (Forall ("X", Forall ("Y", Pred ("p", [Func ("f", [Var "X"]); Func ("g", [Var "Y"])]))));
   assert_eq __LINE__ parse_string "! [X]: ( ? [Y]: p(X,Y) )" (Forall ("X", Exists ("Y", Pred ("p", [Var "X"; Var "Y"]))));

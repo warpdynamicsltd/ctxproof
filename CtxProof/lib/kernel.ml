@@ -1,6 +1,10 @@
 open Types
 
 exception ErrorNotAdmissible
+exception ErrorMalformedAxiom
+exception ErrorMalformedRule
+exception ErrorUnknownAxiom
+exception ErrorUnknownRule
 
 module StringSet = Set.Make(String)
 
@@ -75,3 +79,68 @@ let rec substitute_in_formula var replacement = function
     | Forall(v, f) when v = var -> Forall(v, f)
     | Forall(v, f) when not (var_occurs_in_term v replacement) && v != var -> Forall(v, substitute_in_formula var replacement f)
     | Forall(_, _) -> raise ErrorNotAdmissible
+
+
+let axiom_error = function () -> raise ErrorMalformedAxiom
+
+let axiom = function
+  | "LEM" -> (function [a], [] -> Or(a, Not a) | _, _ -> axiom_error())
+  | "IMP" -> (function [a; b], [] -> Implies(a, (Implies(b, a))) | _ -> axiom_error())
+  | "ANL" -> (function [a; b], [] -> Implies(And(a, b), a) | _ -> axiom_error())
+  | "ANR" -> (function [a; b], [] -> Implies(And(a, b), b) | _ -> axiom_error())
+  | "AND" -> (function [a; b], [] -> Implies(a, Implies(b, And(a, b))) | _ -> axiom_error())
+  | "ORL" -> (function [a; b], [] -> Implies(a, Or(a, b)) | _ -> axiom_error())
+  | "ORR" -> (function [a; b], [] -> Implies(b, Or(a, b)) | _ -> axiom_error())
+  | "DIS" -> (function [a; b; c], [] -> Implies(Implies(a, c), Implies(Implies(b, c), Implies(Or(a, b), c))) | _ -> axiom_error())
+  | "CON" -> (function [a; b], [] -> Implies(Not a, Implies(a, b)) | _ -> axiom_error())
+  | "IFI" -> (function [a; b], [] -> Implies(Implies(a, b), Implies(Implies(b, a), Iff(a, b))) | _ -> axiom_error())
+  | "IFO" -> (function [a; b], [] -> Implies(Iff(a, b), And(Implies(a, b), Implies(b, a))) | _ -> axiom_error())
+  | "ALL" -> (function [a], [t; Var(v)] -> Implies(Forall(v, a), substitute_in_formula v t a) | _ -> axiom_error())
+  | "EXT" -> (function [a], [t; Var(v)] -> Implies(substitute_in_formula v t a, Exists(v, a)) | _ -> axiom_error())
+  | _ -> raise ErrorUnknownAxiom
+
+let rule = function
+  | "IDN" -> (function [a], [] -> a | _ -> raise ErrorMalformedRule)
+  | "MOD" -> (function [Implies(a, b); c], [] when c=a -> b | _ -> raise ErrorMalformedRule)
+  | "GEN" -> (function [a], [Var(v)] -> Forall(v, a) | _ -> raise ErrorMalformedRule)
+  | "SKO" -> 
+    (function 
+      | [Exists(v, a)], [SkolemConst(ref_seq); Var v1] when v=v1 -> substitute_in_formula v (SkolemConst ref_seq) a
+      | [Exists(v, a)], [SkolemFunc(ref_seq, args); Var v1] when v=v1 -> substitute_in_formula v (SkolemFunc (ref_seq, args)) a
+      | _ -> raise ErrorMalformedRule)
+  | _ -> raise ErrorUnknownRule
+
+let rec (>>) current_ref ref = 
+  match current_ref, ref with 
+    | Ref [k], Ref [i] when i < k -> true
+    | Ref (head::_), Ref [i] when i < head -> true
+    | Ref (head::tail), Ref(head_ref::tail_ref) when head = head_ref -> Ref tail >> Ref tail_ref
+    | _, _ -> false;;
+
+let (>>=) r1 r2 = r1 >> r2 || r1 = r2
+
+let rec is_suffix r1 r2 =
+  match r1, r2 with
+    | Ref [], Ref _ -> true
+    | Ref (head1::tail1), Ref (head2::tail2) when head1 = head2 -> is_suffix (Ref tail1) (Ref tail2)
+    | _, _ -> false
+
+module RefOrd = struct
+  type t = reference
+  let rec cmp a b =
+    match a, b with
+    | [], [] -> 0
+    | [], _ -> -1
+    | _, [] -> 1
+    | x::xs, y::ys ->
+      let c = Z.compare x y in
+      if c <> 0 then c else cmp xs ys
+  let compare (Ref a) (Ref b) = cmp a b
+end
+
+module RefMap = Map.Make(RefOrd)
+
+let rec map_of_statements statements = 
+  match statements with 
+  | [] -> RefMap.empty
+  | ((Statement{ref;_} as s)::tl) -> RefMap.add ref s (map_of_statements tl)

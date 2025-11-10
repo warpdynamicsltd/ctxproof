@@ -1,4 +1,5 @@
 open Ctxproof
+open Types
 open Kernel
 open Fof_utils
 open Tutils
@@ -48,3 +49,26 @@ let run() =
   assert (not_admissible ("Y", term_of_string "f(g(X, Y), Z)", "![X] : p(Y)"));
   assert (not_admissible ("Y", term_of_string "f(X)", "?[X] : p(Y)"));
   assert (not_admissible ("Y", term_of_string "f(g(X, Y), Z)", "?[X] : p(Y)"));
+
+  (* Additional not_admissible tests *)
+  assert (not_admissible ("Y", Var "X", "![X] : (p(Y) & q(X))"));
+  assert (not_admissible ("Y", Var "X", "![X] : (p(X) | r(Y))"));
+  assert (not_admissible ("Y", Var "X", "![X] : (p(Y) => q(X))"));
+  assert (not_admissible ("Y", Var "X", "![X] : (p(X) <=> r(Y))"));
+  assert (not_admissible ("Y", Var "X", "![X] : ~p(Y)"));
+  assert (not_admissible ("Y", Var "X", "?[X] : (p(Y) & q(X))"));
+  assert (not_admissible ("Y", Var "X", "?[X] : (p(X) | r(Y))"));
+  assert (not_admissible ("Y", Var "X", "?[X] : (p(Y) => q(X))"));
+  assert (not_admissible ("Y", Var "X", "?[X] : (p(X) <=> r(Y))"));
+  assert (not_admissible ("Y", Var "X", "?[X] : ~p(Y)"));
+
+  assert (not_admissible ("Y", term_of_string "f(X)", "![X] : (p(Y) & q(X))"));
+  assert (not_admissible ("Y", term_of_string "f(X)", "?[X] : (p(Y) | q(X))"));
+  assert (not_admissible ("Y", term_of_string "f(g(X), h(Y))", "![X] : p(Y)"));
+  assert (not_admissible ("Y", term_of_string "f(g(X), h(Y))", "?[X] : p(Y)"));
+  assert (not_admissible ("Y", term_of_string "f(X, Z)", "![X] : p(Y, Z)"));
+  assert (not_admissible ("Y", term_of_string "f(X, Z)", "?[X] : p(Z, Y)"));
+
+  assert (Ref [Z.of_int 1] >> Ref [Z.of_int 0]);
+  assert (Ref [Z.of_int 1; Z.of_int 1] >> Ref [Z.of_int 0]);
+  assert (Ref [Z.of_int 1; Z.of_int 0] >> Ref [Z.of_int 0]);

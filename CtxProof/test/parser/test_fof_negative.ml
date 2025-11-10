@@ -3,7 +3,7 @@ open Fof_utils
 
 let not_wff s = 
   try
-    let _ = parse_string s in
+    let _ = formula_of_string s in
     false
   with _ -> true
 

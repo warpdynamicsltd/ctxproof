@@ -21,11 +21,13 @@
 
 %start input
 %start wff
+%start wft
 %start ref
 %start line
 %start lines
 %type <Types.statement list>      input
 %type <Types.first_order_formula> wff
+%type <Types.term>                wft
 %type <Types.reference>           ref
 %type <Types.statement>           line
 %type <Types.generalized_formula> generalized_formula
@@ -37,6 +39,9 @@ input:
 
 wff:
   fof_formula EOF {$1}
+
+wft:
+  term EOF {$1}
 
 ref:
   reference EOF {$1}

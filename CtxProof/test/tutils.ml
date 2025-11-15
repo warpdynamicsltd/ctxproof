@@ -1,3 +1,4 @@
+open Stdlib
 open Ctxproof
 open Types
 
@@ -13,3 +14,12 @@ let assert_eq number f arg expected =
     in
   if actual <> expected then
     failwith (Printf.sprintf "Assertion failed at line %d" number)
+
+
+let read_file (path : string) : string =
+  let ic = open_in_bin path in
+  Fun.protect
+    ~finally:(fun () -> close_in_noerr ic)
+    (fun () -> really_input_string ic (in_channel_length ic))
+
+

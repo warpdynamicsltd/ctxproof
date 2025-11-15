@@ -140,7 +140,19 @@ end
 
 module RefMap = Map.Make(RefOrd)
 
+let map_ref_to_index (statements : statement list) : int RefMap.t =
+  let rec aux i acc = function
+    | [] -> acc
+    | (Statement { ref; _ }) :: tl ->
+        aux (i + 1) (RefMap.add ref i acc) tl
+  in
+  aux 0 RefMap.empty statements
+
 let rec map_of_statements statements = 
   match statements with 
   | [] -> RefMap.empty
   | ((Statement{ref;_} as s)::tl) -> RefMap.add ref s (map_of_statements tl)
+
+type proof = Proof of {statements: statement array; map: int RefMap.t}
+
+let proof_of_statements statements = Proof {statements = Array.of_list statements; map = map_ref_to_index statements}

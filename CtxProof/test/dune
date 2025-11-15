@@ -1,9 +1,11 @@
 (include_subdirs unqualified)
+(copy_files ../data/*)
 (test
  (name test_main)
  (modules 
   test_fof_positive
   test_fof_negative
+  test_proof
   test_logic_ops
   test_line
   tutils 

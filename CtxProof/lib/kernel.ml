@@ -156,3 +156,10 @@ let rec map_of_statements statements =
 type proof = Proof of {statements: statement array; map: int RefMap.t}
 
 let proof_of_statements statements = Proof {statements = Array.of_list statements; map = map_ref_to_index statements}
+
+
+let formula_of_proof proof ref =  
+  match proof with Proof {statements; map} 
+    -> 
+      let i = RefMap.find ref map in
+        match statements.(i) with Statement {formula; _} -> formula

@@ -1,5 +1,6 @@
 open Stdlib
 open Ctxproof
+open Fof_utils
 open Types
 
 let make_ref l = Ref (List.map Z.of_string l)
@@ -21,5 +22,8 @@ let read_file (path : string) : string =
   Fun.protect
     ~finally:(fun () -> close_in_noerr ic)
     (fun () -> really_input_string ic (in_channel_length ic))
+
+
+let statements_of_file path = statements_of_string (read_file path)
 
 

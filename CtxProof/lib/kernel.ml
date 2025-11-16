@@ -163,3 +163,6 @@ let formula_of_proof proof ref =
     -> 
       let i = RefMap.find ref map in
         match statements.(i) with Statement {formula; _} -> formula
+
+let derive_formula proof rule_label refs terms = 
+  rule rule_label (List.map (formula_of_proof proof) refs, terms)

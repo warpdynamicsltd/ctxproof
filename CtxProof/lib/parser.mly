@@ -58,7 +58,8 @@ reference:
   integers { Ref $1 }
 
 integers:
-  INT { [$1] }
+| DOT {[]}
+| INT { [$1] }
 | INT DOT integers { $1 :: $3 }
 
 mode_arg:

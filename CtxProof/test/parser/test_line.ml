@@ -13,6 +13,7 @@ let init_pos s =
 
 
 let run () =
+  assert_eq __LINE__ parse_ref "." (make_ref []);
   assert_eq __LINE__ parse_ref "0" (make_ref ["0"]);
   assert_eq __LINE__ parse_ref "01" (make_ref ["1"]);
   assert_eq __LINE__ parse_ref "0.0" (make_ref ["0";"0"]); 
@@ -20,6 +21,8 @@ let run () =
   assert_eq __LINE__ parse_ref "001.0.121" (make_ref ["1"; "0"; "121"]);
   assert_eq __LINE__ parse_ref "2162517651761523712341723416735127351.0.121" (make_ref ["2162517651761523712341723416735127351"; "0"; "121"]);
 
+  assert_eq __LINE__ statement_of_string ". $true {MOD} {} {}" 
+    (Statement {ref=make_ref []; formula=True; mode="MOD"; formulas=[]; terms=[]; pos=init_pos("")});
   assert_eq __LINE__ statement_of_string "0 $true {MOD} {} {}" 
     (Statement {ref=make_ref ["0"]; formula=True; mode="MOD"; formulas=[]; terms=[]; pos=init_pos("")});
   assert_eq __LINE__ statement_of_string "0 $true {MOD} {$true} {}" 

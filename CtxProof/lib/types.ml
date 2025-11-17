@@ -40,3 +40,10 @@ type statement =
         terms: term list;
         pos: Lexing.position 
       }
+
+type context = 
+  | Context of 
+    {
+      root: reference;
+      elements: context array;
+    }

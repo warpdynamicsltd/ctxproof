@@ -1,0 +1,1272 @@
+\documentclass[10pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{mathrsfs}
+\usepackage{natbib}
+\usepackage{listings}
+\usepackage{color}
+
+
+\title{Introduction to Context Proofs}
+\author{Michał Stanisław Wójcik}
+\date{\today}
+
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{fact}[theorem]{Fact}
+\newtheorem{conjecture}[theorem]{Conjecture}
+\newtheorem{question}[theorem]{Question}
+\newtheorem{claim}[theorem]{Claim}
+\newtheorem{example}[theorem]{Example}
+\newtheorem{assumption}[theorem]{Assumption}
+\newtheorem{remark}[theorem]{Remark}
+\newtheorem{axiom}[theorem]{Axiom}
+\newtheorem{note}[theorem]{Note}
+\newtheorem{law}{Law}
+
+\newcommand{\defeq}{\stackrel{\mathrm{def}}{=}}
+\newcommand{\elev}{\text{elev}}
+\newcommand{\free}{\text{free}}
+\newcommand{\bound}{\text{bound}}
+\renewcommand{\axiom}{\text{Axiom}}
+\renewcommand{\rule}{\text{Rule}}
+\newcommand{\asm}{\text{Asm}}
+\newcommand{\block}{\text{Block}}
+\newcommand{\Sk}{\mathcal{S}}
+\newcommand{\sk}{\mathfrak{s}}
+\renewcommand{\i}{\mathfrak{i}}
+\newcommand{\ii}{\hat{\mathfrak{i}}}
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\F}{\mathcal{F}}
+\newcommand{\C}{\mathcal{C}}
+\renewcommand{\root}{\text{root}}
+\newcommand{\final}{\text{final}}
+\newcommand{\truth}{\mathfrak{t}}
+\newcommand{\context}{\text{Ctx}}
+\newcommand{\Cnr}{\text{Cn}_\text{R}}
+\renewcommand{\L}{\mathscr{L}}
+\newcommand{\V}{\mathscr{V}}
+\newcommand{\prove}{\vdash}
+\newcommand{\M}{\mathbf{M}}
+\renewcommand{\succ}{\text{S}}
+\newcommand{\shift}{\text{shift}}
+\newcommand{\fixed}{\text{fixed}}
+\newcommand{\refset}{\text{ref}}
+
+\definecolor{dkgreen}{rgb}{0,0.6,0}
+\definecolor{gray}{rgb}{0.5,0.5,0.5}
+\definecolor{mauve}{rgb}{0.58,0,0.82}
+
+\lstset{frame=tb,
+  language=Python,
+  aboveskip=3mm,
+  belowskip=3mm,
+  showstringspaces=false,
+  columns=flexible,
+  basicstyle={\small\ttfamily},
+  numbers=none,
+  numberstyle=\tiny\color{gray},
+  keywordstyle=\color{blue},
+  commentstyle=\color{dkgreen},
+  stringstyle=\color{mauve},
+  breaklines=true,
+  breakatwhitespace=true,
+  tabsize=3
+}
+\setlength{\parindent}{0pt}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+The paper describes a system for structuring proofs in first-order logic, inspired by the intuitive methods commonly employed by mathematicians. Traditional formalizations of proof, as found in most introductory logic textbooks, rely on linear sequences of formulas constructed via axioms and inference rules. While rigorous, such representations are ill-suited to capturing the contextual and hierarchical nature of proofs as they are typically written and understood. In this paper, we introduce a context-based proof system that formally models the dynamic management of assumptions and auxiliary constructions—analogous to the way contexts are established and dissolved in both informal mathematical writing and declarative programming languages. We develop a precise framework for referencing and manipulating these contexts and demonstrate that our approach retains the formal strength of classical derivation systems. This framework not only provides a closer alignment with mathematical practice but also lays the groundwork for efficient implementation of automated proof verification tools tailored to first-order logic.
+\end{abstract}
+
+\section{Introduction}
+The purpose of this paper is to present a formal description of context-proofs, intended as a kernel for an automatic proof-checking system. Since there are several related approaches (see Section~\ref{related}), it is useful to provide a complete formal specification of the proof mechanism, serving as precise documentation of the kernel.
+\\
+
+When proving a theorem, mathematicians frequently use phrases such as ``take any $n \in \N$'', ``there exists an $m$ such that...'', ``we will now prove that...'', or ``we have just proved...''. Intuitively, with a phrase like ``we will now prove that...'', a specific context is established in which we define or construct objects, manipulate these objects, and, upon reaching a conclusion, often dismiss these auxiliary constructions with a phrase such as ``we have just proved...''. At this point, only the elements essential for the subsequent steps of the argument are retained. In this sense, writing a mathematical proof closely resembles writing a declarative program: we open and close contexts, introducing and discarding objects as they become relevant or obsolete.
+\\
+
+In contrast, the standard approach to formalizing proofs in most first-order logic textbooks is to represent proofs as sequences of formulas. Typically, we begin by selecting a set of logical axioms and domain-specific axioms, and by specifying derivation rules (such as modus ponens and generalization). We then construct a sequence, where each member is either an axiom or a formula obtained by applying these rules to earlier formulas in the sequence. If the sequence concludes with the desired statement, the proof is considered complete.
+\\
+
+At first glance, these two paradigms—the informal, intuitive style and the formal, sequential style—seem quite different. The sequential approach, while formally rigorous, is often less amenable to writing intuitive proofs or building practical automatic proof checkers. The informal approach, on the other hand, is more natural for mathematicians but lacks formal precision.
+\\
+
+In this paper, we seek to develop a formal system of context-based proving in first-order logic, constructed from the ground up. The goal is to create a system that not only mirrors the intuitive approach used by mathematicians but can also be readily translated into the core of an automatic, machine-verifiable proof checker for first-order logic.
+\\
+
+Let's first observe an example of what I mean by context proof.
+
+\begin{lstlisting}[texcl, escapechar=\%]
+# we state an assumption and a thesis of the theorem we are going to prove
+(0) %$ \neg ( \exists x. \phi(x) ) \to \forall x. \neg\phi(x)$% 
+
+# we open a context of a proof
+(0, 0) %$\neg ( \exists x. \phi(x) )$% # we recall assumption
+# we state an auxiliary fact we are going to prove under assumption (0, 0).
+(0, 1) %$ \phi(x) \to \neg \phi(x) $%
+
+# we open a sub-context of a proof
+(0, 1, 0)  %$ \phi(x) $% # we recall assumption
+(0, 1, 1) %$ \phi(x) \to \exists x. \phi(x)$% # we write down a logical tautology
+(0, 1, 2) %$\exists x. \phi(x)$% # we apply modus ponens to (0,1,1) and (0,1,0).
+(0, 1, 3) %$\neg ( \exists x. \phi(x) ) \wedge (\exists x. \phi(x))$% # we gather (0, 0) and (0, 1, 2)
+(0, 1, 4) %$\neg ( \exists x. \phi(x) ) \wedge (\exists x. \phi(x)) \to \neg \phi(x)$% # we write down a logical tautology
+(0, 1, 5) %$\neg \phi(x)$% # we apply modus ponens to (0, 1, 4) and (0, 1, 3)
+
+# we close the sub-context and we proceed with main context of the proof
+(0, 2) %$(\phi(x) \to \neg \phi(x)) \to \neg \phi(x)$% # we write down a logical tautology 
+(0, 3) %$\neg \phi(x)$% # we apply modus ponens to (0, 2) amd (0, 1)
+(0, 4) %$\forall x. \neg\phi(x)$% # we apply generalisation rule to (0, 3)
+
+# and this concludes proof as we arrived to the thesis
+\end{lstlisting}
+
+Only one variable was used but one can note that the formulas above are correctly stated since this is clear which variable is bound and which is free.
+\\
+
+If we analyse the above example we will notice that at the left side of each line there is a reference and at the right side there is a formula. 
+\\
+
+In Section \ref{context} we will define references as a finite sequences of nonnegative integers. 
+By Definition \ref{reference-order}, we will introduce a reference order $<$ in which for the line with reference $r$, we can refer only to lines with references $\rho$ for which $\rho < r$.
+We intuitively understand that we can refere to line $(0, 0)$ from line $(0, 1, 3)$, but we can not refere to line $(0, 1, 2)$ from line $(0, 4)$ which would have caused imediate contradiction. Indeed, in the reference order 
+$(0, 0) < (0, 1, 3)$ but $(0, 1, 2) \not< (0, 4)$.
+To give a formal definition of \textit{a context} we will also need a common ``being a prefix'' relation e.g.
+$(0, 1) \prec (0, 1, 0)$.
+In Section \ref{context}, we will also prove basic properties of these two orders and relations between them.
+\\
+
+The observation that at the left side of each line there is a reference and at the right side a formula, leads to the idea that \textit{a context proof} is some function from a set of references to the set of formulas. This idea will be developed in Section \ref{reference-proof}. We will call such a function \textit{a refernce system} and we will define in Definition \ref{proof-definition} formal conditions for \textit{a refernce system} to be a proof.
+\\
+
+In Section \ref{completness}, we will prove completness of context proofs, i.e  that if $\models \phi$, there exists a context proof of $\phi$. In Section \ref{soudness}, we will prove soundness of context proofs, i.e. that if there exists a context proof of $\phi$ with respect to $T$, then $T\models \phi$.
+
+
+\section{Context}
+\label{context}
+
+\begin{definition}[\textbf{finite sequences}]
+For an arbitrary set $A$ by $A^*$ we mean a set of all finite sequences of $A$.
+\end{definition}
+
+We will often use notation in which we will denote sequences as $[a_1, \dots, a_n]$.
+So if $a_i\in A$ then for $s=[a_1, \dots, a_n]$, we have $s\in A^*$. 
+
+For a sequence $s=[a_1, \dots, a_n]$, $*s$ means just $a_1, \dots, a_n$, which allows us to write in a compact form many sequence operations. E.g. concatenation of sequences $s_1, s_2$ is $[*s_1, *s_2]$. If $a\in A$, then $[*s, a]$ is just a sequence with appended $a$, etc. 
+
+To access $n-th$ element of a sequence we will use $0$-based indexing $a_i = s[i-1]$.
+Also $s[-1] = a_n$.
+We will denote a length of a sequence as $|s|$.
+We will denote empty sequence as $[]$.
+
+In this paper finite sequence of nonnegative integers will be sometimes called \textit{a reference}.   
+
+\begin{definition}[\textbf{reference order}]
+\label{reference-order}
+Let $r_1, r_2\in \N^*$.
+\begin{equation}
+r_1 < r_2
+\end{equation}
+iff there exist $k \in N$ and $r, s\in\N^*$ such that $s\not=[]$, $r_1 = [*r, k]$ and $r_2 = [*r, *s]$ and $s[0] > k$.
+\begin{equation}
+r_1 \leq r_2
+\end{equation}
+iff $r_1 < r_2$ or $r_1 = r_2$.
+\end{definition}
+
+\begin{corollary}
+Let $r_1, r_2\in \N^*$.
+If $r_1 < r_2$, then $|r_1| \leq |r_2|$.
+\end{corollary}
+
+\begin{corollary}
+For any non empty $r\in N^*$, we have $[0] \leq r$.
+\end{corollary}
+
+\begin{corollary}
+For any non empty $r\in N^*$, we have $[] \not< r$.
+\end{corollary}
+
+\begin{definition}
+Let $r_1, r_2\in\N^*$ and $r_1 < r_2$.
+\begin{equation}
+\i_{r_1, r_2} \defeq \max \{ i < |r_1| : r_1[i] = r_2[i] \},
+\end{equation}
+\begin{equation}
+\ii_{r_1, r_2} \defeq \i_{r_1, r_2} + 1.
+\end{equation}
+\end{definition}
+
+\begin{definition}[\textbf{prefix order}]
+\label{prefix-order}
+Let $r_1, r_2\in \N^*$.
+\begin{equation}
+r_1 \prec r_2
+\end{equation}
+iff there exists $s\in\N^*$ such that $s\not=[]$ and $r_2 = [*r_1, *s]$.
+\begin{equation}
+r_1 \preceq r_2
+\end{equation}
+iff $r_1 \prec r_2$ or $r_1 = r_2$.
+\end{definition}
+
+\begin{corollary}
+$\preceq$ on $N^*$ is a locally finite poset.
+\end{corollary}
+
+\begin{corollary}
+Let $r_1, r_2\in \N^*$.
+If $r_1 \prec r_2$, then $|r_1| < |r_2|$.
+\end{corollary}
+
+\begin{corollary}
+\label{proceed-no-prefix}
+For any $r_1, r_1\in\N^*$, if $r_1 < r_2$ then
+$r_1\not\prec r_2$ and $r_2 \not\prec r_1$.
+\end{corollary}
+\begin{proof}
+If $r_1 < r_2$ then by definition $r_1 \not\prec r_2$. Since $|r_1| \leq |r_2|$, it is clear that
+$|r_2| \not< |r_1|$ and thus $r_2\not\prec r_1$.
+\end{proof}   
+
+
+
+\begin{corollary}
+For any $r\in \N^*$, we have $[] \preceq r$.
+\end{corollary}
+
+\begin{proposition}
+\label{common_prefix}
+Let $r, r_1, r_2\in\N^*$. 
+If $r_1 \prec r$ and $r_2 \prec r$, 
+then $r_1 \preceq r_2$ or $r_2 \preceq r_1$. 
+\end{proposition}
+\begin{proof}
+Without loss of generality, we can assume that $|r_1|\leq |r_2|$.
+Let $s\N^*$ be a non empty sequence such that $r = [*r_2, *s]$. 
+Now, since $r_1 \prec r$ and $|r_1|\leq |r_2|$, we must have $r_1 \preceq r_2$.    
+\end{proof}
+
+\begin{lemma}
+\label{ord-prec-trans}
+Let $r_1, r_2, r_3\in \N^*$.
+If $r_1 < r_2$ and $r_2 \prec r_3$, then $r_1 < r_3$
+\end{lemma}
+\begin{proof}
+We have
+$$
+r_1 = [*r, k], r_2 = [*r, *s], r_3 = [*r, *s, *z]
+$$
+where $s[0] > k$, thus $r_1 < r_3$.
+\end{proof}
+
+\begin{lemma}
+\label{prec-ord-trans}
+Let $r_1, r_2, r_3\in \N^*$.
+If $r_1 \prec r_2$ and $r_2 < r_3$, then $r_1 \prec r_3$
+\end{lemma}
+\begin{proof}
+We have
+$$
+r_2 = [*r_1, *z, *k], r_3 = [*r_1, *z, *s],
+$$
+where $z\not=[]$, then $r_1 \prec r_3$.
+\end{proof}
+
+\begin{lemma}
+For any $r_1, r_2, r_3\in\N^*$ we have
+\begin{equation}
+r_1 \not< r_1,
+\end{equation}
+\begin{equation}
+r_1 < r_2 \text{ and } r_2 < r_3 \implies r_1 < r_3.
+\end{equation}
+\end{lemma}
+\begin{proof}
+$r_1 \not< r_1$ follows directly from definition.
+
+Now, take any $r_1, r_2, r_3\in\N^*$ such that $r_1 < r_2 \text{ and } r_2 < r_3$.
+Assume that $\i_{r_1, r_2} \leq \i_{r_2, r_3}$.
+Then 
+$$
+r_1[k] = r_2[k] = r_3[k]
+$$
+for all $k \leq \i_{r_1, r_2}$.
+Note that
+$$
+r_1[\ii_{r_1, r_2}] < r_2[\ii_{r_1, r_2}] \leq r_3[\ii_{r_1, r_2}],
+$$
+thus $r_1 < r_3$.
+
+Now, assume that $\i_{r_1, r_2} > \i_{r_2, r_3}$, then
+$$
+r_1[k] = r_2[k] = r_3[k]
+$$
+for all $k \leq \i_{r_2, r_3}$. Note that
+$$
+r_1[\ii_{r_2, r_3}] = r_2[\ii_{r_2, r_3}] < r_3[\ii_{r_2, r_3}],
+$$
+thus $r_1 < r_3$.   
+\end{proof}
+
+\begin{corollary}
+$\leq$ on $N^*$ is a locally finite poset.
+\end{corollary}
+
+\begin{definition}[\textbf{context}]
+A $D$ is a context iff $D\subset \N^*$ and
+there exists $r\in \N^*$ such that 
+for all $x\in D$, we have
+\begin{enumerate}
+\item $r \prec x$,
+\item $\{y \in \N^*: r \prec y < x \} \subset D$,
+\item $\{y \in \N^*: r \prec y \prec x \} \subset D$.
+\end{enumerate}
+Such $r$ will be called a root of a context $D$.
+\end{definition}
+
+Note that $\emptyset$ is a context and for any $r\in\N^*$ r is a root of $\emptyset$.
+\begin{proposition}
+If $D$ is a nonempty context with a root $r$, then $[*r, 0]\in D$.
+\end{proposition}
+
+\begin{proof}
+Take any $x\in D$. Since $r \prec x$, there exists $k\in\N$ and $s\in\N^*$ such that
+$x = [*r, k, *s]$. If $k > 0$, we have $r \prec [*r, 0] < x$, thus by definition $[*r, 0]\in D$. If $k = 0$, then we have $r \prec [*r, 0] \prec x$, and again by definition $[*r, 0]\in D$.
+\end{proof}
+
+\begin{proposition}
+If $r_1$ and $r_2$ are roots of a context $D\not=\emptyset$, then $r_1 = r_2$. 
+\end{proposition}
+\begin{proof}
+Since $[*r_1, 0], [*r_2, 0]\in D$ we have both $r_1 \prec [*r_2, 0]$ and
+$r_2 \prec [*r_1, 0]$. And thus $r_1 \preceq r_2$ and $r_2 \preceq r_1$. Thus $r_1 = r_2$.
+\end{proof} 
+
+We can then introduce a function $\root$. For any non empty $D$, $\root(D)$ is a root of a context $D$.
+
+Also for any nonempty $D$, $\overline{D} \defeq D \cup \root(D)$.
+
+\begin{definition}
+Let $D$ be a context and $x_0\in D$.
+\begin{equation}
+\context(D,x_0) \defeq \{ x\in D: x_0 \prec x\}.
+\end{equation}
+\end{definition}
+
+\begin{theorem}
+If $D$ is a context and $x_0\in D$, then $\context(D,x_0)$ is a context with a root $x_0$.
+\end{theorem}
+\begin{proof}
+Let $r$ be a root of $D$.
+Take any $x \in \context(D,x_0)$. By definition $x\in D$ and $x_0 \prec x$.
+
+Take any $y\in \N^*$ such that $x_0 \prec y < x$. We have $r \prec x_0$, thus $r \prec y < x$ and since $D$ is a context with root $r$, we have $y\in D$. But $x_0\prec y$, thus $y\in \context(D,x_0)$.
+
+Thus $\{y \in \N^*: x_0 \prec y < x \} \subset \context(D,x_0)$.
+
+Take any $y \in \N^*$ such that $x_0 \prec y \prec x$, thus $r \prec y \prec x$, so $y\in D$.But $x_0\prec y$, thus $y\in \context(D,x_0)$.
+
+Thus $\{y \in \N^*: x_0 \prec y \prec x \} \subset \context(D,x_0)$.
+\end{proof}
+
+\begin{theorem}
+Let $D$ be a context and $x_0\in D$.
+
+For any $x\in\context(D, x_0)$ and $z\in D$, if $x < z$, then $z\in \context(D, x_0)$.  
+\end{theorem}
+\begin{proof}
+Since $x_0 \prec x$ and $x < z$, by Lemma \ref{ord-prec-trans}, $x_0 \prec z$ and
+thus $z\in \context(D, x_0)$. 
+\end{proof}
+
+\begin{theorem}
+Let $D$ be a context.
+If $r_1\not\prec r_2$, $r_2\not\prec r_1$ and $r_1\not=r_2$ we have
+$$
+\context(D, r_1) \cap \context(D, r_2) = \emptyset.
+$$
+\end{theorem}
+\begin{proof}
+Assume to the contrary that there exists $r\in \context(D, r_1) \cap \context(D, r_2)$. Thus by Proposition \ref{common_prefix}, we have $r_1\preceq r_2$ or $r_2\preceq r_1$, which contradics assumtions of this theorem. 
+\end{proof}
+
+And then by Corollary \ref{proceed-no-prefix}, we have the following:
+
+\begin{corollary}
+Let $D$ be a context. If $r_1 < r_2$, then
+$$
+\context(D, r_1) \cap \context(D, r_2) = \emptyset.
+$$
+\end{corollary}
+
+\begin{lemma}
+Let $r, s\in\N^*$. If $[*r, 0]\not< [*s, 0]$ and $[*r, 0] < [*s, 1]$, then $r = s$.
+\end{lemma}
+\begin{proof}
+Let $r_1 = [*r, 0]$ and $r_2 = [*s, 1]$. Since $[*r, 0] < [*s, 1]$, 
+$\i_{r_1, r_2} \leq |r| - 1$. 
+Since $[*r, 0]\not< [*s, 0]$, we must have $\i_{r_1, r_2} = |r| - 1$. Thus $r = s$.
+\end{proof}
+
+\begin{lemma}
+\label{minimal-shift}
+Let $r, x\in \N^*$ and $r_0 = [*r, 0]$, then for any $x < r_0$, we have $x < r$.
+\end{lemma}
+\begin{proof}
+Assume that $x < r_0$.
+Note that $\i_{x, r_0} < |r| - 1$. Thus 
+$$x[\i_{x, r_0}] = r_0[\i_{x, r_0}] = r[\i_{x, r_0}]$$ 
+and  
+$$x[\ii_{x, r_0}] < r_0[\ii_{x, r_0}] = r[\ii_{x, r_0}].$$
+\end{proof}
+
+\begin{theorem}
+Let $D$ be a context, $s\in\N^*$ and $k_0\in\N$. If $[*s, k_0]\in D$, then for
+all $k \in \langle 0, k_0 \rangle$, we have $[*s,k]\in D$.
+\end{theorem}
+\begin{proof}
+Take an $r\in\N^*$ which is a root of $D$. Take $[*s, k_0]\in D$.
+Since $r\prec [*s, k_0]$, we have $r\preceq s$.
+Since $[*r, 0]\in D$ and we have $[*r, 0] < [*s, k] < [*s, k_0]$ for $k \in (0, k_0)$, hence $[*s, k]\in D$. If $[*r, 0] < [*s,0]$ then $[*r, 0] < [*s,0] < [*s, k_0]$ and $[*s, 0]\in D$.
+If $[*r, 0] \not< [*s,0]$ but $[*r, 0] < [*s,1]$, there must be $r=s$ and thus anyway $[*s,0]\in D$. 
+\end{proof}
+
+\begin{definition}
+Let $D$ be a nonempty context.
+\begin{equation}
+\final(D) \defeq [*\root(D), k_0]\in D,
+\end{equation}
+such that for all $k\in\N$ and $k > k_0$, $[*\root(D), k]\not\in D$.
+\end{definition}
+
+\begin{definition}
+$d:\N^*\to\N \cup \{ -1 \}$ such that $d(\rho) \defeq |\rho| - 1$.
+\end{definition}
+
+\begin{lemma}
+\label{base-reference-inclusions}
+Let $D$ be a nonempty context with root $r\in\N^*$.
+Let $r_k = [*r, k]$ for $k=0,\dots, k_f$ where $r_{k_f} = \final(D)$.
+Let $A_{-1} = \{x < r: x\in\N^*\}$ and
+$$
+A_k = \{x < r_k: x\in\N^*\}
+$$
+for $k=0,\dots, k_f$, then
+$$A_{-1} = A_0$$
+and
+$$A_{k-1} \subset A_k$$ for $k=0,\dots, k_f$.
+\end{lemma}
+\begin{proof}
+By Lemma \ref{ord-prec-trans}, we have $A_{-1} \subset A_0$.
+By Lemma \ref{minimal-shift}, we have $A_0 \subset A_{-1}$. Thus $A_{-1} = A_0$.
+
+$$A_{k-1} \subset A_k$$ for $k=1,\dots, k_f$ follows from transitivity of $<$.
+
+\end{proof}
+\begin{lemma}
+\label{first-level-references}
+Let $D$ be a nonempty context with root $r\in\N^*$.
+Let $r_k = [*r, k]$ for $k=0,\dots, k_f$ where $r_{k_f} = \final(D)$.
+For any $z\in \context(D, r_k)$,
+$$
+\{ x\in D\setminus \context(D, r_k): x < z \} = \{r_0, \dots, r_{k-1}\}. 
+$$
+\end{lemma}
+\begin{proof}
+Take any $z\in \context{D, r_k}$.
+Then $z = [*r, k, *s]$ with $s\not=[]$. Take $x\in D\setminus \context(D, r_k)$ such that $x < z$. If $\i_{x, z} \geq |r|$, then $x\in D$, so $\i_{x, z} < |r|$. 
+But if $\i_{x, z} < |r| - 1$, then $x\not\in D$, thus $\i_{x, z} = |r| - 1$.
+Hence $x = [*r, k^\prime]$ where $0\leq k^\prime < k$.   
+\end{proof}
+
+
+\section{Reference System and Proof}
+\label{reference-proof}
+
+\subsection{First Order Logic Preleminaries}
+
+We consider a language of first order logic.
+Let $\V$ be an infinite countable set of variable symbols.
+
+\begin{definition}
+Let $\mathscr{C}$ be a set of constant symbols, let $\mathscr{P}$ be a set of predicate symbols and $\mathscr{F}$ be a set of function symbols. 
+then $\L \defeq (\mathscr{C}, \mathscr{P}, \mathscr{F})$ is a signature of a language.
+\end{definition}
+
+
+\begin{definition}[\textbf{Skolem symbols}]
+Let  $\Sk_C \defeq \{\sk_r^0: r\in \N^*\}$.
+Let $\Sk_F \defeq \{\sk_r^k: r\in \N^*, k\in \N\setminus\{0\}\}$
+If $\L = (\mathscr{C}, \mathscr{P}, \mathscr{F})$ is a signature of a language, then
+$$
+\L^+ = (\mathscr{C} \cup \Sk_C, \mathscr{P}, \mathscr{F} \cup \Sk_F).
+$$
+\end{definition}
+
+$\sk^k_r$ is intended to use as function symbol of arity $k$ for $k > 0$ and constant symbol for $k=0$. When not ambigous we will use $\sk^k_r$ for $k > 0$ to denote the whole term with $k$ free variables.
+
+
+Let $\F(\L)$ be a set of all first order logic formulas with all non logical symbols from signature $\L$ and variables from the set $\V$.
+
+\begin{definition}
+Let $\L = (\mathscr{C}, \mathscr{P}, \mathscr{F})$ be a signature of a language and let $r\in\N^*$.
+\begin{equation}
+\L_r \defeq \bigg(\mathscr{C} \cup \big\{\sk^0_\rho: \rho < r\big\}, \mathscr{P}, \mathscr{F}
+\cup \bigg\{\sk^m_\rho: \rho < r, m\in\N\setminus\{0\}\bigg\}
+\bigg).
+\end{equation}
+\begin{equation}
+\overline{\L}_r \defeq \bigg(\mathscr{C} \cup \big\{\sk^0_\rho: \rho \leq r\big\}, \mathscr{P}, \mathscr{F}
+\cup \bigg\{\sk^m_\rho: \rho \leq r, m\in\N\setminus\{0\}\bigg\}
+\bigg).
+\end{equation}
+\end{definition}
+
+\begin{definition}
+Let $\L(\mathscr{C}, \mathscr{P}, \mathscr{F})$ be a signature of a language, let $\alpha\in\F(\L)$ and let $\tau$ be an arbitrary term.
+
+
+\begin{align}
+&\free(\alpha)
+\defeq \{v\in\V: \text{there is at least one occurence of } v \in \alpha \\ 
+& \text{ not bound by any quantifier} \},\\
+&\free(\tau) \defeq  \{v\in\V: v \text{ occurs in } \tau\},\\
+&\bound(\alpha) \defeq \{v\in\V: \text{ there exists a quantifier which bounds variable } v\}.
+\end{align}
+
+
+\end{definition}
+
+\begin{definition}[\textbf{substitution}]
+Let $\L$ be a signature of a language.
+If $\alpha\in\F(\L)$ and $\tau$ is an arbitrary term, then 
+by $\alpha(x/\tau)$ we denote a formula in which each instance of a free variable $x$ is replaced by a term $\tau$.
+\end{definition}
+
+\begin{definition}[\textbf{admissible substitution}]
+\label{admissible}
+Let $\L$ be a signature of a language.
+Let $\alpha\in\F(\L)$ and $\tau$ be an arbitrary term.
+$\alpha(x/\tau)$ is admissible iff no free
+occurrence of $x$ in $\alpha$ is in the range of a quantifier that binds any variable which
+appears in $\tau$.
+\end{definition}
+
+We will also employ the well-established notion of an $\L$-structure from the literature, (e.g. \cite{prestel2011}) which is defined as a domain equipped with a set of relations, a set of functions, and a set of objects corresponding to the predicate symbols, function symbols, and constants of $\L$, respectively.
+
+\begin{definition}
+Let $\L$ be a signature of a language.
+Let $\M$ be a $\L$-structure with domain $A$ and let $j:\V\to A$ be an assignment of variables. Then we define  
+\end{definition}
+
+\begin{equation}
+j\cfrac{a}{x}(v) \defeq
+\begin{cases}
+a \text{ if } v = x,\\
+j(v) \text{ otherwise}.
+\end{cases}
+\end{equation}
+
+\begin{theorem}
+\label{admissible-theorem}
+Let $\L$ be a signature of a language. Let $\alpha\in\F(\L)$ and let $\tau$ be an arbitrary term. If $\alpha(x/\tau)$ is admissible, then for any $\L$-structure $\M$ with domain $A$ and for any assignment of variables $j:\V\to A$ we have
+\begin{equation}
+(\M, j\cfrac{\tau^{(\M, j)}}{x})\models \alpha \text{ iff } (\M, j)\models \alpha(x/\tau).
+\end{equation} 
+\end{theorem}
+\begin{proof}
+Denote $\tau$ by $\tau(x_1, \dots, x_n)$ whete $x_i$ are all free variables used in term $\tau$. Take any place in a formula $\alpha(x/\tau)$ where $\tau(x_1, \dots, x_n)$ sits after replacement for $x$. Since $\alpha(x/\tau)$ is addmissable, all $x_i$ in this place are free. Then under interpretation $j$ term $\tau$ becomes $\tau^\M(j(x_1),\dots, j(x_n)$). Since there is no free variable $x$ in $\alpha(x/\tau)$, $\alpha$ under interpretation $j\cfrac{\tau^{(\M, j)}}{x}$ is exactly the same thing as $\alpha(x/\tau)$ under interpretation $j$.   
+\end{proof}
+
+We can easily demonstrate that the assumption of \textit{admissability} in the above theorem is neccesary. Consider a trivial example for a model of Peano Arythmetic. 
+Let $\alpha \text{ be a formula } \ulcorner \exists y. x = y \urcorner$ and let $\tau$ be $\ulcorner \succ(y) \urcorner$. Obviously $\alpha(x/\tau)$ is not admissable and becomes 
+$\ulcorner \exists y. S(y) = y \urcorner$ which is simply false in any model of Peano Arythmetic.
+
+\subsection{Context Proof Definition}
+
+\begin{definition}
+A tuple $(D, \L, \gamma)$ is called a reference system iff
+\begin{enumerate}
+\item $\L$ is a signature of a language
+\item $D\subset \N^*$ and $D$ is an notempty context,
+\item $\gamma: \overline{D} \to \F(\L^+)$. 
+\end{enumerate}
+\end{definition}
+
+\begin{definition}
+\label{fixed-variables-def}
+Let $\Gamma = (D, \L, \gamma)$ be a reference system.
+For $\rho\in D$ we define
+\begin{equation}
+\fixed_\Gamma(\rho) \defeq 
+\bigcup_\eta \{\free(\alpha_\eta) : \eta\in D \text{ and } \eta \prec \rho \text{ and } \gamma_\eta = 
+\ulcorner \alpha_\eta \to \beta_\eta \urcorner \}.
+\end{equation}
+\end{definition}
+
+In other words $\fixed_D(\rho)$ is a set of all free variables which occurs in antecedent
+if $\gamma_\eta$ is in implication form for all $\eta\in D$ which are prefix of $\rho$.
+
+\begin{definition}[\textbf{proof}]
+\label{proof-definition}
+Let $\L$ be a signature of a language.
+A reference system $\Gamma = (D, \L^+, \gamma)$ is a proof of $\psi\in\F(\L^+)$ with respect to $\mathcal{A}\subset \F(\L^+)$ iff for $r = \root(D)$, $\gamma_r = \psi$
+and for any $\rho\in \overline{D}$ the following conditions holds:
+\begin{enumerate}
+\item \label{shallow-part} if $\context(D, \rho) = \emptyset$, then $\gamma_\rho\in\F(\overline{\L}_\rho)$ and at least one of the following holds:
+\begin{enumerate}
+\item (AXM) $\gamma_\rho\in \mathcal{A}$,
+\item (ASM) there exists $\eta \prec \rho$ and $\beta\in \F(\L^+)$
+such that $\gamma_\eta = \ulcorner \gamma_\rho \to \beta \urcorner$,
+%\item (ISO) there exists $\eta < \rho$ and 
+%$\gamma_\eta$ is isomporphic to $\gamma_\rho$,
+\item (MOD) there exist $\eta_1, \eta_2 < \rho$, such that
+\begin{equation}
+\gamma_{\eta_1} = \ulcorner \gamma_{\eta_2} \to \gamma_\rho \urcorner,
+\end{equation}
+\item \label{gen-part} (GEN) there exists $\eta < \rho$ and $x\in \V\setminus  \fixed_\Gamma(\rho)$ such that
+\begin{equation}
+\gamma_\rho = \ulcorner \forall x. \gamma_\eta \urcorner,
+\end{equation}
+\item \label{sko-part}(SKO) there exists $\eta < \rho$, $x\in \V$, $\beta\in \F(\L^+)$ and $m\in\N$ such that
+$\gamma_\rho = \beta(x/\sk^m_\rho)$, 
+$\free(\sk^m_\rho) = \free(\gamma_\eta) \setminus \fixed_\Gamma(\rho)$ with $\beta(x/\sk^m_\rho)$ admissible and
+\begin{equation}
+\gamma_\eta = \ulcorner \exists x. \beta\urcorner, 
+\end{equation}
+\end{enumerate}
+\item if $\context(D, \rho) \not= \emptyset$, then $\gamma_\rho\in \F(\L_\rho)$ and there exists $\alpha\in\F(\L^+)$
+ such that
+\begin{equation}
+\gamma_\rho = \ulcorner \alpha \to \gamma_\eta \urcorner,
+\end{equation}
+where $\eta = \final(\context(D, \rho))$.
+\end{enumerate}
+\end{definition}
+
+The usage of $\fixed_\Gamma(\rho)$ for GEN rule is a motivation for the word \textit{fixed} in Definition \ref{fixed-variables-def}.
+
+\section{Completness}
+\label{completness}
+
+Let us introduce a certain set of logical axioms. An implication transitivity axiom and 2 other quantifier related axioms are omitted for a purpose.
+
+\begin{definition}[\textbf{logical axioms}]
+\label{axioms_schemas}
+Let $\truth$ be a chosen predicate symbol of $0$-arity. 
+For any formulas $\alpha, \beta, \gamma\in\F(\L^+)$ the following are logical axioms:
+\begin{enumerate}
+\item (THR) $\truth$
+\item (LEM) $\alpha \vee \neg\alpha$
+\item (IMP) $\alpha \to (\beta\to\alpha)$
+\item (ANL) $\alpha \wedge \beta \to \alpha$
+\item (ANR) $\alpha \wedge \beta \to \beta$
+\item (AND) $\alpha \to (\beta \to (\alpha \wedge \beta))$
+\item (ORL) $\alpha \to \alpha \vee \beta$
+\item (ORR) $\beta \to \alpha \vee \beta$
+\item (DIS) $(\alpha \to \gamma) \to ((\beta \to \gamma) \to (\alpha \vee \beta \to \gamma))$
+\item (CON) $\neg \alpha \to (\alpha \to \beta)$
+\item (IFI) $(\alpha \to \beta)\to((\beta\to\alpha)\to(\alpha\leftrightarrow\beta))$
+\item (IFO) $(\alpha\leftrightarrow\beta) \to (\alpha\to\beta) \wedge (\beta\to\alpha)$
+\item (ALL) $(\forall x. \alpha) \to \alpha(x/\tau)$ where $\tau$ is an arbitrary term and $\alpha(x/\tau)$ is admissible.
+\item (EXT) $\alpha(x/\tau) \to \exists x.\alpha$ where $\tau$ is an arbitrary term and $\alpha(x/\tau)$ is admissible.
+\end{enumerate}
+
+Let $\mathfrak{A}$ denotes a set of all formulas which can be obtained by the above schemas.
+\end{definition}
+
+\begin{definition}[\textbf{consequence}]
+Let $\phi\in\F(\L)$ and $\mathcal{A}\subset \F(\L)$.
+ 
+$\phi\in\Cnr(\mathcal{A})$ iff there exists a proof $(D, \L, \gamma)$ of $\phi$ or 
+$\ulcorner \truth\to\phi \urcorner$ with respect to $\mathcal{A}$ with $\root(D) = []$.
+\end{definition}
+
+\begin{lemma}[TRN]
+\label{TRN}
+Let $r\in \N^*$ and $\alpha, \beta, \gamma \in \F(\L_r)$
+
+There exists a reference system $(D, \L_r, \gamma)$ with $\root(D) = r$ which is a proof of 
+\begin{equation}
+\ulcorner (\alpha \to (\beta\to\gamma))\to((\alpha\to\beta)\to(\alpha\to\gamma)) \urcorner
+\end{equation}
+with respect to $\mathfrak{A}$.
+\end{lemma}
+\begin{proof}
+\begin{lstlisting}[texcl, escapechar=\%]
+[*r] %$\mapsto (\alpha \to (\beta\to\gamma))\to((\alpha\to\beta)\to(\alpha\to\gamma))$%
+[*r, 0] %$\mapsto (\alpha\to\beta)\to(\alpha\to\gamma)$%
+[*r, 0, 0] %$\mapsto \alpha\to\gamma$%
+[*r, 0, 0, 0] %$\mapsto \alpha$% # ASM $\gamma_{*r, 0, 0}$
+[*r, 0, 0, 1] %$\mapsto \alpha\to\beta$% # ASM $\gamma_{*r, 0}$
+[*r, 0, 0, 2] %$\mapsto \beta$% # MOD $\gamma_{*r, 0, 0, 1}, \gamma_{*r, 0, 0, 0}$
+[*r, 0, 0, 3] %$\mapsto \alpha \to (\beta\to\gamma)$% # ASM $\gamma_{*r}$
+[*r, 0, 0, 4] %$\mapsto \beta\to\gamma$% # MOD $\gamma_{*r, 0, 0, 3}, \gamma_{*r, 0, 0, 0, 0}$
+[*r, 0, 0, 5] %$\mapsto \gamma$% # MOD $\gamma_{*r, 0, 0, 4}, \gamma_{*r, 0, 0, 0, 2}$
+\end{lstlisting}
+\end{proof}
+
+\begin{lemma}[ALH]
+\label{ALH}
+Let $r\in \N^*$ and $\phi, \psi\in \F(\L_r)$.
+If $\phi$ is a formula for which $x\not\in \text{free}(\phi)$, then there exists
+a reference system $(D, \L_r, \gamma)$ with $\root(D) = r$ which is a proof of 
+\begin{equation}
+\ulcorner \big(\forall x. (\phi\to\psi)\big)\to\big(\phi\to\forall x.\psi\big) \urcorner
+\end{equation}
+with respect to $\mathfrak{A}$. 
+\end{lemma}
+\begin{proof}
+\begin{lstlisting}[texcl, escapechar=\%]
+[*r] %$\mapsto \big(\forall x. (\phi\to\psi)\big)\to\big(\phi\to\forall x.\psi\big)$%
+[*r, 0] %$\mapsto \phi\to\forall x.\psi$%
+[*r, 0, 0] %$\mapsto \forall x. (\phi\to\psi)$% # ASM $\gamma_{*r}$
+[*r, 0, 1] %$\mapsto \big(\forall x. (\phi\to\psi)\big)\to(\phi\to\psi)$% # Axiom ALL
+[*r, 0, 2] %$\mapsto \phi\to\psi$% # MOD $\gamma_{*r, 0, 1}, \gamma_{*r, 0, 0}$
+[*r, 0, 3] %$\mapsto \phi $% # ASM $\gamma_{*r, 0}$
+[*r, 0, 4] %$\mapsto \psi $% # MOD $\gamma_{*r, 0, 2}, \gamma_{*r, 0, 3}$
+[*r, 0, 5] %$\mapsto \forall x.\psi $% # GEN $\gamma_{*r, 0, 4}$
+\end{lstlisting}
+Note that the assumption that $x\not\in \text{free}(\phi)$ is needed to be able to apply a rule GEN $\gamma_{*r, 0, 5}$.
+\end{proof}
+
+\begin{lemma}[EXH]
+\label{EXH}
+Let $r\in \N^*$ and $\phi, \psi\in \F(\L_r)$.
+If $\phi$ is a formula for which $x\not\in \text{free}(\phi)$, then there exists
+a reference system $\Gamma = (D, \L^+, \gamma)$ with $\root(D) = r$ which is a proof of 
+\begin{equation}
+\ulcorner \big(\forall x. (\psi\to\phi)\big)\to\big((\exists x.\psi)\to\phi\big) \urcorner 
+\end{equation}
+with respect to $\mathfrak{A}$. 
+\end{lemma}
+\begin{proof}
+\begin{lstlisting}[texcl, escapechar=\%]
+[*r] %$\mapsto \big(\forall x. (\psi\to\phi)\big)\to\big((\exists x.\psi)\to\phi\big)$%
+[*r, 0] %$\mapsto (\exists x.\psi)\to\phi$%
+[*r, 0, 0] %$\mapsto \forall x. (\psi\to\phi)$% # ASM $\gamma_{*r}$
+[*r, 0, 1] %$\mapsto \exists x.\psi$% # ASM $\gamma_{*r, 0}$
+[*r, 0, 2] %$\mapsto\psi(x/\sk^0_{[*r, 0, 2]})$% # SKO $\gamma_{*r, 0, 1}$
+[*r, 0, 3] %$\mapsto \big(\forall x. (\psi\to\phi)\big)\to(\psi(x/\sk^0_{[*r, 0, 2]})\to\phi)$%, # ALL
+[*r, 0, 4] %$\mapsto \psi(x/\sk^0_{[*r, 0, 2]})\to\phi$% # MOD $\gamma_{*r, 0, 3}, \gamma_{*r, 0, 0}$
+[*r, 0, 5] %$\mapsto \phi$% # MOD $\gamma_{*r, 0, 4}, \gamma_{*r, 0, 2}$
+\end{lstlisting}
+Note that the assumption that $x\not\in \text{free}(\phi)$ is needed for 
+$\ulcorner \psi\to\phi \urcorner(x/\sk^m_{[*r,0,2]})$ to become $\psi(x/\sk^m_{[*r,0,2})\to\phi$. Note that all free variables of $\exists x.\psi$ are in assumption from $[*r, 0]$, then $\free(\psi) \setminus \fixed_\Gamma([*r, 0, 2]) = \emptyset$ and thus we can take const 
+$\sk^0_{[*r, 0, 2]}$, so $\psi(x/\sk^m_{[*r,0,2]})$ is admissable.
+\end{proof}
+
+\begin{definition}
+\label{provability}
+Let $\mathfrak{B}$ be a set of all formulas from $\F(\L^+)$ which can be obtained by schemas from Lemma \ref{TRN}(TRN), Lemma \ref{ALH}(ALH) and Lemma \ref{EXH}(EXH). Let $\mathfrak{A}^s = \mathfrak{A} \cup \mathfrak{B}$.
+\end{definition}
+
+We will use $\vdash$ to indicate established provability known from standard textbooks for First Order Logic. Described e.g. in \cite{prestel2011}.
+Let's recall:
+\begin{definition}
+\label{classical-proof}
+Let $T\subset \F(\L)$ and $\phi\in\F(\L)$.
+$T\prove \phi$ iff
+there exists a sequence 
+$[\phi_i]_{i=0}^n \subset \F(\L)$ such that $\phi = \phi_n$ and for any $i=0, \dots, n$ at least one of the following holds:
+\begin{enumerate}
+\item (AXM) $\phi_i \in (\mathfrak{A}^s \cup T) \cap\F(\L)$,
+\item (MOD) there exist $j_1, j_2 < i$, such that
+\begin{equation}
+\phi_{j_1} = \ulcorner \phi_{j_2} \to \phi_i \urcorner,
+\end{equation}
+\item (GEN) there exists $j < i$ and $x\in \V$ such that
+\begin{equation}
+\phi_i = \ulcorner \forall x. \phi_j \urcorner.
+\end{equation}
+\end{enumerate}
+
+\end{definition} 
+
+One can show the following lemma.
+
+\begin{lemma}
+\label{flatten}
+Let $\mathcal{A} \subset \F(\L^+)$, 
+$(D, \L^+, \gamma)$ be a reference system with $r = \root(D)$, $\gamma_r = \ulcorner \truth \to \phi \urcorner$ with $\phi \in \F(\L^+)$
+and let $\final(D) = [*r,k_f]$.
+If for each $k\in \langle 0, k_f \rangle$, the following statements holds for 
+$\rho=[*r,k]$:
+\begin{enumerate}
+\item if $\context(D, \rho) = \emptyset$, then $\gamma_\rho\in\F(\overline{\L}_\rho)$ at least one of the following holds:
+\begin{enumerate}
+\item (AXM) $\gamma_\rho\in \mathcal{A}$,
+\item (MOD) there exist $\eta_1, \eta_2 < \rho$, such that
+\begin{equation}
+\gamma_{\eta_1} = \ulcorner \gamma_{\eta_2} \to \gamma_\rho \urcorner,
+\end{equation}
+\item (GEN) there exists $\eta < \rho$ and $x\in V$ such that
+\begin{equation}
+\gamma_\rho = \ulcorner \forall x. \gamma_\eta \urcorner,
+\end{equation}
+\end{enumerate}
+\item if $\context(D, \rho) \not= \emptyset$, 
+then $\big(\context(D, \rho), \L^+, \gamma\big)$ is a proof of $\gamma_\rho$ with respect to $\mathcal{A}$.
+\end{enumerate}
+Then $(D, \gamma)$ is a proof of $\gamma_r$ with respect to $\mathcal{A}$.
+\end{lemma}
+
+
+\begin{theorem}
+\label{semantic-completness}
+Let $T\subset \F(\L)$ and $\phi\in\F(\L)$. 
+
+If $T\prove\phi$, then $\phi\in\Cnr(\mathfrak{A}\cup T)$.
+\end{theorem}
+\begin{proof}
+Assume that $T\prove \phi$. Then by Definition \ref{provability} we have a sequence 
+$[\phi_i]_{i=0}^n \subset \F(\L)$ such that $\phi = \phi_n$ and for any $i=0, \dots, n$ at least one of the following holds:
+\begin{enumerate}
+\item (AXM) $\phi_i \in (\mathfrak{A} \cup \mathfrak{B} \cup T) \cap\F(\L)$,
+\item (MOD) there exist $j_1, j_2 < i$, such that
+\begin{equation}
+\phi_{j_1} = \ulcorner \phi_{j_2} \to \phi_i \urcorner,
+\end{equation}
+\item (GEN) there exists $j < i$ and $x\in \V$ such that
+\begin{equation}
+\phi_i = \ulcorner \forall x. \phi_j \urcorner.
+\end{equation}
+\end{enumerate}
+
+We will construct now a reference system $(D, \L^+, \gamma)$.
+Let $\gamma_{[]} = \ulcorner \truth\to\phi \urcorner$.
+Let's define $\gamma_{[i]} = \phi_i$ for $i=0, \dots, n$.
+Note that our main problem are $\phi_i\in\mathfrak{B}$ (the rest is either from $\mathfrak{A}$, or $T$ or are derived from the rest by MOD or GEN). But we can add to each of them their own context proof.
+Let
+\begin{equation}
+D_i =
+\begin{cases}
+\emptyset \text{ for } \phi_i \in \F(\L)\setminus \mathfrak{B},\\
+P_i \text{ for } \phi_i\in \F(\L) \cap \mathfrak{B},
+\end{cases}
+\end{equation}
+where in case of $\phi_i\in \F(\L) \cap \mathfrak{B}$, $(P_i, \L^+, \gamma)$ is a proof of $\phi_i$ with respect to $\mathfrak{A}$ where $P_i$ is a context with root $[i]$ as given by Lemma \ref{TRN}(TRN), Lemma \ref{ALH}(ALH) or Lemma \ref{EXH}(EXH).
+Since all $P_i$ are disjoint, the definition of function $\gamma$ on them is correct. 
+
+Now we are ready to define $D$. Let
+\begin{equation}
+D = \{[i]: i = 0, \dots, n\} \cup \bigcup_{i=0}^n D_i.
+\end{equation}
+By Lemma \ref{flatten}, one can show that a refernce system $(D, \L^+, \gamma)$ is a proof of $\ulcorner \truth\to\phi \urcorner$ with respect to $\mathfrak{A}$.
+\end{proof}
+
+\begin{corollary}[\textbf{completness}]
+Let $\phi\in\F(\L)$. If $\models \phi$, then $\phi\in\Cnr(\mathfrak{A})$.
+\end{corollary}
+\begin{proof}
+Follows from Theorem \ref{semantic-completness} and Gödel’s Completeness Theorem (for proof e.g. \cite{prestel2011}).
+
+\end{proof}
+
+\section{Soudness}
+\label{soudness}
+\begin{definition}
+Let $\L$ be a signature of a language.
+Let $\Gamma = (D, \L^+,\gamma)$ be a reference system and $T\subset \F(\L^+)$ and $\rho\in D$.
+\begin{equation}
+\refset_\Gamma(\rho, T) = \{\gamma_\eta: \eta\in D \text{ and } \eta < \rho\}\cup T.
+\end{equation}
+\end{definition}
+
+\begin{definition}[\textbf{constrained-proof}]
+\label{constrained-proof}
+Let $\L$ be a signature of a language.
+A reference system $\Gamma = (D, \L^+,\gamma)$ is a constrained-proof of $\psi\in\F(\L^+)$ with respect to $\mathcal{A}\subset \F(\L^+)$ with fixed variables $V\subset \V$ iff for $r = \root(D)$, $\gamma_r = \psi$
+and for any $\rho\in \overline{D}$ the following conditions holds:
+\begin{enumerate}
+\item \label{shallow-part} if $\context(D, \rho) = \emptyset$, then $\gamma_\rho\in\F(\overline{\L}_\rho)$ and at least one of the following holds:
+\begin{enumerate}
+\item (AXM) $\gamma_\rho\in \mathcal{A}$,
+\item (ASM) there exists $\eta \prec \rho$ and $\beta\in \F(\L^+)$
+such that $\gamma_\eta = \ulcorner \gamma_\rho \to \beta \urcorner$,
+%\item (ISO) there exists $\eta < \rho$ and 
+%$\gamma_\eta$ is isomporphic to $\gamma_\rho$,
+\item (MOD) there exist $\phi_1, \phi_2\in \refset_\Gamma(\rho, \mathcal{A})$, such that
+\begin{equation}
+\phi_1 = \ulcorner \phi_2 \to \gamma_\rho \urcorner,
+\end{equation}
+\item (GEN) there exists $\phi \in \refset_\Gamma(\rho, \mathcal{A})$ and $x\in \V\setminus (V \cup \fixed_\Gamma(\rho))$ such that
+\begin{equation}
+\gamma_\rho = \ulcorner \forall x. \phi \urcorner,
+\end{equation}
+
+\item (SKO) there exists $\phi \in \refset_\Gamma(\rho, \mathcal{A})$, $x\in \V$, $\beta\in \F(\L^+)$ and $m\in\N$ such that
+$\gamma_\rho = \beta(x/\sk^m_\rho)$, 
+$\free(\sk^m_\rho) = \free(\phi) \setminus (V \cup \fixed_\Gamma(\rho))$ with $\beta(x/\sk^m_\rho)$ admissible and
+\begin{equation}
+\phi = \ulcorner \exists x. \beta\urcorner. 
+\end{equation}
+\end{enumerate}
+\item if $\context(D, \rho) \not= \emptyset$, then $\gamma_\rho\in \F(\L_\rho)$ and there exist $\eta < \rho$ and $\alpha\in\F(\L^+)$
+ such that
+\begin{equation}
+\gamma_\rho = \ulcorner \alpha \to \gamma_\eta \urcorner,
+\end{equation}
+where $\eta = \final(\context(D, \rho))$.
+\end{enumerate}
+\end{definition}
+
+The intuition behind a \textit{constrained-proof} is that it is a proof in which certain variables are required to behave as constants and it does not require to place axioms in the reference system but rules can be aplied directly to them.
+
+
+Note that each proof is a \textit{constrained-proof} with $V=\emptyset$.
+
+\begin{theorem}
+\label{soundnes-theorem}
+Let $r\in \N^*$ and 
+let $\M$ be a $\L_r$-structure.
+Let $T\subset \F(\L_r)$ and $\phi\in \F(\L_r)$.
+Let $D$ be a context with $r = \root(D)$
+If $(D, \L^+, \gamma)$ is a constrained-proof of $\phi\in \F(\L_r)$ with respect to $\mathfrak{A}\cup T$ with fixed variables $V\subset\V$, 
+then for any interpretation $(\M, j)\models T$, we have $(\M, j)\models \phi$.  
+\end{theorem}
+\begin{proof}
+We will prove this by induction over $|D|$. Let $|D| = n$. By induction we can assume that 
+\begin{equation}
+\label{induction-1}
+\text{Theorem \ref{soundnes-theorem} holds for any } |D| < n.
+\end{equation}
+
+Let $A$ be a domain of $\M$. Let $\final(D) = [*r, k_f]$.
+
+Let $r_k = [*r, k]$ for $k=0, \dots, k_f$. Let $\gamma_r = \ulcorner \alpha\to\omega \urcorner$. Note that by Definition \ref{proof-definition}, we have $\phi = \gamma_r$. To simplify notation let $\L_k := \L_{r_k}$ for $k=0, \dots, k_f$.  
+Let $\F_k = \F(\L_k)$ for $k=0, \dots, k_f$ and let $\F_{-1} = \F(\L_r)$.
+Let $\overline{\F}_k = \F(\overline{\L_k})$ for $k=0, \dots, k_f$ and let $\overline{\F}_{-1} = \F(\overline{\L_r})$. 
+By Lemma \ref{base-reference-inclusions} we have $\F_{k-1} \subset \F_k$ for $k=0, \dots, k_f$.
+
+Let
+\begin{equation}
+T_k = 
+\begin{cases}
+T \text{ for } k = 0,\\
+T\cup \{ \gamma_{r_0}, \cdots, \gamma_{r_{k - 1}}\} \text{ for } 
+k \in (0, k_f\rangle.
+\end{cases}
+\end{equation}
+
+By Definition \ref{constrained-proof}, we have $\gamma_{r_k}\in \overline{\F}_k$. 
+Thus $T_k \subset \F_k$ for $k=0,\dots,k_f$.
+\\
+
+Take an arbitrary $j_0: \free(\alpha)\cup V\to A$.  
+Take an arbitrary assignment $j:\V\to A$ such as $j$ is an extension of $j_0$ and $(\M, j)\models T$.
+
+If $(\M,j)\not\models \alpha$, then $(\M,j)\models \neg\alpha$ and thus $(\M,j)\models \ulcorner \alpha\to\omega \urcorner = \phi$.
+
+Hence, we can assume 
+
+\begin{equation}
+\label{assumption-alpha}
+(\M,j)\models \alpha.
+\end{equation}
+ 
+We will construct recursively a sequence $\M_k$. Let $\M_{-1} = \M$.
+We will take a special care to construct $\M_k$ in a way which does not depend on assignment $j$ (but it will depend on choice of $j_0$). We will need to rely on this fact in \ref{gen}.
+
+We will prove by induction that $(\M_k,j)\models \gamma_{k}$.  
+Let us write down our induction assumptions.
+\begin{align}
+\label{induction-a-1}
+&(\M_i,j)\models \gamma_{i} \text{ for } 0 < i < k, \\
+\label{induction-a-2}
+&\M_i \text{ is } \overline{\L_i}\text{-structure} \text{ for } 0 < i < k, \\
+\label{induction-a-3}
+&\M_i \text{ is an extension of } \M_{i-1} \text{ for } 0 < i < k
+\end{align}
+
+Take $k$ from $0, \dots, k_f$. Note that $(\M_{k-1}, j)\models T_k$. We will consider two cases:
+\begin{enumerate}
+\item $\context(D, r_k) = \emptyset$. By Definition \ref{proof-definition}, $\gamma_{r_k}\in \F_k$ and one of the following cases holds. We will stop a construction step of $\M_k$ after first satisfied case in the following order.
+
+\begin{enumerate}
+\item (AXM) $\gamma_{r_k}\in T \cup \mathfrak{A}$. If $\gamma_{r_k}\in T$, then $(\M_{k-1}, j)\models\gamma_{r_k}$. If $\gamma_{r_k}\in \mathfrak{A}$, then $(\M_{k-1}, j)\models\gamma_{r_k}$ since $\gamma_{r_k}$ is a logical axiom. Let $\M_k$ be an arbitrary chosen but fixed $\overline{\L_k}$-structure which is an extension of $\M_{k-1}$. Then $(\M_k, j)\models\gamma_{r_k}$.
+
+\item (ASM) $\gamma_{r_k} = \alpha$. Then trivially $(\M_k,j)\models \gamma_{r_k}$. Let $\M_k$ be an arbitrary chosen but fixed $\overline{\L_k}$-structure which is an extension of $\M_{k-1}$. Then
+$\M_k\models \gamma_{r_k}$.
+
+%\item (ISO) there exists $\eta < r_k$ and 
+%$\gamma_\eta$ is isomporphic to $\gamma_{r_k}$. This can only hold for $k > 0$. Since $\gamma_\eta\in T_k$, we have 
+%$(\M_{k-1}, j)\models \gamma_\eta$ and by Theorem \ref{isomorphic-equisatisatibility} 
+%we have $(\M_{k-1}, j)\models \gamma_{r_k}$. Let $\M_k$ be an arbitrary chosen but fixed extension of model $\M_{k-1}$ onto $\overline{\L_k}$. Then $(\M_k,j)\models \gamma_{r_k}$. 
+
+\item (MOD) there exist $\phi_1, \phi_2 \in \refset_D({r_k}, T\cup \mathfrak{A})$, such that
+$\phi_1 = \ulcorner \phi_2 \to \gamma_{r_k} \urcorner$.
+Note that $\phi_1, \phi_2\in T_k \cup \mathfrak{A}$.
+So $(\M_{k-1}, j)\models \ulcorner \phi_2 \to \gamma_{r_k} \urcorner, \phi_2$ and therefore $(\M_{k-1},j)\models \gamma_{r_k}$. Let $\M_k$ be an arbitrary chosen but fixed $\overline{\L_k}$-structure which is an extension of $\M_{k-1}$. Then $(\M_k,j)\models \gamma_{r_k}$. 
+\item \label{gen} (GEN) there exists $\phi\in\refset_D({r_k}, T\cup \mathfrak{A})$ and $x\in \V\setminus (V\cup \free(\alpha))$ such that
+$\gamma_{r_k} = \ulcorner \forall x. \phi \urcorner$. Since $\phi\in T_k\cup\mathfrak{A}$, 
+we have $(\M_{k-1}, j)\models \phi$.
+
+Take any $a\in A$.  Let
+\begin{equation}
+j\cfrac{a}{x}(v) \defeq
+\begin{cases}
+a \text{ if } v = x,\\
+j(v) \text{ otherwise}.
+\end{cases}
+\end{equation}
+Since $x\not\in\free(\alpha)$ and $(\M, j)\models\alpha$, we have $(\M, j\cfrac{a}{x})\models\alpha$.
+Since $x\not\in\free(\alpha)\cup V$, $j\cfrac{a}{x}$ is an extension of $j_0$ similarily as $j$ is, and since $j$ was arbitrarily chosen, we can repeat the reasoning from (\ref{assumption-alpha}) for an interpretation $j\cfrac{a}{x}$ up to this point and got $(\M_{k-1}, j\cfrac{a}{x})\models \phi$.
+This is possible because construction of $\M_{k-1}$ nowhere depends on $j$.
+But since $a\in A$ was arbitrary chosen, we have $(\M_{k-1}, j)\models \forall x. \phi $, and thus $(\M_{k-1},j)\models \gamma_{r_k}$. Let $\M_k$ be an arbitrary chosen but fixed $\overline{\L_k}$-structure which is an extension of $\M_{k-1}$. Then $(\M_k,j)\models \gamma_{r_k}$.
+
+\item (SKO) there exists $\phi\in\refset_D({r_k}, T\cup \mathfrak{A})$, $x\in \V$, $\beta\in \F_k$ and $m\in\N$ such that
+$\gamma_{r_0} = \beta(x/\sk^m_{r_k})$,
+$\phi = \ulcorner \exists x. \beta\urcorner$ and 
+$\free(\sk^m_{r_k}) = \free(\phi)\setminus(V\cup \free(\alpha))$ with $\beta(x/\sk^m_\rho)$ admissible. 
+This can only hold for $k > 0$.
+Since $\phi\in T_k \cup \mathfrak{A}$, we have $(\M_{k-1},j)\models \exists x. \beta$.
+
+Assume that $\free(\phi) \setminus (V \cup \free(\alpha)) = \{x_1, \dots, x_n \}$ and that 
+$\beta = \beta(x, x_1, \dots, x_n, y_1, \dots, y_m)$
+where $y_1, \dots, y_m\in V \cup \free(\alpha)$ (this sequence can be empty). 
+We will now establish a model for $\sk^m_{r_k}$.
+
+
+Take any $a_1, a_2, \dots, a_n\in A$. 
+
+If there exists $a\in A$ such that
+
+$$
+\beta^{\M_{k-1}}(a, a_1, \dots, a_n, j_0(y_1), \dots, j_0(y_m)),
+$$ 
+
+we choose such an $a$ and set $(\sk^m_{r_k})^{\M_{k}}(a_1, \dots, a_n) = a$.
+
+
+Otherwise we set $(\sk^m_{r_k})^{\M_{k}}(a_1, \dots, a_n)$ to arbitrary but fixed element of $A$.
+
+Let $\M_k$ be an arbitrary chosen but fixed $\overline{\L_k}$-structure which is an extension of $\M_{k-1}$ and contains a function $(\sk^m_{r_k})^{\M_k}$ as defined above.
+Note that construction of $\M_k$ does not depend on choice of an arbitrary assignment $j$.
+Since $(\M_{k-1},j)\models \exists x. \beta$, we have
+
+$$
+\beta^{\M_{k-1}}\bigg((\sk^m_{r_k})^{\M_{k}}(j(x_1), \dots, j(x_n)), j(x_1), \dots, j(x_n), j_0(y_1), \dots, j_0(y_m)\bigg).
+$$
+
+Since $j$ is an extension of $j_0$, we have:
+
+$$
+\beta^{\M_{k-1}}\bigg((\sk^m_{r_k})^{\M_{k}}(j(x_1), \dots, j(x_n)), j(x_1), \dots, j(x_n), j(y_1), \dots, j(y_m)\bigg).
+$$
+
+Therefore $(\M_k, j\cfrac{(\sk^m_{r_k})^{(\M_{k}, j)}}{x})\models \beta$ and since $\beta(x/\sk^m_\rho)$ is admissible, by Theorem \ref{admissible-theorem}, we have $(\M_k, j)\models \beta(x/\sk^m_{r_k})$, which is the same as $(\M_k,j)\models \gamma_{r_k}$.
+
+\end{enumerate}
+Note that the all above cases work for $k = 0$ without assumptions (\ref{induction-a-1}), (\ref{induction-a-2}) and (\ref{induction-a-3}). 
+
+\item $\context(D, r_k) \not= \emptyset$.
+By Definition \ref{constrained-proof}, $\gamma_{r_k}\in \F_k$.
+Since $T_k\subset\F_k$ and by Lemma \ref{first-level-references} and by Definition \ref{constrained-proof} we have $\alpha\in \F_{-1}\subset \F_k$, and therefore $\{\alpha\} \cup T_k \subset \F_k$
+one can show that $(\context(D, r_k), \L^+, \gamma)$ is a constrained-proof of $\gamma_{r_k}$ with respect to $\mathfrak{A}\cup T_k \cup\{\alpha\}$ with fixed variables $V \cup free(\alpha)$. Since $\M_{k-1}$ is a $\L_k$-structure, $(\M_{k-1},j)\models T_k \cup\{\alpha\}$ and $|\context(D, r_k)| < n$, by induction assumption (\ref{induction-1}), we have $(\M_{k-1}, j)\models\gamma_{r_k}$.
+Let $\M_k$ be an arbitrary chosen but fixed $\overline{\L_k}$-structure which is an extension of $\M_{k-1}$. Then $(\M_k, j)\models\gamma_{r_k}$.
+Note that the above argument works for $k = 0$ without assumptions (\ref{induction-a-1}), (\ref{induction-a-2}) and (\ref{induction-a-3}). 
+\end{enumerate}
+
+We showed that $(\M_k, j)\models\gamma_{r_k}$ for $k=0, \dots, k_f$.
+In particular, $(\M_{k_f}, j)\models\gamma_{r_{k_f}}$.
+But $\gamma_{r_{k_f}} = \omega$ where 
+$\phi = \ulcorner \alpha\to\omega \urcorner \in \F(\L_r)$. Since $\M_{k_f}$ is an extension of $\M$ but $\M$ is a $\L_r$-structure, we have $(\M, j)\models\omega$ and then $(\M, j)\models\phi$. Since $j_0:\free(\alpha)\cup V\to A$ was arbitrarly chosen and $j$ was its arbitrary extension, we proved the thesis.
+\end{proof}
+
+Since there is an additional constrain on (GEN) rule in Definition \ref{proof-definition} compared to Definition \ref{classical-proof}, that you can not apply generalisation to a variable used as free in any assumption to which you are able to refer and this constrain played a crucial role in a proof of Theorem \ref{soundnes-theorem}, one may wonder if this constrain is really necessary. We will show now a trivial example, how \textit{naive} (GEN) could lead to a false proof.
+
+\begin{lstlisting}[texcl, escapechar=\%]
+[0] %$\mapsto \phi(x) \to \forall x.\phi(x) $%
+[0, 1] %$\mapsto \phi(x)$% # ASM $\gamma_{0}$
+[0, 2] %$\mapsto \forall x. \phi(x)$% # `\textit{naive} GEN $\gamma_{0,1}$
+\end{lstlisting}
+
+If the above proof was correct, we would have had $\models \phi(x) \to \forall x.\phi(x)$, which is obviously falsifiable.
+\\
+
+One may also wonder, if in a rule (SKO) it is really necessary to take a whole function symbol $\sk^m_\rho$ with all free variables instead of just a simple constant $\sk^0_\rho$. After all this is a feature which allowed a construction of model $\M_k$ to be independent on interpretation $j$ in a proof of Theorem \ref{soundnes-theorem}.
+We will show again a simple example, how such a \textit{naive} rule (SKO) would lead to a false proof.
+
+\begin{lstlisting}[texcl, escapechar=\%]
+[0] %$\mapsto \big(\forall x. \exists y. \phi(x,y)\big) 
+\to \big(\exists y. \forall x. \phi(x, y)\big)$% 
+[0, 1] %$\mapsto \forall x. \exists y. \phi(x,y)$% # ASM $\gamma_0$
+[0, 2] %$\mapsto \big(\forall x. \exists y. \phi(x,y)\big) \to \big(\exists y. \phi(x,y)\big)$% # Axiom ALL
+[0, 3] %$\mapsto \exists y. \phi(x,y) $% # MOD $\gamma_{0,2}, \gamma_{0,1}$
+[0, 4] %$\mapsto \phi(x,\sk^0_{[0, 4]}) $% # \textit{naive} SKO $\gamma_{0, 3}$
+[0, 5] %$\mapsto \forall x. \phi(x,\sk^0_{[0, 4]}) $% # GEN $\gamma_{0, 4}$
+[0, 6] %$\mapsto \big(\forall x. \phi(x,\sk^0_{[0, 4]})\big) \to \big(\exists y. \forall x. \phi(x,y)\big)  $% # Axiom EXT
+[0, 7] %$\mapsto \exists y. \forall x. \phi(x,y) $% # MOD $\gamma_{0,6}, \gamma_{0, 5}$
+\end{lstlisting}
+
+if the above proof was correct, we would have had\\
+$\models \big(\forall x. \exists y. \phi(x,y)\big) 
+\to \big(\exists y. \forall x. \phi(x, y)\big)$, which is obviously falsifiable.
+
+\section{Related Work}
+\label{related}
+The objective of this paper is to describe the logical framework of the kernel for an automatic proof checker and to demonstrate its completeness and soundness. Although analyzing and establishing relationships between this specific solution and related work is an important aspect of scientific research, such an analysis is beyond the scope of the present study. Therefore, we include only a preliminary list of potentially related solutions, leaving a detailed comparative analysis for future work. 
+\\
+
+The idea of managing local assumptions within proofs has a long history in proof theory, dating back to the Jaśkowski-Fitch \cite{fitch1966}, \cite{jaskowski1934} style of natural deduction, where subproofs or “boxes” represent temporary contexts that are opened and discharged (see also the survey in the Stanford Encyclopedia of Philosophy \cite{sepND}).
+\\ 
+
+Several systems have sought to formalize or mechanize this structure. Nested sequent calculi \cite{brunnler2010}, \cite{fitch1966} generalize Gentzen's sequent systems by organizing sequents in a tree, thereby making the hierarchical proof structure explicit.
+\\ 
+
+Standefer \cite{standefer2019} investigates translations between tree-structured and linear natural-deduction proofs, clarifying how subproof hierarchies can be represented sequentially. 
+\\
+
+Labelled deductive systems \cite{broda2004} extend natural deduction by attaching labels to formulas, capturing contextual or modal information within the syntax; this approach resembles the role of reference indices in our system. 
+\\
+
+Structured proof languages such as Isar \cite{wenzel2002} pursue the same goal from a computational perspective, aiming for human-readable, block-structured proofs with machine-checkable semantics.
+\\
+
+\appendix
+
+\section{Formulas isomorphism}
+
+We may consider in kernel implementation a variant of proof definitition in Definition \ref{proof-definition} with case \ref{shallow-part} enriched with a rule:
+\\
+
+(ISO) there exists $\eta < \rho$ and $\gamma_\eta$ is isomporphic to $
+\gamma_\rho$.
+\\
+
+We will propose the following rigorous treatment of formula isomorphism.
+
+\begin{definition}
+Let $\L$ be a signature of a language.
+Let $\alpha, \beta\in\F(\L)$ and let
+$f:\bound(\alpha) \to \V$.
+\begin{equation}
+[f](\alpha) \defeq ( \alpha \text{ with each bound variable } u \text{ replaced by } f(u) ). 
+\end{equation}
+\end{definition}
+
+\begin{definition}
+\label{isomorphic-copy}
+Let $\L$ be a signature of a language.
+Let $\alpha, \beta\in\F(\L)$. We will say that $\alpha, \beta$ are isomorphic
+iff there exists function 
+$$f:\bound(\alpha) \xrightarrow[\text{onto}]{\text{1-1}} \bound(\beta)$$
+and $[f](\alpha) = \beta$ and $[f^{-1}](\beta) = \alpha$. 
+\end{definition}
+
+\begin{lemma}
+\label{fix-replacement}
+Let $\L$ be a signature of a language.
+Let $\alpha, \beta\in\F(\L)$. If
+$$f:\bound(\alpha) \xrightarrow[\text{onto}]{\text{1-1}} \bound(\beta)$$
+such that $[f](a)=\beta$ 
+and for any $u\in\bound(\alpha)$ such that $f(u)\not=u$, we have $f(u)\not\in\free(\alpha)$,
+then $\alpha$ is isomorphic with $\beta$.
+\end{lemma}
+\begin{proof}
+To show that $[f^{-1}](\beta) = \alpha$ it is enough to show that for any $u\in\bound(\beta)$ at place $p$ in $\beta$, there is $f^{-1}(u)$ at place $p$ in $\alpha$.
+\\
+
+Take any $u\in\bound(\beta)$ at place $p$ in $\beta$. Then the place $p$ is in a range of $Qu.$ in $\beta$. Thus place $p$ is in a range of $Qf^{-1}(u).$ in $\alpha$. 
+\\
+
+If variable in place $p$ in $\alpha$ is free, then it must be $u$. 
+If $u = f^{-1}(u)$, it will be in a range of $Qu.$ and thus it can't be free. 
+Then we must assume $f^{-1}(u) \not= u$. 
+
+But $f^{-1}(u)\in\bound(\alpha)$ and thus $u = f(f^{-1}(u))\not\in\free(\alpha)$. Hence, variable in place $p$ in $\alpha$ must be bounded. But then it must be $f^{-1}(u)$.
+
+\end{proof}
+
+\begin{theorem}
+\label{isomorphic-equisatisatibility}
+Let $\L$ be a signature of a language and let $\alpha,\beta\in\F(\L)$.
+If $\alpha, \beta$ are isomorphic then for any $\L$-structure $\M$ with domain $A$ and any assignment of variables $j:\V\to A$ we have
+$$
+(\M, j)\models \alpha \text{ iff } (\M, j)\models \beta.
+$$
+\end{theorem}
+\begin{proof}
+It is enough to show that, 
+a variable $x$ is free in place $p$ in $\alpha$ iff
+a variable $x$ is free in place $p$ in $\beta$.
+In fact, since there is a symetry between $\alpha$ and $\beta$, it is enough to show that, if 
+a variable $x$ is free in place $p$ in $\alpha$ then
+a variable $x$ is free in place $p$ in $\beta$.
+
+Let $f$ be as in Definition \ref{isomorphic-copy}.
+
+Assume that a variable $x$ is free in a place $p$ in $\alpha$.
+
+\begin{enumerate}
+\item If there is a bounded variable $u$ in place $p$ in $\beta$, then place $p$ is in a range of some quantifier $Qu.$ in $\beta$ and $f^{-1}(u) = x$. Then place $p$ is in a range of quantifier $Qx.$ in $\alpha$. Then $x$ can't be free in $\alpha$. Contradiction.
+
+\item If there is a free variable $u$ in place $p$ in $\beta$, then $u = x$.
+\end{enumerate}
+\end{proof}
+
+\begin{definition}
+We can construct a special $\shift$ operator. 
+$\shift_\alpha:\bound(\alpha) \xrightarrow[\text{onto}]{\text{1-1}} \V$, such that
+$$
+\shift_\alpha\big( \bound(\alpha)\big) \cap \free(\alpha) = \emptyset.
+$$
+\end{definition}
+
+Indeed, if $\V$ is coutable and infinite, we can establish a linear order on $\V$. With such an order, the construction of $\shift_\alpha$ is just a technical exercise whose details are irrelevant from the perspective of this paper.
+
+\begin{definition}
+Let $\L$ be a signature of a language. 
+Let $\alpha\in\F(\L)$, Let $x\in\free(\alpha)$.
+we will define a special operator 
+$\langle \cdot \rangle_x:\F(\L)$.
+Let 
+$$
+U_x = \{u\in\bound(\alpha)\cap\free(\alpha): \text{there exists quantifier with $x$ in its range which binds $u$}\}
+$$
+
+Let 
+
+\begin{equation}
+f_{\alpha, x}(u) =
+\begin{cases}
+\shift_\alpha(u) \text{ for } u\in U_x,\\
+u \text{ otherwise }.
+\end{cases}
+\end{equation}
+
+Let
+\begin{equation}
+\langle \alpha \rangle_x \defeq [f_{\alpha, x}](\alpha).
+\end{equation}
+
+\end{definition}
+
+\begin{theorem}
+Let $\L$ be a signature of a language. 
+Let $\alpha\in\F(\L)$ and let $x\in\free(\alpha)$.
+Then we have
+\begin{equation}
+\alpha \text{ is isomorphic to } \langle \alpha \rangle_x,
+\end{equation}
+and for any term $\tau$ with $\free(\tau) \subset \free(\alpha)$, $\langle \alpha \rangle_x (x/\tau)$ is admissable.
+\end{theorem}
+\begin{proof}
+By Theorem \ref{fix-replacement} and Definition \ref{admissible}.
+\end{proof}
+
+
+\bibliographystyle{alpha}
+\bibliography{references}
+
+\end{document}

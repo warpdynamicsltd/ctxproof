@@ -30,20 +30,15 @@ type generalized_formula =
 (*type inference =
   | Inference of {name: string; formula_role: string; formula: first_order_formula; annotation: string}*)
 
+type inference = 
+  | Inference of {mode: string; formulas: generalized_formula list; terms: term list}
+
 type statement =
   | Statement of 
       {
         ref: reference; 
         formula: first_order_formula; 
-        mode: string; 
-        formulas: generalized_formula list; 
-        terms: term list;
+        inference: inference;
+        statements: statement list;
         pos: Lexing.position 
       }
-
-type context = 
-  | Context of 
-    {
-      root: reference;
-      elements: context array;
-    }

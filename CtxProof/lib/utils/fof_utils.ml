@@ -8,7 +8,7 @@ let term_of_string s =
 
 let statement_of_string s =
     let lexbuf =  Lexing.from_string s in
-    Parser.line Lexer.token lexbuf
+    Parser.statement Lexer.token lexbuf
 
 let statements_of_string s =
     let lexbuf =  Lexing.from_string s in

@@ -23,19 +23,19 @@
 %start wff
 %start wft
 %start ref
-%start line
-%start lines
+%start statement
+%start statements
 %type <Types.statement list>      input
 %type <Types.first_order_formula> wff
 %type <Types.term>                wft
 %type <Types.reference>           ref
-%type <Types.statement>           line
+%type <Types.statement>           statement
 %type <Types.generalized_formula> generalized_formula
-%type <Types.statement list>      lines
+%type <Types.statement list>      statements
 %%
 
 input:
-  lines EOF {$1}
+  statements EOF {$1}
 
 wff:
   fof_formula EOF {$1}
@@ -46,12 +46,16 @@ wft:
 ref:
   reference EOF {$1}
 
-lines:
-| line { [$1] }
-| line lines { $1 :: $2 }
+statements:
+| statement { [$1] }
+| statement SEMICOLON statements { $1 :: $3 }
 
-line:
-  ref=reference formula=fof_formula mode=mode_arg formulas=formulas_arg terms=terms_arg { Statement {ref; formula; mode; formulas; terms; pos=($startpos) } }
+statement:
+| ref=reference formula=fof_formula mode=mode_arg formulas=formulas_arg terms=terms_arg 
+        { Statement {ref; formula; statements=[]; inference=Inference{ mode; formulas; terms}; pos=($startpos) } }
+| ref=reference formula=fof_formula LCURL statements=statements RCURL
+        { Statement {ref; formula; statements; inference=Inference{ mode="CTX"; formulas=[]; terms=[]}; pos=($startpos) } }
+
 (*| error { raise (cx_error "expected statement" $startpos) }*)
 
 reference:

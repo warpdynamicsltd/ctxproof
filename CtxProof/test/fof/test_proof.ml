@@ -6,6 +6,8 @@ open Tutils
 let run () =
     assert (List.length (statements_of_file "../data/hello") = 2);
 
+    assert (List.length (statements_of_file "../data/proof1") = 1);
+
     let proof = proof_of_statements (statements_of_file "../data/hello") in
     match proof with Proof { statements; _ } -> assert (Array.length statements = 2);
 

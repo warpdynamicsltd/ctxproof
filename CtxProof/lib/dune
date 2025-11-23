@@ -4,6 +4,6 @@
 (modules parser)
 (flags --exn-carries-state))
 (library
-(modules printer types kernel errors lexer parser_utils fof_utils parser)
+(modules printer proof types kernel errors lexer parser_utils fof_utils parser)
 (name ctxproof)
 (libraries zarith))

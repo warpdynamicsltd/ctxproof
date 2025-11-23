@@ -26,17 +26,14 @@ type generalized_formula =
   | Reference of reference
   | Formula of first_order_formula
 
-
-(*type inference =
-  | Inference of {name: string; formula_role: string; formula: first_order_formula; annotation: string}*)
-
 type mode = 
   | Axiom of string
   | Rule of string
+  | Assumption
   | Context
 
 type inference = 
-  | Inference of {mode: mode; formulas: generalized_formula list; terms: term list}
+  | Inference of {mode: mode; gformulas: generalized_formula list; terms: term list}
 
 type statement =
   | Statement of 

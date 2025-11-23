@@ -13,7 +13,7 @@ let not_admissible (v, t, s) =
     let _ = sub (v, t, s)
     in false
   with
-    | ErrorNotAdmissible -> true
+    | KernelError _ -> true
 
 let run() = 
   assert (free_vars_term (Func ("P", [])) = StringSet.of_list []);

@@ -51,10 +51,10 @@ statements:
 | statement statements { $1 :: $2 }
 
 statement:
-| ref=reference formula=fof_formula mode=mode_arg formulas=formulas_arg terms=terms_arg SEMICOLON
-        { Statement {ref; formula; statements=[]; inference=Inference{ mode; formulas; terms}; pos=($startpos) } }
+| ref=reference formula=fof_formula mode=mode_arg gformulas=formulas_arg terms=terms_arg SEMICOLON
+        { Statement {ref; formula; statements=[]; inference=Inference{ mode; gformulas; terms}; pos=($startpos) } }
 | ref=reference formula=fof_formula LCURL statements=statements RCURL
-        { Statement {ref; formula; statements; inference=Inference{ mode=Context; formulas=[]; terms=[]}; pos=($startpos) } }
+        { Statement {ref; formula; statements; inference=Inference{ mode=Context; gformulas=[]; terms=[]}; pos=($startpos) } }
 
 (*| error { raise (cx_error "expected statement" $startpos) }*)
 
@@ -67,7 +67,7 @@ integers:
 | INT DOT integers { $1 :: $3 }
 
 mode_arg:
- LCURL mode_type=UWORD COLON mode_value=UWORD RCURL 
+| LCURL mode_type=UWORD COLON mode_value=UWORD RCURL 
  
   { 
     match  mode_type with
@@ -76,6 +76,15 @@ mode_arg:
       | _ -> raise (cx_error "expected mode type A or R" $startpos)
 
   }
+| LCURL mode_type=UWORD RCURL
+  { 
+    match  mode_type with
+      | "ASM" -> Assumption
+      | _ -> raise (cx_error "expected assumption" $startpos)
+
+  }
+
+
 
 terms_arg:
   LCURL RCURL { [] }

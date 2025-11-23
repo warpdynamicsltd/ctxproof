@@ -1,10 +1,6 @@
 open Types
 
-exception ErrorNotAdmissible
-exception ErrorMalformedAxiom
-exception ErrorMalformedRule
-exception ErrorUnknownAxiom
-exception ErrorUnknownRule
+exception KernelError of string
 
 module StringSet = Set.Make(String)
 
@@ -75,13 +71,13 @@ let rec substitute_in_formula var replacement = function
     | Iff(a, b) -> Iff (substitute_in_formula var replacement a, substitute_in_formula var replacement b)
     | Exists(v, f) when v = var -> Exists(v, f)
     | Exists(v, f) when not (var_occurs_in_term v replacement) && v != var -> Exists(v, substitute_in_formula var replacement f)
-    | Exists(_, _) -> raise ErrorNotAdmissible
+    | Exists(_, _) -> raise (KernelError "not admissible")
     | Forall(v, f) when v = var -> Forall(v, f)
     | Forall(v, f) when not (var_occurs_in_term v replacement) && v != var -> Forall(v, substitute_in_formula var replacement f)
-    | Forall(_, _) -> raise ErrorNotAdmissible
+    | Forall(_, _) -> raise (KernelError "not admissible")
 
 
-let axiom_error = function () -> raise ErrorMalformedAxiom
+let axiom_error = function () -> raise (KernelError "malformed axiom")
 
 let axiom = function
   | "LEM" -> (function [a], [] -> Or(a, Not a) | _, _ -> axiom_error())
@@ -97,18 +93,18 @@ let axiom = function
   | "IFO" -> (function [a; b], [] -> Implies(Iff(a, b), And(Implies(a, b), Implies(b, a))) | _ -> axiom_error())
   | "ALL" -> (function [a], [t; Var(v)] -> Implies(Forall(v, a), substitute_in_formula v t a) | _ -> axiom_error())
   | "EXT" -> (function [a], [t; Var(v)] -> Implies(substitute_in_formula v t a, Exists(v, a)) | _ -> axiom_error())
-  | _ -> raise ErrorUnknownAxiom
+  | _ -> raise (KernelError "unknown axiom")
 
 let rule = function
-  | "IDN" -> (function [a], [] -> a | _ -> raise ErrorMalformedRule)
-  | "MOD" -> (function [Implies(a, b); c], [] when c=a -> b | _ -> raise ErrorMalformedRule)
-  | "GEN" -> (function [a], [Var(v)] -> Forall(v, a) | _ -> raise ErrorMalformedRule)
+  | "IDN" -> (function [a], [] -> a | _ -> raise (KernelError "malforemed rule"))
+  | "MOD" -> (function [Implies(a, b); c], [] when c=a -> b | _ -> raise (KernelError "malforemed rule"))
+  | "GEN" -> (function [a], [Var(v)] -> Forall(v, a) | _ -> raise (KernelError "malforemed rule"))
   | "SKO" -> 
     (function 
       | [Exists(v, a)], [SkolemConst(ref_seq); Var v1] when v=v1 -> substitute_in_formula v (SkolemConst ref_seq) a
       | [Exists(v, a)], [SkolemFunc(ref_seq, args); Var v1] when v=v1 -> substitute_in_formula v (SkolemFunc (ref_seq, args)) a
-      | _ -> raise ErrorMalformedRule)
-  | _ -> raise ErrorUnknownRule
+      | _ -> raise (KernelError "malforemed rule"))
+  | _ -> raise (KernelError "malforemed rule")
 
 let rec (>>) current_ref ref = 
   match current_ref, ref with 
@@ -119,11 +115,19 @@ let rec (>>) current_ref ref =
 
 let (>>=) r1 r2 = r1 >> r2 || r1 = r2
 
-let rec is_suffix r1 r2 =
-  match r1, r2 with
-    | Ref [], Ref _ -> true
+let rec is_suffix ref r =
+  match ref, r with
+    | Ref _, Ref [] -> true
     | Ref (head1::tail1), Ref (head2::tail2) when head1 = head2 -> is_suffix (Ref tail1) (Ref tail2)
     | _, _ -> false
+
+let append ref i =
+  match ref with
+  | Ref lst -> Ref (lst @ [i])
+
+let last_elem lst = Z.to_int (List.nth lst (List.length lst - 1))
+
+let last_of_ref ref = match ref with Ref lst -> last_elem lst
 
 let rec get_statement proof = 
   match proof with 
@@ -136,7 +140,61 @@ let rec get_statement proof =
 let formula_of_statement s = 
   match s with Statement {formula; _} -> formula
 
+let ref_of_statement s = 
+  match s with Statement {ref; _} -> ref
+
 let formula_of_proof proof ref = get_statement proof ref |> formula_of_statement
+
+let assumption_of_proof proof ref = 
+  match get_statement proof ref with Statement {formula; _} -> 
+    match formula with
+      | Implies(a, _) -> a
+      | _ -> raise (KernelError "implication form expected")
 
 let derive_formula proof rule_label refs terms = 
   rule rule_label (List.map (formula_of_proof proof) refs, terms)
+
+let formula_of_generalized_formula proof gf = 
+  match gf with 
+  | Reference ref -> formula_of_proof proof ref
+  | Formula f -> f
+
+let ref_of_generised_formula gf = 
+  match gf with 
+  | Reference ref -> ref
+  | Formula _ -> raise (KernelError "referece expected")
+
+let rec prove_thesis proof ref = 
+  match get_statement proof ref with 
+    | Statement 
+      {
+        formula;
+        inference;
+        statements;
+        _;
+      } -> 
+        match inference with
+            | Inference {mode = Axiom axiom_label; gformulas; terms} 
+              -> axiom axiom_label (List.map (formula_of_generalized_formula proof) gformulas, terms) = formula
+          
+            | Inference {mode = Assumption; gformulas; _} 
+              -> 
+                let refs = List.map ref_of_generised_formula gformulas in
+                let r = (List.nth refs 0) in
+                is_suffix ref r
+                && assumption_of_proof proof r = formula
+
+            | Inference {mode = Rule rule_label; gformulas; terms} 
+              -> let refs = List.map ref_of_generised_formula gformulas in
+                  List.for_all ((>>) ref) refs
+                  && List.for_all (prove_thesis proof) refs 
+                  && derive_formula proof rule_label refs terms = formula
+
+            | Inference {mode = Context; _} 
+              -> match formula with 
+                | Implies(_, b) 
+                  -> 
+                    let last_statement = List.nth statements (List.length statements - 1) in
+                    let last_formula = formula_of_statement last_statement in
+                    last_formula = b && prove_thesis proof (ref_of_statement last_statement)
+                | _ -> raise (KernelError "implication form expected")

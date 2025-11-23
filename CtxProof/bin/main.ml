@@ -1,19 +1,23 @@
 open Ctxproof
+open Proof
 (*open Printer*)
 
 let () =
       let lexbuf = Lexing.from_channel stdin in
             try
                   
-                  let _ = Parser.input Lexer.token lexbuf
-                  in
-                  print_string("parsed OK");
+                  let proof = Parser.input Lexer.token lexbuf in
+                  let result = valid proof in
+                  if result then
+                        print_string("QED")
+                  else raise (Failure "invalid proof");
                   print_newline();
                   
             with 
              | Parser.Error _ -> prerr_endline ("malformed expression " ^ Parser_utils.location_to_string lexbuf.Lexing.lex_start_p)
              | Lexer.Error _ -> prerr_endline ("illegal character " ^ Parser_utils.location_to_string lexbuf.Lexing.lex_start_p)
              | Errors.CxError m -> prerr_endline m;
+             | Failure m -> prerr_endline m;
              
       
             

@@ -1,7 +1,7 @@
 . $true 
 {
     0 p(X) | ~p(X)
-        {DIS} {p(X)} {};
+        {R:DIS} {p(X)} {};
     1 p(Y) | ~p(Y) 
-        {MOD} {} {};
+        {R:MOD} {} {};
 }

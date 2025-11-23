@@ -1,9 +1,9 @@
 %{
   open Types
-  (*open Errors*)
+  open Errors
 
-  (*let cx_error msg pos =
-    (CxError (msg ^ " " ^ Parser_utils.location_to_string pos))*)
+  let cx_error msg pos =
+    (CxError (msg ^ " " ^ Parser_utils.location_to_string pos))
 
 %}
 
@@ -54,7 +54,7 @@ statement:
 | ref=reference formula=fof_formula mode=mode_arg formulas=formulas_arg terms=terms_arg SEMICOLON
         { Statement {ref; formula; statements=[]; inference=Inference{ mode; formulas; terms}; pos=($startpos) } }
 | ref=reference formula=fof_formula LCURL statements=statements RCURL
-        { Statement {ref; formula; statements; inference=Inference{ mode="CTX"; formulas=[]; terms=[]}; pos=($startpos) } }
+        { Statement {ref; formula; statements; inference=Inference{ mode=Context; formulas=[]; terms=[]}; pos=($startpos) } }
 
 (*| error { raise (cx_error "expected statement" $startpos) }*)
 
@@ -67,7 +67,15 @@ integers:
 | INT DOT integers { $1 :: $3 }
 
 mode_arg:
- LCURL UWORD RCURL { $2 }
+ LCURL mode_type=UWORD COLON mode_value=UWORD RCURL 
+ 
+  { 
+    match  mode_type with
+      | "A" -> Axiom(mode_value)
+      | "R" -> Rule(mode_value)
+      | _ -> raise (cx_error "expected mode type A or R" $startpos)
+
+  }
 
 terms_arg:
   LCURL RCURL { [] }

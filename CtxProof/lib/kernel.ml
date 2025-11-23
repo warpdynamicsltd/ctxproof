@@ -164,6 +164,9 @@ let ref_of_generised_formula gf =
   | Reference ref -> ref
   | Formula _ -> raise (KernelError "referece expected")
 
+
+let pass b s = if b then b else raise (KernelError s)
+
 let rec prove_thesis proof ref = 
   match get_statement proof ref with 
     | Statement 
@@ -175,26 +178,37 @@ let rec prove_thesis proof ref =
       } -> 
         match inference with
             | Inference {mode = Axiom axiom_label; gformulas; terms} 
-              -> axiom axiom_label (List.map (formula_of_generalized_formula proof) gformulas, terms) = formula
+              ->
+                pass 
+                (axiom axiom_label (List.map (formula_of_generalized_formula proof) gformulas, terms) = formula)
+                "axiom violation"
           
             | Inference {mode = Assumption; gformulas; _} 
-              -> 
-                let refs = List.map ref_of_generised_formula gformulas in
+              ->
+                pass 
+                (let refs = List.map ref_of_generised_formula gformulas in
                 let r = (List.nth refs 0) in
                 is_suffix ref r
-                && assumption_of_proof proof r = formula
+                && assumption_of_proof proof r = formula)
+                "assumption violation"
 
             | Inference {mode = Rule rule_label; gformulas; terms} 
-              -> let refs = List.map ref_of_generised_formula gformulas in
-                  List.for_all ((>>) ref) refs
-                  && List.for_all (prove_thesis proof) refs 
-                  && derive_formula proof rule_label refs terms = formula
+              -> 
+                pass
+                (let refs = List.map ref_of_generised_formula gformulas in
+                List.for_all ((>>) ref) refs
+                && List.for_all (prove_thesis proof) refs 
+                && derive_formula proof rule_label refs terms = formula)
+                "rule violation"
 
             | Inference {mode = Context; _} 
-              -> match formula with 
+              -> 
+                match formula with 
                 | Implies(_, b) 
-                  -> 
-                    let last_statement = List.nth statements (List.length statements - 1) in
+                  ->
+                    pass 
+                    (let last_statement = List.nth statements (List.length statements - 1) in
                     let last_formula = formula_of_statement last_statement in
-                    last_formula = b && prove_thesis proof (ref_of_statement last_statement)
+                    last_formula = b && prove_thesis proof (ref_of_statement last_statement))
+                    "context violation"
                 | _ -> raise (KernelError "implication form expected")

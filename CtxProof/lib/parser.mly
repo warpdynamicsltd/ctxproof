@@ -25,7 +25,7 @@
 %start ref
 %start statement
 %start statements
-%type <Types.statement list>      input
+%type <Types.statement>      input
 %type <Types.first_order_formula> wff
 %type <Types.term>                wft
 %type <Types.reference>           ref
@@ -35,7 +35,7 @@
 %%
 
 input:
-  statements EOF {$1}
+  statement EOF {$1}
 
 wff:
   fof_formula EOF {$1}
@@ -48,10 +48,10 @@ ref:
 
 statements:
 | statement { [$1] }
-| statement SEMICOLON statements { $1 :: $3 }
+| statement statements { $1 :: $2 }
 
 statement:
-| ref=reference formula=fof_formula mode=mode_arg formulas=formulas_arg terms=terms_arg 
+| ref=reference formula=fof_formula mode=mode_arg formulas=formulas_arg terms=terms_arg SEMICOLON
         { Statement {ref; formula; statements=[]; inference=Inference{ mode; formulas; terms}; pos=($startpos) } }
 | ref=reference formula=fof_formula LCURL statements=statements RCURL
         { Statement {ref; formula; statements; inference=Inference{ mode="CTX"; formulas=[]; terms=[]}; pos=($startpos) } }

@@ -24,6 +24,6 @@ let read_file (path : string) : string =
     (fun () -> really_input_string ic (in_channel_length ic))
 
 
-let statements_of_file path = statements_of_string (read_file path)
+let statement_of_file path = statement_of_string (read_file path)
 
 

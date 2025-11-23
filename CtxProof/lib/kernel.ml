@@ -125,45 +125,18 @@ let rec is_suffix r1 r2 =
     | Ref (head1::tail1), Ref (head2::tail2) when head1 = head2 -> is_suffix (Ref tail1) (Ref tail2)
     | _, _ -> false
 
-module RefOrd = struct
-  type t = reference
-  let rec cmp a b =
-    match a, b with
-    | [], [] -> 0
-    | [], _ -> -1
-    | _, [] -> 1
-    | x::xs, y::ys ->
-      let c = Z.compare x y in
-      if c <> 0 then c else cmp xs ys
-  let compare (Ref a) (Ref b) = cmp a b
-end
+let rec get_statement proof = 
+  match proof with 
+    | Statement {statements; _} -> 
+          (fun ref -> 
+            match ref with
+            | Ref [] -> proof
+            | Ref (head::tail) -> get_statement (List.nth statements (Z.to_int head)) (Ref tail))
 
-module RefMap = Map.Make(RefOrd)
+let formula_of_statement s = 
+  match s with Statement {formula; _} -> formula
 
-let map_ref_to_index (statements : statement list) : int RefMap.t =
-  let rec aux i acc = function
-    | [] -> acc
-    | (Statement { ref; _ }) :: tl ->
-        aux (i + 1) (RefMap.add ref i acc) tl
-  in
-  aux 0 RefMap.empty statements
-
-let rec map_of_statements statements = 
-  match statements with 
-  | [] -> RefMap.empty
-  | ((Statement{ref;_} as s)::tl) -> RefMap.add ref s (map_of_statements tl)
-
-type proof = Proof of {statements: statement array; map: int RefMap.t}
-
-let proof_of_statements statements = Proof {statements = Array.of_list statements; map = map_ref_to_index statements}
-
-(*let rec context_of_statements statements = *)
-
-let formula_of_proof proof ref =  
-  match proof with Proof {statements; map} 
-    -> 
-      let i = RefMap.find ref map in
-        match statements.(i) with Statement {formula; _} -> formula
+let formula_of_proof proof ref = get_statement proof ref |> formula_of_statement
 
 let derive_formula proof rule_label refs terms = 
   rule rule_label (List.map (formula_of_proof proof) refs, terms)

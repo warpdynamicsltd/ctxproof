@@ -19,4 +19,5 @@ jobs:
 
       - run: sudo apt install -y libgmp-dev opam
       - run: ./install.sh
+      - run: ./ctxproof < examples/hello
       

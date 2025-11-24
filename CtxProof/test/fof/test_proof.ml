@@ -18,9 +18,13 @@ let run () =
     let proof = statement_of_file "../data/correct/proof1" in
     assert (formula_of_proof proof (make_ref ["0"]) = formula_of_string "p");
 
+    let proof = statement_of_file "../data/incorrect/nproof7" in
+    assert (var_accurs_free_in_assumptions proof (make_ref ["1"]) "X");
+
     assert (statement_of_file "../data/correct/proof1" |> valid);
     assert (statement_of_file "../data/correct/proof2" |> valid);
     assert (statement_of_file "../data/correct/proof3" |> valid);
+    assert (statement_of_file "../data/correct/proof4" |> valid);
 
 
     assert (statement_of_file "../data/incorrect/nproof1" |> not_valid);
@@ -28,3 +32,6 @@ let run () =
     assert (statement_of_file "../data/incorrect/nproof3" |> not_valid);
     assert (statement_of_file "../data/incorrect/nproof4" |> not_valid);
     assert (statement_of_file "../data/incorrect/nproof5" |> not_valid);
+    assert (statement_of_file "../data/incorrect/nproof6" |> not_valid);
+    assert (statement_of_file "../data/incorrect/nproof7" |> not_valid);
+    assert (statement_of_file "../data/incorrect/nproof8" |> not_valid);

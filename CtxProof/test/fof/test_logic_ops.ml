@@ -25,6 +25,11 @@ let run() =
   assert (free_vars_term (SkolemFunc ([Z.of_int 0], [Var "X"; Var "Y"])) = StringSet.of_list ["X"; "Y"]);
   assert (free_vars_term (Var "X") = StringSet.of_list ["X"]);
 
+  assert (var_occurs_free_in_formula "X" (formula_of_string "p(X)"));
+  assert (var_occurs_free_in_formula "X" (formula_of_string "p(X) & q(Y)"));
+  assert (var_occurs_free_in_formula "Y" (formula_of_string "![X]: (p(X) & q(Y))"));
+  assert (not (var_occurs_free_in_formula "X" (formula_of_string "p")));
+
 
   assert_eq __LINE__  (free_vars_formula @ formula_of_string) "p(X)" (StringSet.of_list ["X"]);
   assert_eq __LINE__  (free_vars_formula @ formula_of_string) "![X] : p(X)" (StringSet.of_list []);

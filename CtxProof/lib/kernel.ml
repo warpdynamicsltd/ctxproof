@@ -76,7 +76,6 @@ let rec substitute_in_formula var replacement = function
     | Forall(v, f) when not (var_occurs_in_term v replacement) && v != var -> Forall(v, substitute_in_formula var replacement f)
     | Forall(_, _) -> raise (KernelError "not admissible")
 
-
 let axiom_error = function () -> raise (KernelError "malformed axiom")
 
 let axiom = function
@@ -115,6 +114,30 @@ let rec (>>) current_ref ref =
 
 let (>>=) r1 r2 = r1 >> r2 || r1 = r2
 
+let rec skolem_compatibility_with_ref_in_term cmp ref t =
+    match t with
+      | Var _ -> true
+      | Const _ -> true
+      | SkolemConst seq -> cmp ref (Ref seq)
+      | SkolemFunc (seq, terms) -> cmp ref (Ref seq) && List.for_all (skolem_compatibility_with_ref_in_term cmp ref) terms
+      | Func (_, terms) -> List.for_all (skolem_compatibility_with_ref_in_term cmp ref) terms
+
+let rec skolem_compatibility_with_ref_in_formula cmp ref f =
+    match f with
+      | True -> true
+      | False -> true
+      | Pred (_, args) -> List.for_all (skolem_compatibility_with_ref_in_term cmp ref) args
+      | Not f1 -> skolem_compatibility_with_ref_in_formula cmp ref f1
+      | And (f1, f2)
+      | Or (f1, f2)
+      | Implies (f1, f2)
+      | Iff (f1, f2) -> skolem_compatibility_with_ref_in_formula cmp ref f1 && skolem_compatibility_with_ref_in_formula cmp ref f2
+      | Exists (_, f1)
+      | Forall (_, f1) -> skolem_compatibility_with_ref_in_formula cmp ref f1
+
+let formula_less_than_ref ref f = skolem_compatibility_with_ref_in_formula (>>) ref f
+let formula_lesseq_than_ref ref f = skolem_compatibility_with_ref_in_formula (>>=) ref f
+
 let rec is_suffix ref r =
   match ref, r with
     | Ref _, Ref [] -> true
@@ -151,8 +174,45 @@ let assumption_of_proof proof ref =
       | Implies(a, _) -> a
       | _ -> raise (KernelError "implication form expected")
 
+let rec var_accurs_free_in_assumptions proof ref_ var = 
+  match proof with
+    | Statement {ref; formula=Implies(a, _); statements; inference=Inference {mode=Context;_};_} when is_suffix ref_ ref 
+        -> (var_occurs_free_in_formula var a) || List.exists (fun s -> var_accurs_free_in_assumptions s ref_ var) statements
+    | _ -> false
+
+let sko_rule_constrain ref terms refs proof =
+  let formula = formula_of_proof proof (List.nth refs 0) in
+  let sk_term = List.nth terms 0 in
+  if 
+    List.for_all 
+      (fun v -> var_occurs_free_in_formula v formula && not (var_accurs_free_in_assumptions proof ref v)) 
+      (StringSet.elements (free_vars_term sk_term))
+    &&
+    List.for_all
+    (fun v -> var_occurs_in_term v sk_term || var_accurs_free_in_assumptions proof ref v)
+    (StringSet.elements (free_vars_formula formula))
+  then
+    match ref, sk_term with 
+      | Ref seq, SkolemConst seq1 -> seq = seq1
+      | Ref seq, SkolemFunc(seq1, _) -> seq = seq1
+      | _ -> false
+  else false
+
+let gen_rule_constrain ref terms proof =
+  match List.nth terms 0 with 
+    | Var v -> not (var_accurs_free_in_assumptions proof ref v)
+    | _ -> false
+
 let derive_formula proof rule_label refs terms = 
   rule rule_label (List.map (formula_of_proof proof) refs, terms)
+
+
+let is_formula_derived ref formula proof rule_label refs terms =
+  match rule_label with 
+    | "SKO" when sko_rule_constrain ref terms refs proof -> formula = derive_formula proof rule_label refs terms
+    | "GEN" when gen_rule_constrain ref terms proof -> formula = derive_formula proof rule_label refs terms
+    | "MOD" | "IDN" -> formula = derive_formula proof rule_label refs terms
+    | _ -> raise (KernelError "rule violation")
 
 let formula_of_generalized_formula proof gf = 
   match gf with 
@@ -181,36 +241,48 @@ let rec prove_thesis proof ref_ =
             | Inference {mode = Axiom axiom_label; gformulas; terms} 
               ->
                 pass 
-                (axiom axiom_label (List.map (formula_of_generalized_formula proof) gformulas, terms) = formula)
+                (
+                  formula_lesseq_than_ref ref_ formula
+                  && axiom axiom_label (List.map (formula_of_generalized_formula proof) gformulas, terms) = formula
+                )
                 "axiom violation"
           
             | Inference {mode = Assumption; gformulas; _} 
               ->
                 pass 
-                (let refs = List.map ref_of_generised_formula gformulas in
-                let r = (List.nth refs 0) in
-                is_suffix ref_ r
-                && assumption_of_proof proof r = formula)
+                (
+                  let refs = List.map ref_of_generised_formula gformulas in
+                  let r = (List.nth refs 0) in
+                    formula_less_than_ref ref_ formula
+                    && is_suffix ref_ r 
+                    && assumption_of_proof proof r = formula
+                )
                 "assumption violation"
 
             | Inference {mode = Rule rule_label; gformulas; terms} 
               -> 
                 pass
-                (let refs = List.map ref_of_generised_formula gformulas in
-                List.for_all ((>>) ref_) refs
-                && List.for_all (prove_thesis proof) refs 
-                && derive_formula proof rule_label refs terms = formula)
+                (
+                  let refs = List.map ref_of_generised_formula gformulas in
+                    formula_lesseq_than_ref ref_ formula
+                    && List.for_all ((>>) ref_) refs
+                    && List.for_all (prove_thesis proof) refs
+                    && is_formula_derived ref_ formula proof rule_label refs terms
+                )
                 "rule violation"
 
             | Inference {mode = Context; _} 
               -> 
                 match formula with 
-                | Implies(_, b) 
+                | Implies(_, last_formula) 
                   ->
                     pass 
-                    (let last_statement = List.nth statements (List.length statements - 1) in
-                    let last_formula = formula_of_statement last_statement in
-                    last_formula = b && prove_thesis proof (ref_of_statement last_statement))
+                    (
+                      let last_statement = List.nth statements (List.length statements - 1) in
+                        formula_less_than_ref ref_ last_formula
+                        && last_formula = formula_of_statement last_statement
+                        && prove_thesis proof (ref_of_statement last_statement)
+                    )
                     "context violation"
                 | _ -> raise (KernelError "implication form expected")
           )

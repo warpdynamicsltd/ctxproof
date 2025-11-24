@@ -129,13 +129,13 @@ let last_elem lst = Z.to_int (List.nth lst (List.length lst - 1))
 
 let last_of_ref ref = match ref with Ref lst -> last_elem lst
 
-let rec get_statement proof = 
+let rec get_statement proof ref = 
   match proof with 
-    | Statement {statements; _} -> 
-          (fun ref -> 
-            match ref with
-            | Ref [] -> proof
-            | Ref (head::tail) -> get_statement (List.nth statements (Z.to_int head)) (Ref tail))
+    | Statement {statements; _} 
+      -> match ref with
+          | Ref [] -> proof
+          | Ref (head::tail) -> get_statement (List.nth statements (Z.to_int head)) (Ref tail)
+    
 
 let formula_of_statement s = 
   match s with Statement {formula; _} -> formula
@@ -167,16 +167,17 @@ let ref_of_generised_formula gf =
 
 let pass b s = if b then b else raise (KernelError s)
 
-let rec prove_thesis proof ref = 
-  match get_statement proof ref with 
+let rec prove_thesis proof ref_ = 
+  match get_statement proof ref_ with 
     | Statement 
       {
+        ref;
         formula;
         inference;
         statements;
         _;
-      } -> 
-        match inference with
+      } when ref = ref_ -> 
+        (match inference with
             | Inference {mode = Axiom axiom_label; gformulas; terms} 
               ->
                 pass 
@@ -188,7 +189,7 @@ let rec prove_thesis proof ref =
                 pass 
                 (let refs = List.map ref_of_generised_formula gformulas in
                 let r = (List.nth refs 0) in
-                is_suffix ref r
+                is_suffix ref_ r
                 && assumption_of_proof proof r = formula)
                 "assumption violation"
 
@@ -196,7 +197,7 @@ let rec prove_thesis proof ref =
               -> 
                 pass
                 (let refs = List.map ref_of_generised_formula gformulas in
-                List.for_all ((>>) ref) refs
+                List.for_all ((>>) ref_) refs
                 && List.for_all (prove_thesis proof) refs 
                 && derive_formula proof rule_label refs terms = formula)
                 "rule violation"
@@ -212,3 +213,6 @@ let rec prove_thesis proof ref =
                     last_formula = b && prove_thesis proof (ref_of_statement last_statement))
                     "context violation"
                 | _ -> raise (KernelError "implication form expected")
+          )
+    
+    | _ -> raise (KernelError "invalid reference")

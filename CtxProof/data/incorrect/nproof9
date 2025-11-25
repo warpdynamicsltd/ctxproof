@@ -1,0 +1,11 @@
+. ( ![X]: ( ?[Y]: phi(X, Y) ) ) => ( ?[Y]: ( ![X]: phi(X, Y) ) )
+{
+    
+    0 ![X]: ( ?[Y]: phi(X, Y) ) {ASM} {.};
+    1 ( ![X]: ( ?[Y]: phi(X, Y) ) ) => ( ?[Y]: phi(X, Y) ) {A:ALL} {?[Y]: phi(X, Y)} {X, X};
+    2 ?[Y]: phi(X, Y) {R:MOD} {1; 0};
+    3 phi(X, sk.3) {R:SKO} {2} {sk.3, Y};
+    4 ![X]: phi(X, sk.3) {R:GEN} {3} {X};
+    5 ( ![X]: phi(X, sk.3) ) => ( ?[Y]: ( ![X]: phi(X, Y) ) ) {A:EXT} {![X]: phi(X, Y)} {sk.3, Y};
+    6 ?[Y]: ( ![X]: phi(X, Y) ) {R:MOD} {5; 4}; 
+}

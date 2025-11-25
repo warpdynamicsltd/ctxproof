@@ -7,7 +7,7 @@ let proved proof ref =
   with KernelError msg ->
     let statement = get_statement proof ref in
     match statement with Statement {pos;_}
-      -> failwith (msg ^ " " ^ (location_to_string pos))
+      -> raise (KernelError (msg ^ " " ^ (location_to_string pos)))
     
     
 let valid proof = proved proof (Ref [])

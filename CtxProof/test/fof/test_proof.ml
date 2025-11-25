@@ -8,6 +8,7 @@ let not_valid proof =
     try
         valid proof
     with
+        | KernelError _ 
         | Failure _ -> true
 
 let run () =
@@ -37,3 +38,5 @@ let run () =
     assert (statement_of_file "../data/incorrect/nproof6" |> not_valid);
     assert (statement_of_file "../data/incorrect/nproof7" |> not_valid);
     assert (statement_of_file "../data/incorrect/nproof8" |> not_valid);
+    assert (statement_of_file "../data/incorrect/nproof9" |> not_valid);
+    assert (statement_of_file "../data/incorrect/nproof10" |> not_valid);

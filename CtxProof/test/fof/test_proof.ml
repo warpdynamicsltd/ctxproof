@@ -25,6 +25,8 @@ let run () =
     assert (statement_of_file "../data/correct/proof2" |> valid);
     assert (statement_of_file "../data/correct/proof3" |> valid);
     assert (statement_of_file "../data/correct/proof4" |> valid);
+    assert (statement_of_file "../data/correct/proof5" |> valid);
+    assert (statement_of_file "../data/correct/proof6" |> valid);
 
 
     assert (statement_of_file "../data/incorrect/nproof1" |> not_valid);

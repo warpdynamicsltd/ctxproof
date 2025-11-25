@@ -1086,9 +1086,9 @@ $\phi = \ulcorner \alpha\to\omega \urcorner \in \F(\L_r)$. Since $\M_{k_f}$ is a
 Since there is an additional constrain on (GEN) rule in Definition \ref{proof-definition} compared to Definition \ref{classical-proof}, that you can not apply generalisation to a variable used as free in any assumption to which you are able to refer and this constrain played a crucial role in a proof of Theorem \ref{soundnes-theorem}, one may wonder if this constrain is really necessary. We will show now a trivial example, how \textit{naive} (GEN) could lead to a false proof.
 
 \begin{lstlisting}[texcl, escapechar=\%]
-[0] %$\mapsto \phi(x) \to \forall x.\phi(x) $%
-[0, 1] %$\mapsto \phi(x)$% # ASM $\gamma_{0}$
-[0, 2] %$\mapsto \forall x. \phi(x)$% # `\textit{naive} GEN $\gamma_{0,1}$
+[] %$\mapsto \phi(x) \to \forall x.\phi(x) $%
+[0] %$\mapsto \phi(x)$% # ASM $\gamma_{[]}$
+[1] %$\mapsto \forall x. \phi(x)$% # `\textit{naive} GEN $\gamma_{0}$
 \end{lstlisting}
 
 If the above proof was correct, we would have had $\models \phi(x) \to \forall x.\phi(x)$, which is obviously falsifiable.
@@ -1098,15 +1098,15 @@ One may also wonder, if in a rule (SKO) it is really necessary to take a whole f
 We will show again a simple example, how such a \textit{naive} rule (SKO) would lead to a false proof.
 
 \begin{lstlisting}[texcl, escapechar=\%]
-[0] %$\mapsto \big(\forall x. \exists y. \phi(x,y)\big) 
+[] %$\mapsto \big(\forall x. \exists y. \phi(x,y)\big) 
 \to \big(\exists y. \forall x. \phi(x, y)\big)$% 
-[0, 1] %$\mapsto \forall x. \exists y. \phi(x,y)$% # ASM $\gamma_0$
-[0, 2] %$\mapsto \big(\forall x. \exists y. \phi(x,y)\big) \to \big(\exists y. \phi(x,y)\big)$% # Axiom ALL
-[0, 3] %$\mapsto \exists y. \phi(x,y) $% # MOD $\gamma_{0,2}, \gamma_{0,1}$
-[0, 4] %$\mapsto \phi(x,\sk^0_{[0, 4]}) $% # \textit{naive} SKO $\gamma_{0, 3}$
-[0, 5] %$\mapsto \forall x. \phi(x,\sk^0_{[0, 4]}) $% # GEN $\gamma_{0, 4}$
-[0, 6] %$\mapsto \big(\forall x. \phi(x,\sk^0_{[0, 4]})\big) \to \big(\exists y. \forall x. \phi(x,y)\big)  $% # Axiom EXT
-[0, 7] %$\mapsto \exists y. \forall x. \phi(x,y) $% # MOD $\gamma_{0,6}, \gamma_{0, 5}$
+[0] %$\mapsto \forall x. \exists y. \phi(x,y)$% # ASM $\gamma_{[]}$
+[1] %$\mapsto \big(\forall x. \exists y. \phi(x,y)\big) \to \big(\exists y. \phi(x,y)\big)$% # Axiom ALL
+[2] %$\mapsto \exists y. \phi(x,y) $% # MOD $\gamma_{1}, \gamma_{0}$
+[3] %$\mapsto \phi(x,\sk^0_{[3]}) $% # \textit{naive} SKO $\gamma_{2}$
+[4] %$\mapsto \forall x. \phi(x,\sk^0_{[3]}) $% # GEN $\gamma_{3}$
+[5] %$\mapsto \big(\forall x. \phi(x,\sk^0_{[3]})\big) \to \big(\exists y. \forall x. \phi(x,y)\big)  $% # Axiom EXT
+[6] %$\mapsto \exists y. \forall x. \phi(x,y) $% # MOD $\gamma_{5}, \gamma_{4}$
 \end{lstlisting}
 
 if the above proof was correct, we would have had\\

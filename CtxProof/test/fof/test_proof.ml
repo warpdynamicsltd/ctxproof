@@ -8,7 +8,7 @@ let not_valid proof =
     try
         valid proof
     with
-        | KernelError _ 
+        | ProofError _ 
         | Failure _ -> true
 
 let run () =

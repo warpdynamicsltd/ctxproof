@@ -1,13 +1,13 @@
 open Kernel
 open Parser_utils
 
+exception ProofError of string
+
 let proved proof ref = 
   try
     prove_thesis proof ref
-  with KernelError msg ->
-    let statement = get_statement proof ref in
-    match statement with Statement {pos;_}
-      -> raise (KernelError (msg ^ " " ^ (location_to_string pos)))
+  with KernelPosError (msg, pos)
+      -> raise (ProofError (msg ^ " " ^ (location_to_string pos)))
     
     
 let valid proof = proved proof (Ref [])

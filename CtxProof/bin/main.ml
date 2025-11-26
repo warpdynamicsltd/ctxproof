@@ -17,6 +17,7 @@ let () =
              | Parser.Error _ -> prerr_endline ("malformed expression " ^ Parser_utils.location_to_string lexbuf.Lexing.lex_start_p)
              | Lexer.Error _ -> prerr_endline ("illegal character " ^ Parser_utils.location_to_string lexbuf.Lexing.lex_start_p)
              | Errors.CxError m -> prerr_endline m;
+             | ProofError m -> prerr_endline m;
              | Failure m -> prerr_endline m;
              
       

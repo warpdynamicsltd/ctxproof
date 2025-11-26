@@ -1,6 +1,8 @@
 open Types
 
 exception KernelError of string
+exception KernelPosError of string * Lexing.position
+
 
 module StringSet = Set.Make(String)
 
@@ -207,12 +209,12 @@ let derive_formula proof rule_label refs terms =
   rule rule_label (List.map (formula_of_proof proof) refs, terms)
 
 
-let is_formula_derived ref formula proof rule_label refs terms =
+let is_formula_derived pos ref formula proof rule_label refs terms =
   match rule_label with 
     | "SKO" when sko_rule_constrain ref terms refs proof -> formula = derive_formula proof rule_label refs terms
     | "GEN" when gen_rule_constrain ref terms proof -> formula = derive_formula proof rule_label refs terms
     | "MOD" | "IDN" -> formula = derive_formula proof rule_label refs terms
-    | _ -> raise (KernelError "rule violation")
+    | _ -> raise (KernelPosError ("rule violation", pos))
 
 let formula_of_generalized_formula proof gf = 
   match gf with 
@@ -224,8 +226,13 @@ let ref_of_generised_formula gf =
   | Reference ref -> ref
   | Formula _ -> raise (KernelError "referece expected")
 
+let pos_of_statement statement = 
+  match statement with
+    | Statement {pos; _} -> pos
 
-let pass b s = if b then b else raise (KernelError s)
+let pos_of_ref proof ref = get_statement proof ref |> pos_of_statement
+
+let pass b s pos = if b then b else raise (KernelPosError (s, pos))
 
 let rec prove_thesis proof ref_ = 
   match get_statement proof ref_ with 
@@ -235,17 +242,17 @@ let rec prove_thesis proof ref_ =
         formula;
         inference;
         statements;
-        _;
+        pos;
       } when ref = ref_ -> 
         (match inference with
             | Inference {mode = Axiom axiom_label; gformulas; terms} 
               ->
-                pass 
+                pass
                 (
                   formula_lesseq_than_ref ref_ formula
                   && axiom axiom_label (List.map (formula_of_generalized_formula proof) gformulas, terms) = formula
                 )
-                "axiom violation"
+                "axiom violation" pos
           
             | Inference {mode = Assumption; gformulas; _} 
               ->
@@ -257,7 +264,7 @@ let rec prove_thesis proof ref_ =
                     && is_suffix ref_ r 
                     && assumption_of_proof proof r = formula
                 )
-                "assumption violation"
+                "assumption violation" pos
 
             | Inference {mode = Rule rule_label; gformulas; terms} 
               -> 
@@ -267,9 +274,9 @@ let rec prove_thesis proof ref_ =
                     formula_lesseq_than_ref ref_ formula
                     && List.for_all ((>>) ref_) refs
                     && List.for_all (prove_thesis proof) refs
-                    && is_formula_derived ref_ formula proof rule_label refs terms
+                    && is_formula_derived pos ref_ formula proof rule_label refs terms
                 )
-                "rule violation"
+                "rule violation" pos
 
             | Inference {mode = Context; _} 
               -> 
@@ -283,8 +290,8 @@ let rec prove_thesis proof ref_ =
                         && last_formula = formula_of_statement last_statement
                         && prove_thesis proof (ref_of_statement last_statement)
                     )
-                    "context violation"
-                | _ -> raise (KernelError "implication form expected")
+                    "context violation" pos
+                | _ -> raise (KernelPosError ("implication form expected", pos))
           )
     
-    | _ -> raise (KernelError "invalid reference")
+    | _ -> raise (KernelPosError ("invalid reference", pos_of_ref proof ref_))

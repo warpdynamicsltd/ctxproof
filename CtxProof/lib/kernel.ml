@@ -159,7 +159,11 @@ let rec get_statement proof ref =
     | Statement {statements; _} 
       -> match ref with
           | Ref [] -> proof
-          | Ref (head::tail) -> get_statement (List.nth statements (Z.to_int head)) (Ref tail)
+          | Ref (head::tail) -> 
+              let index = Z.to_int head in
+              if index < List.length statements 
+                then get_statement (List.nth statements index) (Ref tail)
+              else raise (KernelError "ref out of bound")
     
 
 let formula_of_statement s = 
@@ -209,12 +213,12 @@ let derive_formula proof rule_label refs terms =
   rule rule_label (List.map (formula_of_proof proof) refs, terms)
 
 
-let is_formula_derived pos ref formula proof rule_label refs terms =
+let is_formula_derived ref formula proof rule_label refs terms =
   match rule_label with 
     | "SKO" when sko_rule_constrain ref terms refs proof -> formula = derive_formula proof rule_label refs terms
     | "GEN" when gen_rule_constrain ref terms proof -> formula = derive_formula proof rule_label refs terms
     | "MOD" | "IDN" -> formula = derive_formula proof rule_label refs terms
-    | _ -> raise (KernelPosError ("rule violation", pos))
+    | _ -> raise (KernelError "rule violation")
 
 let formula_of_generalized_formula proof gf = 
   match gf with 
@@ -232,7 +236,7 @@ let pos_of_statement statement =
 
 let pos_of_ref proof ref = get_statement proof ref |> pos_of_statement
 
-let pass b s pos = if b then b else raise (KernelPosError (s, pos))
+let pass b s = if b then b else raise (KernelError s)
 
 let rec prove_thesis proof ref_ = 
   match get_statement proof ref_ with 
@@ -244,54 +248,59 @@ let rec prove_thesis proof ref_ =
         statements;
         pos;
       } when ref = ref_ -> 
-        (match inference with
-            | Inference {mode = Axiom axiom_label; gformulas; terms} 
-              ->
-                pass
-                (
-                  formula_lesseq_than_ref ref_ formula
-                  && axiom axiom_label (List.map (formula_of_generalized_formula proof) gformulas, terms) = formula
-                )
-                "axiom violation" pos
-          
-            | Inference {mode = Assumption; gformulas; _} 
-              ->
-                pass 
-                (
-                  let refs = List.map ref_of_generised_formula gformulas in
-                  let r = (List.nth refs 0) in
-                    formula_less_than_ref ref_ formula
-                    && is_suffix ref_ r 
-                    && assumption_of_proof proof r = formula
-                )
-                "assumption violation" pos
-
-            | Inference {mode = Rule rule_label; gformulas; terms} 
-              -> 
-                pass
-                (
-                  let refs = List.map ref_of_generised_formula gformulas in
+        (try
+          (match inference with
+              | Inference {mode = Axiom axiom_label; gformulas; terms} 
+                ->
+                  pass
+                  (
                     formula_lesseq_than_ref ref_ formula
-                    && List.for_all ((>>) ref_) refs
-                    && List.for_all (prove_thesis proof) refs
-                    && is_formula_derived pos ref_ formula proof rule_label refs terms
-                )
-                "rule violation" pos
+                    && axiom axiom_label (List.map (formula_of_generalized_formula proof) gformulas, terms) = formula
+                  )
+                  "axiom violation"
+            
+              | Inference {mode = Assumption; gformulas; _} 
+                ->
+                  pass 
+                  (
+                    let refs = List.map ref_of_generised_formula gformulas in
+                    let r = (List.nth refs 0) in
+                      formula_less_than_ref ref_ formula
+                      && is_suffix ref_ r 
+                      && assumption_of_proof proof r = formula
+                  )
+                  "assumption violation"
 
-            | Inference {mode = Context; _} 
-              -> 
-                match formula with 
-                | Implies(_, last_formula) 
-                  ->
-                    pass 
-                    (
-                      let last_statement = List.nth statements (List.length statements - 1) in
-                        formula_less_than_ref ref_ last_formula
-                        && last_formula = formula_of_statement last_statement
-                        && prove_thesis proof (ref_of_statement last_statement)
-                    )
-                    "context violation" pos
-                | _ -> raise (KernelPosError ("implication form expected", pos))
-          )
+              | Inference {mode = Rule rule_label; gformulas; terms} 
+                -> 
+                  pass
+                  (
+                    let refs = List.map ref_of_generised_formula gformulas in
+                      formula_lesseq_than_ref ref_ formula
+                      && List.for_all ((>>) ref_) refs
+                      && List.for_all (prove_thesis proof) refs
+                      && is_formula_derived ref_ formula proof rule_label refs terms
+                  )
+                  "rule violation"
+
+              | Inference {mode = Context; _} 
+                -> 
+                  match formula with 
+                  | Implies(_, last_formula) 
+                    ->
+                      pass 
+                      (
+                        let last_statement = List.nth statements (List.length statements - 1) in
+                          formula_less_than_ref ref_ last_formula
+                          && last_formula = formula_of_statement last_statement
+                          && prove_thesis proof (ref_of_statement last_statement)
+                      )
+                      "context violation"
+                  | _ -> raise (KernelError "implication form expected")
+            )
+          with
+          | KernelError s -> raise (KernelPosError (s, pos))
+          | Failure s -> raise (KernelPosError (s, pos))
+        )
     
     | _ -> raise (KernelPosError ("invalid reference", pos_of_ref proof ref_))

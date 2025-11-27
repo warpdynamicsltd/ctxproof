@@ -37,5 +37,4 @@ let proved proof ref =
       -> raise (ProofError msg)
     
     
-
 let valid proof = proved proof (Ref [])

@@ -128,10 +128,10 @@ The `<ref>` in a Skolem term is a dot-separated numeric path corresponding to a 
 - Assumption:
   - `{ASM}` — recalls an assumption.
 
-- Axioms `{A:NAME}` — common names include:
-  - `LEM`, `IMP`, `AND`, `ANL`, `ANR`, `ORL`, `ORR`, `DIS`, `CON`, `IFI`, `IFO`, `ALL`, `EXT`
+- Axioms `{A:NAME}` — `NAME` is from the list:
+  - `TRU`, `LEM`, `IMP`, `AND`, `ANL`, `ANR`, `ORL`, `ORR`, `DIS`, `CON`, `IFI`, `IFO`, `ALL`, `EXT`
 
-- Rules `{R:NAME}` — common rules:
+- Rules `{R:NAME}` — `NAME` is from the list:
   - `MOD` — Modus Ponens
   - `GEN` — Generalization
   - `SKO` — Skolemization
@@ -150,98 +150,98 @@ ref Formula {A:NAME} { generalized_formulas } { terms };
 - `generalized_formulas` are references or inline formulas inside `{ ... }`, separated by semicolons.
 - `terms` is a list of terms separated by commas (terms bracket can be skiped if a list of terms is empty).
 
-A:TRU - Truth
+`A:TRU` - Truth
 - state an axiom `$true`
 - Usage:
   ```
   r $true {A:TRU} {};
   ```
 
-A:LEM — Law of Excluded Middle
+`A:LEM` — Law of Excluded Middle
 - Using a formula `a`, state an axiom `a | ~a`
 - Usage:
   ```
   r (a | ~a) {A:LEM} {a};
   ```
 
-A:IMP
+`A:IMP`
 - Using formuals `a` and `b`, state an axiom `a => (b => a)`
 - Usage:
   ```
   r (a => (b => a)) {A:IMP} {a; b};
   ```
 
-A:ANL — And-Left
+`A:ANL` — And-Left
 - Using formulas `a` and `b`, state an axiom `(a & b) => a`
 - Usage:
   ```
   r ((a & b) => a) {A:ANL} {a; b};
   ```
 
-A:ANR — And-Right
+`A:ANR` — And-Right
 - Using formulas `a` and `b`, state an axiom `(a & b) => b`
 - Usage:
   ```
   r ((a & b) => b) {A:ANR} {a; b};
   ```
 
-A:AND — And-Introduction (curried)
+`A:AND` — And-Introduction (curried)
 - Using formulas `a` and `b`, state an axiom `a => (b => (a & b))`
 - Usage:
   ```
   r (a => (b => (a & b))) {A:AND} {a; b};
   ```
 
-A:ORL — Or-Left
+`A:ORL` — Or-Left
 - Using formulas `a` and `b`, state an axiom `a => (a | b)`
 - Usage:
   ```
   r (a => (a | b)) {A:ORL} {a; b};
   ```
 
-A:ORR — Or-Right
+`A:ORR` — Or-Right
 - Using formulas `a` and `b`, state an axiom `b => (a | b)`
 - Usage:
   ```
   r (b => (a | b)) {A:ORR} {a; b};
   ```
 
-A:DIS — Or-Elimination (curried)
+`A:DIS` — Or-Elimination (curried)
 - Using formulas `a`, `b`, `c`, state an axiom `(a => c) => ((b => c) => ((a | b) => c))`
 - Usage:
   ```
   r ((a => c) => ((b => c) => ((a | b) => c))) {A:DIS} {a; b; c};
   ```
 
-A:CON — Contradiction pattern
+`A:CON` — Contradiction pattern
 - Using formulas `a` and `b`, state an axiom `~a => (a => b)`
 - Usage:
   ```
   r (~a => (a => b)) {A:CON} {a; b};
   ```
 
-A:IFI — Iff-Introduction
+`A:IFI` — Iff-Introduction
 - Using formulas `a` and `b`, state an axiom `(a => b) => ((b => a) => (a <=> b))`
 - Usage:
   ```
   r ((a => b) => ((b => a) => (a <=> b))) {A:IFI} {a; b};
   ```
 
-A:IFO — Iff-Elimination
+`A:IFO` — Iff-Elimination
 - Using formulas `a` and `b`, state an axiom `(a <=> b) => ((a => b) & (b => a))`
 - Usage:
   ```
   r ((a <=> b) => ((a => b) & (b => a))) {A:IFO} {a; b};
   ```
 
-A:ALL — Universal Instantiation
+`A:ALL` — Universal Instantiation
 - From a schema `a(X)` and a term `t`, state an axiom `(![X]: a(X)) => a(t)`
 - Usage:
   ```
   r ( (![X]: a(X)) => a(t) ) {A:ALL} {a(X)} {t, X};
   ```
 
-A:EXT — Existential Introduction
+`A:EXT` — Existential Introduction
 - From a schema `a(X)` and a term `t`, state an axiom `a(t) => (?[X]: a(X))`
 - Usage:
   ```
@@ -258,21 +258,21 @@ r formula {R:NAME} { refs } { terms };
 - `refs` are references of formulas, separated by semicolons.
 - `terms` is a list of terms separated by commas (terms bracket can be skiped if a list of terms is empty). 
 
-R:IDN — Identity
+`R:IDN` — Identity
 - From `a`, conclude `a`
 - Usage:
   ```
   r a {R:IDN} {<ref of a>};
   ```
 
-R:MOD — Modus Ponens
+`R:MOD` — Modus Ponens
 - From `(a => b)` and `a`, conclude `b`
 - Usage:
   ```
   r b {R:MOD} {<ref of a => b>; <ref of a>};
   ```
 
-R:GEN — Generalization
+`R:GEN` — Generalization
 - From `a`, conclude `![X]: a`
 - Constraint: `X` must not depend on open assumptions in the current context.
 - Usage:
@@ -280,7 +280,7 @@ R:GEN — Generalization
   r (![X]: a) {R:GEN} {<ref of a>} {X};
   ```
 
-R:SKO — Skolemization
+`R:SKO` — Skolemization
 - From `?[X]: a(X)`, introduce a Skolem term and conclude `a(sk)`
 - Constraints:
   - The Skolem’s anchor `<ref>` should match the current statement’s reference.
@@ -295,6 +295,8 @@ R:SKO — Skolemization
   ```
 
 ### Assumption {ASM}
+
+`ASM` — Assumption
 
 Usage pattern:
 ```

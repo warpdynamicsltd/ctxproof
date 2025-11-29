@@ -150,6 +150,13 @@ ref Formula {A:NAME} { generalized_formulas } { terms };
 - `generalized_formulas` are references or inline formulas inside `{ ... }`, separated by semicolons.
 - `terms` is a list of terms separated by commas (terms bracket can be skiped if a list of terms is empty).
 
+A:TRU - Truth
+- conclude `$true`
+- Usage:
+  ```
+  r $true {A:TRU} {};
+  ```
+
 A:LEM — Law of Excluded Middle
 - From `a`, conclude `a | ~a`
 - Usage:

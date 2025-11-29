@@ -79,6 +79,7 @@ let rec substitute_in_formula var replacement = function
 let axiom_error = function () -> raise (KernelError MalformedAxiom)
 
 let axiom = function
+  | "TRU" -> (function [], [] -> True | _, _ -> axiom_error())
   | "LEM" -> (function [a], [] -> Or(a, Not a) | _, _ -> axiom_error())
   | "IMP" -> (function [a; b], [] -> Implies(a, (Implies(b, a))) | _ -> axiom_error())
   | "ANL" -> (function [a; b], [] -> Implies(And(a, b), a) | _ -> axiom_error())

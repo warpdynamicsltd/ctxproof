@@ -1,6 +1,5 @@
-(* lib/kernel.ml *)
 open Types
-open Errors (* assuming kernel_error_code and kernel_error_message live here *)
+open Errors
 
 exception KernelError of Errors.kernel_error_code
 exception KernelPosError of Errors.kernel_error_code * Lexing.position
@@ -236,7 +235,7 @@ let ref_of_generised_formula gf =
   | Reference ref -> ref
   | Formula _ -> raise (KernelError ReferenceExpected)
 
-let pass b code pos = if b then b else raise (KernelPosError (code, pos))
+let pass b code = if b then b else raise (KernelError code)
 
 let rec prove_thesis proof ref_ =
   match get_statement proof ref_ with
@@ -257,7 +256,7 @@ let rec prove_thesis proof ref_ =
                     formula_lesseq_than_ref ref_ formula
                     && axiom axiom_label (List.map (formula_of_generalized_formula proof) gformulas, terms) = formula
                   )
-                  AxiomViolation pos
+                  AxiomViolation
 
               | Inference {mode = Assumption; gformulas; _}
                 ->
@@ -269,7 +268,7 @@ let rec prove_thesis proof ref_ =
                       && is_suffix ref_ r
                       && assumption_of_proof proof r = formula
                   )
-                  AssumptionViolation pos
+                  AssumptionViolation
 
               | Inference {mode = Rule rule_label; gformulas; terms}
                 ->
@@ -281,7 +280,7 @@ let rec prove_thesis proof ref_ =
                       && List.for_all (prove_thesis proof) refs
                       && is_formula_derived ref_ formula proof rule_label refs terms
                   )
-                  RuleViolation pos
+                  RuleViolation
 
               | Inference {mode = Context; _}
                 ->
@@ -295,7 +294,7 @@ let rec prove_thesis proof ref_ =
                           && last_formula = formula_of_statement last_statement
                           && prove_thesis proof (ref_of_statement last_statement)
                       )
-                      ContextViolation pos
+                      ContextViolation
                   | _ -> raise (KernelError ImplicationFormExpected)
             )
           with

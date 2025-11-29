@@ -2,14 +2,25 @@ open Ctxproof
 open Kernel
 open Proof
 open Fof_utils
+open Parser_utils
 open Tutils
 
 let not_valid proof = 
     try
         valid proof
     with
-        | ProofError _ 
+        | ProofError _
+        | ProofPosError _ 
         | Failure _ -> true
+
+let read_error proof = 
+    try
+        let _ = valid proof in
+        ("null", 0, 0)
+    with
+        | ProofError msg -> (msg, 0, 0)
+        | ProofPosError (msg, pos) 
+            -> let sl, sc = position pos in (msg, sl, sc + 1)
 
 let run () =
     let proof = statement_of_file "../data/hello" in
@@ -30,6 +41,7 @@ let run () =
     assert (statement_of_file "../data/correct/proof6" |> valid);
     assert (statement_of_file "../data/correct/proof7" |> valid);
     assert (statement_of_file "../data/correct/proof8" |> valid);
+    assert (statement_of_file "../data/correct/proof9" |> valid);
 
     assert (statement_of_file "../data/incorrect/nproof1" |> not_valid);
     assert (statement_of_file "../data/incorrect/nproof2" |> not_valid);
@@ -41,3 +53,17 @@ let run () =
     assert (statement_of_file "../data/incorrect/nproof8" |> not_valid);
     assert (statement_of_file "../data/incorrect/nproof9" |> not_valid);
     assert (statement_of_file "../data/incorrect/nproof10" |> not_valid);
+    assert (statement_of_file "../data/incorrect/nproof11" |> not_valid);
+
+    assert (statement_of_file "../data/incorrect/nproof1" |> read_error = ("invalid reference", 1, 1));
+    assert (statement_of_file "../data/incorrect/nproof2" |> read_error = ("invalid reference", 3, 5));
+    assert (statement_of_file "../data/incorrect/nproof3" |> read_error = ("invalid reference", 4, 5));
+    assert (statement_of_file "../data/incorrect/nproof4" |> read_error = ("invalid reference", 10, 13));
+    assert (statement_of_file "../data/incorrect/nproof5" |> read_error = ("invalid reference", 4, 5));
+    assert (statement_of_file "../data/incorrect/nproof6" |> read_error = ("invalid reference", 3, 5));
+    assert (statement_of_file "../data/incorrect/nproof7" |> read_error = ("rule constraint violation", 4, 5));
+    assert (statement_of_file "../data/incorrect/nproof8" |> read_error = ("rule constraint violation", 4, 5));
+    assert (statement_of_file "../data/incorrect/nproof9" |> read_error = ("rule constraint violation", 7, 5));
+    assert (statement_of_file "../data/incorrect/nproof10" |> read_error = ("not allowed skolem term", 9, 9));
+    assert (statement_of_file "../data/incorrect/nproof11" |> read_error = ("axiom violation", 4, 5));
+

@@ -1,5 +1,6 @@
 open Ctxproof
 open Proof
+open Parser_utils
 (*open Printer*)
 
 let () =
@@ -18,6 +19,7 @@ let () =
              | Lexer.Error _ -> prerr_endline ("illegal character " ^ Parser_utils.location_to_string lexbuf.Lexing.lex_start_p)
              | Errors.CxError m -> prerr_endline m;
              | ProofError m -> prerr_endline m;
+             | ProofPosError (msg, pos) -> prerr_endline (msg ^ " " ^ (location_to_string pos))
              | Failure m -> prerr_endline m;
              
       

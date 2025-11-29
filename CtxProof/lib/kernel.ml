@@ -137,8 +137,13 @@ let rec skolem_compatibility_with_ref_in_formula cmp ref f =
       | Exists (_, f1)
       | Forall (_, f1) -> skolem_compatibility_with_ref_in_formula cmp ref f1
 
-let formula_less_than_ref ref f = skolem_compatibility_with_ref_in_formula (>>) ref f
-let formula_lesseq_than_ref ref f = skolem_compatibility_with_ref_in_formula (>>=) ref f
+let formula_less_than_ref ref f =
+  if  skolem_compatibility_with_ref_in_formula (>>) ref f then true
+  else raise (KernelError "not allowed skolem term")
+
+  let formula_lesseq_than_ref ref f = 
+  if skolem_compatibility_with_ref_in_formula (>>=) ref f then true
+  else raise (KernelError "not allowed skolem term")
 
 let rec is_suffix ref r =
   match ref, r with
@@ -212,13 +217,16 @@ let gen_rule_constrain ref terms proof =
 let derive_formula proof rule_label refs terms = 
   rule rule_label (List.map (formula_of_proof proof) refs, terms)
 
+let pos_of_statement statement = 
+  match statement with
+    | Statement {pos; _} -> pos
 
 let is_formula_derived ref formula proof rule_label refs terms =
   match rule_label with 
     | "SKO" when sko_rule_constrain ref terms refs proof -> formula = derive_formula proof rule_label refs terms
     | "GEN" when gen_rule_constrain ref terms proof -> formula = derive_formula proof rule_label refs terms
     | "MOD" | "IDN" -> formula = derive_formula proof rule_label refs terms
-    | _ -> raise (KernelError "rule violation")
+    | _ -> raise (KernelError ("rule constraint violation"))
 
 let formula_of_generalized_formula proof gf = 
   match gf with 
@@ -230,13 +238,7 @@ let ref_of_generised_formula gf =
   | Reference ref -> ref
   | Formula _ -> raise (KernelError "referece expected")
 
-let pos_of_statement statement = 
-  match statement with
-    | Statement {pos; _} -> pos
-
-let pos_of_ref proof ref = get_statement proof ref |> pos_of_statement
-
-let pass b s = if b then b else raise (KernelError s)
+let pass b s pos = if b then b else raise (KernelPosError (s, pos))
 
 let rec prove_thesis proof ref_ = 
   match get_statement proof ref_ with 
@@ -257,7 +259,7 @@ let rec prove_thesis proof ref_ =
                     formula_lesseq_than_ref ref_ formula
                     && axiom axiom_label (List.map (formula_of_generalized_formula proof) gformulas, terms) = formula
                   )
-                  "axiom violation"
+                  "axiom violation" pos
             
               | Inference {mode = Assumption; gformulas; _} 
                 ->
@@ -269,7 +271,7 @@ let rec prove_thesis proof ref_ =
                       && is_suffix ref_ r 
                       && assumption_of_proof proof r = formula
                   )
-                  "assumption violation"
+                  "assumption violation" pos
 
               | Inference {mode = Rule rule_label; gformulas; terms} 
                 -> 
@@ -281,7 +283,7 @@ let rec prove_thesis proof ref_ =
                       && List.for_all (prove_thesis proof) refs
                       && is_formula_derived ref_ formula proof rule_label refs terms
                   )
-                  "rule violation"
+                  "rule violation" pos
 
               | Inference {mode = Context; _} 
                 -> 
@@ -295,12 +297,13 @@ let rec prove_thesis proof ref_ =
                           && last_formula = formula_of_statement last_statement
                           && prove_thesis proof (ref_of_statement last_statement)
                       )
-                      "context violation"
+                      "context violation" pos
                   | _ -> raise (KernelError "implication form expected")
             )
           with
+          | KernelPosError (s, p) -> raise (KernelPosError (s, p))
           | KernelError s -> raise (KernelPosError (s, pos))
           | Failure s -> raise (KernelPosError (s, pos))
         )
     
-    | _ -> raise (KernelPosError ("invalid reference", pos_of_ref proof ref_))
+    | Statement {pos;_} -> raise (KernelPosError ("invalid reference", pos))

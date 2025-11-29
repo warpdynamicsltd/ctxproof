@@ -1,7 +1,9 @@
 open Types
 open Kernel
-open Parser_utils
+(*open Parser_utils*)
 
+
+exception ProofPosError of string * Lexing.position
 exception ProofError of string
 
 exception RefPosError of string * Lexing.position
@@ -32,7 +34,7 @@ let proved proof ref =
   with 
     | RefPosError (msg, pos)
     | KernelPosError (msg, pos)
-      -> raise (ProofError (msg ^ " " ^ (location_to_string pos)))
+      -> raise (ProofPosError (msg, pos))
     | KernelError msg
       -> raise (ProofError msg)
     

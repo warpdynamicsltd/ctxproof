@@ -1,7 +1,6 @@
 open Types
 open Kernel
-(*open Parser_utils*)
-
+open Errors
 
 exception ProofPosError of string * Lexing.position
 exception ProofError of string
@@ -33,10 +32,11 @@ let proved proof ref =
     && prove_thesis proof ref;
   with 
     | RefPosError (msg, pos)
-    | KernelPosError (msg, pos)
       -> raise (ProofPosError (msg, pos))
-    | KernelError msg
-      -> raise (ProofError msg)
+    | KernelPosError (code, pos)
+      -> raise (ProofPosError (kernel_error_message code, pos))
+    | KernelError code
+      -> raise (ProofError (kernel_error_message code))
     
     
 let valid proof = proved proof (Ref [])

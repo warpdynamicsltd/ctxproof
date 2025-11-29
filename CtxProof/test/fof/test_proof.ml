@@ -4,6 +4,7 @@ open Proof
 open Fof_utils
 open Parser_utils
 open Tutils
+open Errors
 
 let not_valid proof = 
     try
@@ -21,6 +22,9 @@ let read_error proof =
         | ProofError msg -> (msg, 0, 0)
         | ProofPosError (msg, pos) 
             -> let sl, sc = position pos in (msg, sl, sc + 1)
+
+let expect file code line col =
+  assert (statement_of_file file |> read_error = (kernel_error_message code, line, col))
 
 let run () =
     let proof = statement_of_file "../data/hello" in
@@ -55,15 +59,15 @@ let run () =
     assert (statement_of_file "../data/incorrect/nproof10" |> not_valid);
     assert (statement_of_file "../data/incorrect/nproof11" |> not_valid);
 
-    assert (statement_of_file "../data/incorrect/nproof1" |> read_error = ("invalid reference", 1, 1));
-    assert (statement_of_file "../data/incorrect/nproof2" |> read_error = ("invalid reference", 3, 5));
-    assert (statement_of_file "../data/incorrect/nproof3" |> read_error = ("invalid reference", 4, 5));
-    assert (statement_of_file "../data/incorrect/nproof4" |> read_error = ("invalid reference", 10, 13));
-    assert (statement_of_file "../data/incorrect/nproof5" |> read_error = ("invalid reference", 4, 5));
-    assert (statement_of_file "../data/incorrect/nproof6" |> read_error = ("invalid reference", 3, 5));
-    assert (statement_of_file "../data/incorrect/nproof7" |> read_error = ("rule constraint violation", 4, 5));
-    assert (statement_of_file "../data/incorrect/nproof8" |> read_error = ("rule constraint violation", 4, 5));
-    assert (statement_of_file "../data/incorrect/nproof9" |> read_error = ("rule constraint violation", 7, 5));
-    assert (statement_of_file "../data/incorrect/nproof10" |> read_error = ("not allowed skolem term", 9, 9));
-    assert (statement_of_file "../data/incorrect/nproof11" |> read_error = ("axiom violation", 4, 5));
+    expect "../data/incorrect/nproof1"  InvalidReference        1  1;
+    expect "../data/incorrect/nproof2"  InvalidReference        3  5;
+    expect "../data/incorrect/nproof3"  InvalidReference        4  5;
+    expect "../data/incorrect/nproof4"  InvalidReference       10 13;
+    expect "../data/incorrect/nproof5"  InvalidReference        4  5;
+    expect "../data/incorrect/nproof6"  InvalidReference        3  5;
+    expect "../data/incorrect/nproof7"  RuleConstraintViolation 4  5;
+    expect "../data/incorrect/nproof8"  RuleConstraintViolation 4  5;
+    expect "../data/incorrect/nproof9"  RuleConstraintViolation 7  5;
+    expect "../data/incorrect/nproof10" NotAllowedSkolemTerm    9  9;
+    expect "../data/incorrect/nproof11" AxiomViolation          4  5;
 

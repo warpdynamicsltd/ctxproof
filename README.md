@@ -4,9 +4,6 @@
 
 CtxProof is a small, trustworthy kernel for context-based first-order proofs. Its primary purpose is to be embedded in a vernacular (front‑end) that users write proofs in, while the kernel remains the final arbiter of correctness. The kernel focuses on a small set of core judgments (contexts, references, axioms, and rules) and enforces them strictly; higher-level syntax, tactics, and user-friendly notation are meant to live in the vernacular built on top of this kernel.
 
-
-## Overview
-
 CtxProof implements a context-based proof system that models the way assumptions and auxiliary objects are introduced, scoped, and closed in mathematical arguments. Instead of a flat, linear list of steps, proofs are organized hierarchically by context, closely reflecting how proofs are commonly written.
 
 Key ideas:

@@ -75,13 +75,15 @@ Examples:
 
 ## Statements
 
-A statement either ends with a semicolon or opens a nested block.
+A statement is either an inferecence (assumption, axiom, or rule) or a context block.
 
 - Inference (assumptioon/axiom/rule) with dependencies and optional terms:
   ```
   ref formula {MODE} {dependencies} {terms};
   ref formula {MODE} {dependencies};
   ```
+
+  Inference statements must end with `;`.
 
 - Context block:
   ```
@@ -103,9 +105,8 @@ Components:
 
 - `{terms}`: a brace-enclosed list of terms (when required by an axiom/rule)
 
-Each statement line ends with a semicolon `;`. Inner statements in a block also end with `;`.
 
-## Generalized Formulas (Dependencies)
+## Dependencies (Generalized Formulas)
 
 Dependencies can be:
 - References to previously stated lines: `0`, `0.1`, `1.2`, …

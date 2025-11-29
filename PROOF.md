@@ -77,7 +77,7 @@ Examples:
 
 A statement either ends with a semicolon or opens a nested block.
 
-- Inference (axiom/rule) with dependencies and optional terms:
+- Inference (assumptioon/axiom/rule) with dependencies and optional terms:
   ```
   ref formula {MODE} {dependencies} {terms};
   ref formula {MODE} {dependencies};

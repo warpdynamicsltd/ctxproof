@@ -17,14 +17,22 @@ The kernel enforces correctness: reference discipline, rule/axiom schemas, Skole
 ## File Skeleton
 
 ```
-. GoalFormula
+. Formula_a1 => Formula_a2
 {
-  0 SubgoalFormula {ASM} {.};
-  1 AnotherFormula {R:MOD} {0; 0.0};
+  
+  ... statements ...
+  
+  n Formula_b1 => Formula_b2
+  {
+    ... statements ...
+  }
+
+  ... statements ...
 }
 ```
 
 - `.` is the root reference (the main goal).
+- `n` is an integer which is a first level reference.
 - Inside `{ ... }`, write statements that collectively justify the goal.
 
 ## References

@@ -151,98 +151,98 @@ ref Formula {A:NAME} { generalized_formulas } { terms };
 - `terms` is a list of terms separated by commas (terms bracket can be skiped if a list of terms is empty).
 
 A:TRU - Truth
-- conclude `$true`
+- state an axiom `$true`
 - Usage:
   ```
   r $true {A:TRU} {};
   ```
 
 A:LEM — Law of Excluded Middle
-- From `a`, conclude `a | ~a`
+- Using a formula `a`, state an axiom `a | ~a`
 - Usage:
   ```
   r (a | ~a) {A:LEM} {a};
   ```
 
 A:IMP
-- From `a` and `b`, conclude `a => (b => a)`
+- Using formuals `a` and `b`, state an axiom `a => (b => a)`
 - Usage:
   ```
   r (a => (b => a)) {A:IMP} {a; b};
   ```
 
 A:ANL — And-Left
-- From `a` and `b`, conclude `(a & b) => a`
+- Using formulas `a` and `b`, state an axiom `(a & b) => a`
 - Usage:
   ```
   r ((a & b) => a) {A:ANL} {a; b};
   ```
 
 A:ANR — And-Right
-- From `a` and `b`, conclude `(a & b) => b`
+- Using formulas `a` and `b`, state an axiom `(a & b) => b`
 - Usage:
   ```
   r ((a & b) => b) {A:ANR} {a; b};
   ```
 
 A:AND — And-Introduction (curried)
-- From `a` and `b`, conclude `a => (b => (a & b))`
+- Using formulas `a` and `b`, state an axiom `a => (b => (a & b))`
 - Usage:
   ```
   r (a => (b => (a & b))) {A:AND} {a; b};
   ```
 
 A:ORL — Or-Left
-- From `a` and `b`, conclude `a => (a | b)`
+- Using formulas `a` and `b`, state an axiom `a => (a | b)`
 - Usage:
   ```
   r (a => (a | b)) {A:ORL} {a; b};
   ```
 
 A:ORR — Or-Right
-- From `a` and `b`, conclude `b => (a | b)`
+- Using formulas `a` and `b`, state an axiom `b => (a | b)`
 - Usage:
   ```
   r (b => (a | b)) {A:ORR} {a; b};
   ```
 
 A:DIS — Or-Elimination (curried)
-- From `a`, `b`, `c`, conclude `(a => c) => ((b => c) => ((a | b) => c))`
+- Using formulas `a`, `b`, `c`, state an axiom `(a => c) => ((b => c) => ((a | b) => c))`
 - Usage:
   ```
   r ((a => c) => ((b => c) => ((a | b) => c))) {A:DIS} {a; b; c};
   ```
 
 A:CON — Contradiction pattern
-- From `a` and `b`, conclude `~a => (a => b)`
+- Using formulas `a` and `b`, state an axiom `~a => (a => b)`
 - Usage:
   ```
   r (~a => (a => b)) {A:CON} {a; b};
   ```
 
 A:IFI — Iff-Introduction
-- From `a` and `b`, conclude `(a => b) => ((b => a) => (a <=> b))`
+- Using formulas `a` and `b`, state an axiom `(a => b) => ((b => a) => (a <=> b))`
 - Usage:
   ```
   r ((a => b) => ((b => a) => (a <=> b))) {A:IFI} {a; b};
   ```
 
 A:IFO — Iff-Elimination
-- From `a` and `b`, conclude `(a <=> b) => ((a => b) & (b => a))`
+- Using formulas `a` and `b`, state an axiom `(a <=> b) => ((a => b) & (b => a))`
 - Usage:
   ```
   r ((a <=> b) => ((a => b) & (b => a))) {A:IFO} {a; b};
   ```
 
 A:ALL — Universal Instantiation
-- From a schema `a(X)` and a term `t`, conclude `(![X]: a(X)) => a(t)`
+- From a schema `a(X)` and a term `t`, state an axiom `(![X]: a(X)) => a(t)`
 - Usage:
   ```
   r ( (![X]: a(X)) => a(t) ) {A:ALL} {a(X)} {t, X};
   ```
 
 A:EXT — Existential Introduction
-- From a schema `a(X)` and a term `t`, conclude `a(t) => (?[X]: a(X))`
+- From a schema `a(X)` and a term `t`, state an axiom `a(t) => (?[X]: a(X))`
 - Usage:
   ```
   r ( a(t) => (?[X]: a(X)) ) {A:EXT} {a(X)} {t, X};

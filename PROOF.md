@@ -24,7 +24,7 @@ The kernel enforces correctness: reference discipline, rule/axiom schemas, Skole
 }
 ```
 
-- “.” is the root reference (the main goal).
+- `.` is the root reference (the main goal).
 - Inside `{ ... }`, write statements that collectively justify the goal.
 
 ## References
@@ -333,32 +333,42 @@ Explanation:
     6 ![Y]: (?[X]: p(X, Y)) {R:GEN} {5} {Y};
 }
 ```
+Explanation:
 
-Highlights:
-- Two nested contexts reflect the structure of the two implications.
-- `{R:SKO}` transforms a formula at reference `0` into `![Y]: p(sk.1, Y)` by replacing a variable `X` with a Skolem term `sk.1` and removing the quantifier.
-- `{A:ALL}` creates an axiom from `p(sk.1, Y)` by specializing the universal quantifier.
-- `{A:EXT}` creates an axiom from `p(X, Y)` by replacing the variable `X` with the a term `sk.1` in `p(X, Y)`.
-- `{R:MOD}` applies Modus Ponens.
+- Goal
+  - Prove: `(?[X]: (![Y]: p(X, Y))) => ( ![Y]: ( ?[X]: p(X, Y) ))`.
+  - Strategy: assume the antecedent, derive the consequent inside the block, then close the implication.
 
-## Practical Tips
+- Assumption and context
+  - Introduce the assumption `?[X]: (![Y]: p(X, Y))` at the start of the inner block.
 
-- Every statement line ends with a semicolon `;`.
-- Use parentheses to disambiguate complex formulas.
-- Keep references consistent with the block structure and order.
-- The kernel reports precise error positions and standardized messages when constraints are violated.
-- Predicates/functions/constants start with lowercase; variables start with uppercase.
+- Skolemization `{R:SKO}`
+  - From `?[X]: a(X)` with `a(X) := ![Y]: p(X, Y)`, introduce a Skolem constant `sk.<ref>` for `X`.
+  - Conclude: `![Y]: p(sk.<ref>, Y)`.
 
-## Minimal Grammar Cheat Sheet
+- Universal instantiation `{A:ALL}`
+  - From `![Y]: p(sk.<ref>, Y)` and variable `Y`, instantiate to get:
+  - `(![Y]: p(sk.<ref>, Y)) => p(sk.<ref>, Y)`.
 
-- Term:
-  - `f(t1, …)` | `c` | `X` | `sk.n.m` | `sk.n.m(t1, …)`
-- Formula:
-  - `$true` | `$false` | `p` | `p(t1, …)` | `(φ)` | `~φ` | `φ & ψ` | `φ | ψ` | `φ => ψ` | `φ <=> ψ`
-  - `![X1, …, Xn]: φ`
-  - `?[X1, …, Xn]: φ`
-- Statement:
-  - `ref formula {ASM} {.};`
-  - `ref formula {A:NAME} {gformulas} {terms?};`
-  - `ref formula {R:NAME} {gformulas} {terms?};`
-  - `ref formula { ... inner statements ... }`
+- Modus Ponens `{R:MOD}`
+  - Apply `{R:MOD}` with the two lines above to conclude:
+  - `p(sk.<ref>, Y)`.
+
+- Existential introduction `{A:EXT}`
+  - From `p(sk.<ref>, Y)` and variable `X`, introduce an existential:
+  - `p(sk.<ref>, Y) => ( ?[X]: p(X, Y) )`.
+
+- Modus Ponens `{R:MOD}`
+  - Apply `{R:MOD}` again to obtain:
+  - `?[X]: p(X, Y)`.
+
+- Generalization `{R:GEN}`
+  - Generalize over `Y` to conclude:
+  - `![Y]: ( ?[X]: p(X, Y) )`.
+
+- Discharging the implication
+  - The inner block starts with the assumption `?[X]: (![Y]: p(X, Y))` and ends with `![Y]: ( ?[X]: p(X, Y) )`.
+  - Therefore, the outer line concludes the implication:
+  - `(?[X]: (![Y]: p(X, Y))) => ( ![Y]: ( ?[X]: p(X, Y) ))`.
+
+

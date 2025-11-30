@@ -1,0 +1,13 @@
+. ( ![X]: (?[Y]: p(X, Y, Z)) ) => ( ![Y]: (?[X]: p(Y, X, Z)) )
+{
+    0 ![X]: (?[Y]: p(X, Y, Z)) {ASM} {.};
+    1 ( ![X]: (?[Y]: p(X, Y, Z)) ) => ( ?[Y]: p(X, Y, Z) ) {A:ALL} {?[Y]: p(X, Y, Z)} {X, X};
+    2 ( ?[Y]: p(X, Y, Z) ) {R:MOD} {1; 0};
+    3 p(X, sk.3(X), Z) {R:SKO} {2} {sk.3(X), Y};
+    4 ![X]: p(X, sk.3(X), Z) {R:GEN} {3} {X};
+    5 ( ![X]: p(X, sk.3(X), Z) ) => p(Y, sk.3(Y), Z) {A:ALL} {p(X, sk.3(X), Z)} {Y, X};
+    6 p(Y, sk.3(Y), Z) {R:MOD} {5; 4};
+    7 p(Y, sk.3(Y), Z) => (?[X]: p(Y, X, Z)) {A:EXT} {p(Y, X, Z)} {sk.3(Y), X};
+    8 (?[X]: p(Y, X, Z)) {R:MOD} {7; 6};
+    9 ![Y]: (?[X]: p(Y, X, Z)) {R:GEN} {8} {Y};
+}

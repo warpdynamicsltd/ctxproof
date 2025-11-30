@@ -1,0 +1,9 @@
+. $true => (p | ~p)
+{
+    0 $true => (p | ~p)
+    {
+        0.0 p | ~p {A:LEM} {p};
+    }
+    1 $true {A:TRU} {};
+    2 p | ~p {R:MOD} {0; 1};
+}

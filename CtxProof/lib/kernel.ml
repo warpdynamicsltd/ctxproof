@@ -183,10 +183,10 @@ let assumption_of_proof proof ref =
       | Implies(a, _) -> a
       | _ -> raise (KernelError ImplicationFormExpected)
 
-let rec var_accurs_free_in_assumptions proof ref_ var =
+let rec var_occurs_free_in_assumptions proof ref_ var =
   match proof with
     | Statement {ref; formula=Implies(a, _); statements; inference=Inference {mode=Context;_};_} when is_suffix ref_ ref
-        -> (var_occurs_free_in_formula var a) || List.exists (fun s -> var_accurs_free_in_assumptions s ref_ var) statements
+        -> (var_occurs_free_in_formula var a) || List.exists (fun s -> var_occurs_free_in_assumptions s ref_ var) statements
     | _ -> false
 
 let sko_rule_constrain ref terms refs proof =
@@ -194,11 +194,11 @@ let sko_rule_constrain ref terms refs proof =
   let sk_term = List.nth terms 0 in
   if
     List.for_all
-      (fun v -> var_occurs_free_in_formula v formula && not (var_accurs_free_in_assumptions proof ref v))
+      (fun v -> var_occurs_free_in_formula v formula && not (var_occurs_free_in_assumptions proof ref v))
       (StringSet.elements (free_vars_term sk_term))
     &&
     List.for_all
-    (fun v -> var_occurs_in_term v sk_term || var_accurs_free_in_assumptions proof ref v)
+    (fun v -> var_occurs_in_term v sk_term || var_occurs_free_in_assumptions proof ref v)
     (StringSet.elements (free_vars_formula formula))
   then
     match ref, sk_term with
@@ -209,7 +209,7 @@ let sko_rule_constrain ref terms refs proof =
 
 let gen_rule_constrain ref terms proof =
   match List.nth terms 0 with
-    | Var v -> not (var_accurs_free_in_assumptions proof ref v)
+    | Var v -> not (var_occurs_free_in_assumptions proof ref v)
     | _ -> false
 
 let derive_formula proof rule_label refs terms =

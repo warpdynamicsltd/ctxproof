@@ -35,7 +35,7 @@ let run () =
     assert (formula_of_proof proof (make_ref ["0"]) = formula_of_string "p");
 
     let proof = statement_of_file "../data/incorrect/nproof7" in
-    assert (var_accurs_free_in_assumptions proof (make_ref ["1"]) "X");
+    assert (var_occurs_free_in_assumptions proof (make_ref ["1"]) "X");
 
     assert (statement_of_file "../data/correct/proof1" |> valid);
     assert (statement_of_file "../data/correct/proof2" |> valid);

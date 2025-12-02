@@ -15,12 +15,12 @@ let () =
                   print_newline();
                   
             with 
-             | Parser.Error _ -> prerr_endline ("malformed expression " ^ Parser_utils.location_to_string lexbuf.Lexing.lex_start_p)
-             | Lexer.Error _ -> prerr_endline ("illegal character " ^ Parser_utils.location_to_string lexbuf.Lexing.lex_start_p)
-             | Errors.CxError m -> prerr_endline m;
-             | ProofError m -> prerr_endline m;
-             | ProofPosError (msg, pos) -> prerr_endline (msg ^ " " ^ (location_to_string pos))
-             | Failure m -> prerr_endline m;
+             | Parser.Error _ -> prerr_endline ("malformed expression " ^ Parser_utils.location_to_string lexbuf.Lexing.lex_start_p); exit(1);
+             | Lexer.Error _ -> prerr_endline ("illegal character " ^ Parser_utils.location_to_string lexbuf.Lexing.lex_start_p); exit(1);
+             | Errors.CxError m -> prerr_endline m; exit(1);
+             | ProofError m -> prerr_endline m; exit(1);
+             | ProofPosError (msg, pos) -> prerr_endline (msg ^ " " ^ (location_to_string pos)); exit(1);
+             | Failure m -> prerr_endline m; exit(1);
              
       
             

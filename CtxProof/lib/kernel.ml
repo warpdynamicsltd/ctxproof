@@ -205,8 +205,8 @@ let rec get_statement_uncached proof ref =
           | Ref [] -> proof
           | Ref (head::tail) ->
               let index = Z.to_int head in
-              if index < List.length statements
-                then get_statement_uncached (List.nth statements index) (Ref tail)
+              if index < Array.length statements
+                then get_statement_uncached statements.(index) (Ref tail)
               else raise (KernelError RefOutOfBound)
 
 (* Cached version of get_statement *)
@@ -250,7 +250,7 @@ let assumption_of_proof cache proof ref =
 let rec var_occurs_free_in_assumptions proof ref_ var =
   match proof with
     | Statement {ref; formula=Implies(a, _); statements; inference=Inference {mode=Context;_};_} when is_suffix ref_ ref
-        -> (var_occurs_free_in_formula var a) || List.exists (fun s -> var_occurs_free_in_assumptions s ref_ var) statements
+        -> (var_occurs_free_in_formula var a) || Array.exists (fun s -> var_occurs_free_in_assumptions s ref_ var) statements
     | _ -> false
 
 let sko_rule_constrain cache ref terms refs proof =
@@ -361,7 +361,8 @@ let rec prove_thesis_cached cache proof ref_ =
                     ->
                       pass
                       (
-                        let last_statement = List.nth statements (List.length statements - 1) in
+                        let len = Array.length statements in
+                        let last_statement = statements.(len - 1) in
                           formula_less_than_ref ref_ last_formula
                           && last_formula = formula_of_statement last_statement
                           && prove_thesis_cached cache proof (ref_of_statement last_statement)

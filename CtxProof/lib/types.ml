@@ -36,11 +36,11 @@ type inference =
   | Inference of {mode: mode; gformulas: generalized_formula list; terms: term list}
 
 type statement =
-  | Statement of 
+  | Statement of
       {
-        ref: reference; 
-        formula: first_order_formula; 
+        ref: reference;
+        formula: first_order_formula;
         inference: inference;
-        statements: statement list;
-        pos: Lexing.position 
+        statements: statement array;
+        pos: Lexing.position
       }

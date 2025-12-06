@@ -52,11 +52,11 @@ statements:
 
 statement:
 | ref=reference formula=fof_formula mode=mode_arg gformulas=formulas_arg terms=terms_arg SEMICOLON
-        { Statement {ref; formula; statements=[]; inference=Inference{ mode; gformulas; terms}; pos=($startpos) } }
+        { Statement {ref; formula; statements=[||]; inference=Inference{ mode; gformulas; terms}; pos=($startpos) } }
 | ref=reference formula=fof_formula mode=mode_arg gformulas=formulas_arg SEMICOLON
-        { Statement {ref; formula; statements=[]; inference=Inference{ mode; gformulas; terms=[]}; pos=($startpos) } }
+        { Statement {ref; formula; statements=[||]; inference=Inference{ mode; gformulas; terms=[]}; pos=($startpos) } }
 | ref=reference formula=fof_formula LCURL statements=statements RCURL
-        { Statement {ref; formula; statements; inference=Inference{ mode=Context; gformulas=[]; terms=[]}; pos=($startpos) } }
+        { Statement {ref; formula; statements=Array.of_list statements; inference=Inference{ mode=Context; gformulas=[]; terms=[]}; pos=($startpos) } }
 
 (*| error { raise (cx_error "expected statement" $startpos) }*)
 

@@ -29,6 +29,7 @@ type proof_cache = {
   mutable statement_cache: statement RefMap.t;
   mutable formula_cache: first_order_formula RefMap.t;
   mutable assumption_cache: first_order_formula RefMap.t;
+  mutable validation_cache: bool RefMap.t;
 }
 
 (* Create a new cache *)
@@ -36,6 +37,7 @@ let create_cache () = {
   statement_cache = RefMap.empty;
   formula_cache = RefMap.empty;
   assumption_cache = RefMap.empty;
+  validation_cache = RefMap.empty;
 }
 
 let rec var_occurs_in_term var = function
@@ -297,17 +299,23 @@ let pass b code = if b then b else raise (KernelError code)
 
 (* Cached version of prove_thesis *)
 let rec prove_thesis_cached cache proof ref_ =
-  match get_statement cache proof ref_ with
-    | Statement
-      {
-        ref;
-        formula;
-        inference;
-        statements;
-        pos;
-      } when ref = ref_ ->
-        (try
-          (match inference with
+  (* Check if already validated *)
+  match RefMap.find_opt ref_ cache.validation_cache with
+  | Some true -> true
+  | Some false | None ->
+      (* Perform validation *)
+      let result =
+        match get_statement cache proof ref_ with
+        | Statement
+          {
+            ref;
+            formula;
+            inference;
+            statements;
+            pos;
+          } when ref = ref_ ->
+            (try
+              (match inference with
               | Inference {mode = Axiom axiom_label; gformulas; terms}
                 ->
                   pass
@@ -362,7 +370,11 @@ let rec prove_thesis_cached cache proof ref_ =
           | Failure _ -> raise (KernelPosError (UnknownProblem, pos))
         )
 
-    | Statement {pos;_} -> raise (KernelPosError (InvalidReference, pos))
+        | Statement {pos;_} -> raise (KernelPosError (InvalidReference, pos))
+      in
+      (* Cache the successful validation result *)
+      cache.validation_cache <- RefMap.add ref_ true cache.validation_cache;
+      result
 
 (* Public API - creates cache and validates the proof *)
 let prove_thesis proof ref_ =

@@ -1,7 +1,7 @@
 open Ctxproof
 open Kernel
 open Proof
-(* open Fof_utils *)
+open Fof_utils
 open Parser_utils
 open Tutils
 open Errors
@@ -27,12 +27,14 @@ let expect file code line col =
   assert (statement_of_file file |> read_error = (kernel_error_message code, line, col))
 
 let run () =
-    (* let proof = statement_of_file "../data/hello" in
-    assert (formula_of_proof proof (make_ref ["1"]) = formula_of_string "p(Y) | ~p(Y)");
-    assert (formula_of_proof proof (make_ref []) = formula_of_string "$true");
+    let proof = statement_of_file "../data/hello" in
+    let cache = create_cache () in
+    assert (formula_of_proof cache proof (make_ref ["1"]) = formula_of_string "p(Y) | ~p(Y)");
+    assert (formula_of_proof cache proof (make_ref []) = formula_of_string "$true");
 
     let proof = statement_of_file "../data/correct/proof1" in
-    assert (formula_of_proof proof (make_ref ["0"]) = formula_of_string "p"); *)
+    let cache = create_cache () in
+    assert (formula_of_proof cache proof (make_ref ["0"]) = formula_of_string "p");
 
     let proof = statement_of_file "../data/incorrect/nproof7" in
     assert (var_occurs_free_in_assumptions proof (make_ref ["1"]) "X");

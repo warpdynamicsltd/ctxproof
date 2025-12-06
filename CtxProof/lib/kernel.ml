@@ -149,13 +149,18 @@ let rec (>>) current_ref ref =
 
 let (>>=) r1 r2 = r1 >> r2 || r1 = r2
 
+
 let rec skolem_compatibility_with_ref_in_term cmp ref t =
-    match t with
-      | Var _ -> true
-      | Const _ -> true
-      | SkolemConst seq -> cmp ref (Ref seq)
-      | SkolemFunc (seq, terms) -> cmp ref (Ref seq) && List.for_all (skolem_compatibility_with_ref_in_term cmp ref) terms
-      | Func (_, terms) -> List.for_all (skolem_compatibility_with_ref_in_term cmp ref) terms
+  match t with
+  | Var _ | Const _ -> true
+  | SkolemConst seq ->
+      if not (cmp ref (Ref seq)) then raise (KernelError NotAllowedSkolemTerm)
+      else true
+  | SkolemFunc (seq, terms) ->
+      if not (cmp ref (Ref seq)) then raise (KernelError NotAllowedSkolemTerm)
+      else List.for_all (skolem_compatibility_with_ref_in_term cmp ref) terms
+  | Func (_, terms) ->
+      List.for_all (skolem_compatibility_with_ref_in_term cmp ref) terms
 
 let rec skolem_compatibility_with_ref_in_formula cmp ref f =
     match f with

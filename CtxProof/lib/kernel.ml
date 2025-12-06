@@ -6,6 +6,38 @@ exception KernelPosError of Errors.kernel_error_code * Lexing.position
 
 module StringSet = Set.Make(String)
 
+(* Map module for reference type to enable efficient caching *)
+module RefMap = Map.Make(struct
+  type t = reference
+  let compare r1 r2 =
+    match r1, r2 with
+    | Ref l1, Ref l2 ->
+        let rec compare_lists lst1 lst2 =
+          match lst1, lst2 with
+          | [], [] -> 0
+          | [], _ -> -1
+          | _, [] -> 1
+          | h1::t1, h2::t2 ->
+              let c = Z.compare h1 h2 in
+              if c = 0 then compare_lists t1 t2 else c
+        in
+        compare_lists l1 l2
+end)
+
+(* Cache type for storing statement and formula lookups *)
+type proof_cache = {
+  mutable statement_cache: statement RefMap.t;
+  mutable formula_cache: first_order_formula RefMap.t;
+  mutable assumption_cache: first_order_formula RefMap.t;
+}
+
+(* Create a new cache *)
+let create_cache () = {
+  statement_cache = RefMap.empty;
+  formula_cache = RefMap.empty;
+  assumption_cache = RefMap.empty;
+}
+
 let rec var_occurs_in_term var = function
   | Var v -> v = var
   | Const _ -> false
@@ -158,7 +190,8 @@ let last_elem lst = Z.to_int (List.nth lst (List.length lst - 1))
 
 let last_of_ref ref = match ref with Ref lst -> last_elem lst
 
-let rec get_statement proof ref =
+(* Uncached version of get_statement for internal use *)
+let rec get_statement_uncached proof ref =
   match proof with
     | Statement {statements; _}
       -> match ref with
@@ -166,8 +199,17 @@ let rec get_statement proof ref =
           | Ref (head::tail) ->
               let index = Z.to_int head in
               if index < List.length statements
-                then get_statement (List.nth statements index) (Ref tail)
+                then get_statement_uncached (List.nth statements index) (Ref tail)
               else raise (KernelError RefOutOfBound)
+
+(* Cached version of get_statement *)
+let get_statement cache proof ref =
+  match RefMap.find_opt ref cache.statement_cache with
+  | Some stmt -> stmt
+  | None ->
+      let stmt = get_statement_uncached proof ref in
+      cache.statement_cache <- RefMap.add ref stmt cache.statement_cache;
+      stmt
 
 let formula_of_statement s =
   match s with Statement {formula; _} -> formula
@@ -175,13 +217,28 @@ let formula_of_statement s =
 let ref_of_statement s =
   match s with Statement {ref; _} -> ref
 
-let formula_of_proof proof ref = get_statement proof ref |> formula_of_statement
+(* Cached version of formula_of_proof *)
+let formula_of_proof cache proof ref =
+  match RefMap.find_opt ref cache.formula_cache with
+  | Some formula -> formula
+  | None ->
+      let formula = get_statement cache proof ref |> formula_of_statement in
+      cache.formula_cache <- RefMap.add ref formula cache.formula_cache;
+      formula
 
-let assumption_of_proof proof ref =
-  match get_statement proof ref with Statement {formula; _} ->
-    match formula with
-      | Implies(a, _) -> a
-      | _ -> raise (KernelError ImplicationFormExpected)
+(* Cached version of assumption_of_proof *)
+let assumption_of_proof cache proof ref =
+  match RefMap.find_opt ref cache.assumption_cache with
+  | Some assumption -> assumption
+  | None ->
+      let assumption =
+        match get_statement cache proof ref with Statement {formula; _} ->
+          match formula with
+          | Implies(a, _) -> a
+          | _ -> raise (KernelError ImplicationFormExpected)
+      in
+      cache.assumption_cache <- RefMap.add ref assumption cache.assumption_cache;
+      assumption
 
 let rec var_occurs_free_in_assumptions proof ref_ var =
   match proof with
@@ -189,8 +246,8 @@ let rec var_occurs_free_in_assumptions proof ref_ var =
         -> (var_occurs_free_in_formula var a) || List.exists (fun s -> var_occurs_free_in_assumptions s ref_ var) statements
     | _ -> false
 
-let sko_rule_constrain ref terms refs proof =
-  let formula = formula_of_proof proof (List.nth refs 0) in
+let sko_rule_constrain cache ref terms refs proof =
+  let formula = formula_of_proof cache proof (List.nth refs 0) in
   let sk_term = List.nth terms 0 in
   if
     List.for_all
@@ -212,23 +269,23 @@ let gen_rule_constrain ref terms proof =
     | Var v -> not (var_occurs_free_in_assumptions proof ref v)
     | _ -> false
 
-let derive_formula proof rule_label refs terms =
-  rule rule_label (List.map (formula_of_proof proof) refs, terms)
+let derive_formula cache proof rule_label refs terms =
+  rule rule_label (List.map (formula_of_proof cache proof) refs, terms)
 
 let pos_of_statement statement =
   match statement with
     | Statement {pos; _} -> pos
 
-let is_formula_derived ref formula proof rule_label refs terms =
+let is_formula_derived cache ref formula proof rule_label refs terms =
   match rule_label with
-    | "SKO" when sko_rule_constrain ref terms refs proof -> formula = derive_formula proof rule_label refs terms
-    | "GEN" when gen_rule_constrain ref terms proof -> formula = derive_formula proof rule_label refs terms
-    | "MOD" | "IDN" -> formula = derive_formula proof rule_label refs terms
+    | "SKO" when sko_rule_constrain cache ref terms refs proof -> formula = derive_formula cache proof rule_label refs terms
+    | "GEN" when gen_rule_constrain ref terms proof -> formula = derive_formula cache proof rule_label refs terms
+    | "MOD" | "IDN" -> formula = derive_formula cache proof rule_label refs terms
     | _ -> raise (KernelError RuleConstraintViolation)
 
-let formula_of_generalized_formula proof gf =
+let formula_of_generalized_formula cache proof gf =
   match gf with
-  | Reference ref -> formula_of_proof proof ref
+  | Reference ref -> formula_of_proof cache proof ref
   | Formula f -> f
 
 let ref_of_generised_formula gf =
@@ -238,8 +295,9 @@ let ref_of_generised_formula gf =
 
 let pass b code = if b then b else raise (KernelError code)
 
-let rec prove_thesis proof ref_ =
-  match get_statement proof ref_ with
+(* Cached version of prove_thesis *)
+let rec prove_thesis_cached cache proof ref_ =
+  match get_statement cache proof ref_ with
     | Statement
       {
         ref;
@@ -255,7 +313,7 @@ let rec prove_thesis proof ref_ =
                   pass
                   (
                     formula_lesseq_than_ref ref_ formula
-                    && axiom axiom_label (List.map (formula_of_generalized_formula proof) gformulas, terms) = formula
+                    && axiom axiom_label (List.map (formula_of_generalized_formula cache proof) gformulas, terms) = formula
                   )
                   AxiomViolation
 
@@ -267,7 +325,7 @@ let rec prove_thesis proof ref_ =
                     let r = (List.nth refs 0) in
                       formula_less_than_ref ref_ formula
                       && is_suffix ref_ r
-                      && assumption_of_proof proof r = formula
+                      && assumption_of_proof cache proof r = formula
                   )
                   AssumptionViolation
 
@@ -278,8 +336,8 @@ let rec prove_thesis proof ref_ =
                     let refs = List.map ref_of_generised_formula gformulas in
                       formula_lesseq_than_ref ref_ formula
                       && List.for_all ((>>) ref_) refs
-                      && List.for_all (prove_thesis proof) refs
-                      && is_formula_derived ref_ formula proof rule_label refs terms
+                      && List.for_all (prove_thesis_cached cache proof) refs
+                      && is_formula_derived cache ref_ formula proof rule_label refs terms
                   )
                   RuleViolation
 
@@ -293,7 +351,7 @@ let rec prove_thesis proof ref_ =
                         let last_statement = List.nth statements (List.length statements - 1) in
                           formula_less_than_ref ref_ last_formula
                           && last_formula = formula_of_statement last_statement
-                          && prove_thesis proof (ref_of_statement last_statement)
+                          && prove_thesis_cached cache proof (ref_of_statement last_statement)
                       )
                       ContextViolation
                   | _ -> raise (KernelError ImplicationFormExpected)
@@ -305,3 +363,8 @@ let rec prove_thesis proof ref_ =
         )
 
     | Statement {pos;_} -> raise (KernelPosError (InvalidReference, pos))
+
+(* Public API - creates cache and validates the proof *)
+let prove_thesis proof ref_ =
+  let cache = create_cache () in
+  prove_thesis_cached cache proof ref_

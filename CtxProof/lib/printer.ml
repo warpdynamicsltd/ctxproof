@@ -4,8 +4,8 @@ let rec string_of_term t =
   match t with
   | Var v -> v
   | Const c -> c
-  | SkolemConst lst -> "skolem _" ^ String.concat "_" (List.map Z.to_string lst) 
-  | SkolemFunc (lst, args) -> "skolem _" ^ String.concat "_" (List.map Z.to_string lst) ^ "(" ^ (String.concat ", " (List.map string_of_term args)) ^ ")"
+  | SkolemConst lst -> "skolem _" ^ String.concat "_" (List.map string_of_int lst)
+  | SkolemFunc (lst, args) -> "skolem _" ^ String.concat "_" (List.map string_of_int lst) ^ "(" ^ (String.concat ", " (List.map string_of_term args)) ^ ")"
   | Func (f, args) ->
       f ^ "(" ^ (String.concat ", " (List.map string_of_term args)) ^ ")"
 

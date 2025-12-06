@@ -8,9 +8,9 @@ exception ProofError of string
 exception RefPosError of string * Lexing.position
 
 
-let append_int_to_ref ref i = 
-  match ref with 
-    | Ref lst -> Ref (lst @ [Z.of_int i])
+let append_int_to_ref ref i =
+  match ref with
+    | Ref lst -> Ref (lst @ [i])
 
 
 let rec ref_system_is_correct statement root_ref =

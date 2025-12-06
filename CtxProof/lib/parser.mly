@@ -9,7 +9,7 @@
 
 %token <string> UWORD
 %token <string> LWORD
-%token <Z.t> INT
+%token <int> INT
 %token COMMA DOT COLON LPAREN RPAREN SEMICOLON SK
 %token LCURL RCURL
 %token AND OR NOT IMPLIES IFF

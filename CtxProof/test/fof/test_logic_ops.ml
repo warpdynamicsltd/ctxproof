@@ -20,9 +20,9 @@ let run() =
   assert (free_vars_term (Func ("P", [Var "X"])) = StringSet.of_list ["X"]);
   assert (free_vars_term (Func ("P", [Var "X"; Var "Y"])) = StringSet.of_list ["X"; "Y"]);
   assert (free_vars_term (Func ("P", [Var "X"; Var "X"])) = StringSet.of_list ["X"]);
-  assert (free_vars_term (SkolemFunc ([Z.of_int 0], [])) = StringSet.of_list []);
-  assert (free_vars_term (SkolemFunc ([Z.of_int 0], [Var "X"])) = StringSet.of_list ["X"]);
-  assert (free_vars_term (SkolemFunc ([Z.of_int 0], [Var "X"; Var "Y"])) = StringSet.of_list ["X"; "Y"]);
+  assert (free_vars_term (SkolemFunc ([0], [])) = StringSet.of_list []);
+  assert (free_vars_term (SkolemFunc ([0], [Var "X"])) = StringSet.of_list ["X"]);
+  assert (free_vars_term (SkolemFunc ([0], [Var "X"; Var "Y"])) = StringSet.of_list ["X"; "Y"]);
   assert (free_vars_term (Var "X") = StringSet.of_list ["X"]);
 
   assert (var_occurs_free_in_formula "X" (formula_of_string "p(X)"));
@@ -74,6 +74,6 @@ let run() =
   assert (not_admissible ("Y", term_of_string "f(X, Z)", "![X] : p(Y, Z)"));
   assert (not_admissible ("Y", term_of_string "f(X, Z)", "?[X] : p(Z, Y)"));
 
-  assert (Ref [Z.of_int 1] >> Ref [Z.of_int 0]);
-  assert (Ref [Z.of_int 1; Z.of_int 1] >> Ref [Z.of_int 0]);
-  assert (Ref [Z.of_int 1; Z.of_int 0] >> Ref [Z.of_int 0]);
+  assert (Ref [1] >> Ref [0]);
+  assert (Ref [1; 1] >> Ref [0]);
+  assert (Ref [1; 0] >> Ref [0]);

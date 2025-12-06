@@ -18,7 +18,7 @@ module RefMap = Map.Make(struct
           | [], _ -> -1
           | _, [] -> 1
           | h1::t1, h2::t2 ->
-              let c = Z.compare h1 h2 in
+              let c = compare h1 h2 in
               if c = 0 then compare_lists t1 t2 else c
         in
         compare_lists l1 l2
@@ -193,7 +193,7 @@ let append ref i =
   match ref with
   | Ref lst -> Ref (lst @ [i])
 
-let last_elem lst = Z.to_int (List.nth lst (List.length lst - 1))
+let last_elem lst = List.nth lst (List.length lst - 1)
 
 let last_of_ref ref = match ref with Ref lst -> last_elem lst
 
@@ -204,7 +204,7 @@ let rec get_statement_uncached proof ref =
       -> match ref with
           | Ref [] -> proof
           | Ref (head::tail) ->
-              let index = Z.to_int head in
+              let index = head in
               if index < Array.length statements
                 then get_statement_uncached statements.(index) (Ref tail)
               else raise (KernelError RefOutOfBound)

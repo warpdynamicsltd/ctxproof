@@ -1,12 +1,12 @@
 type reference =
-  | Ref of Z.t list
+  | Ref of int list
 
 (* Type for terms (constants, variables, function applications) *)
 type term =
   | Var of string                                          (* Variables *)
   | Const of string                                        (* Constants *)
-  | SkolemConst of Z.t list                                (* Skolem Const refered by int list with the same meaning as in Ref *)
-  | SkolemFunc of Z.t list * term list                     (* Skolem Func refered by int list with the same meaning as in Ref *)
+  | SkolemConst of int list                                (* Skolem Const refered by int list with the same meaning as in Ref *)
+  | SkolemFunc of int list * term list                     (* Skolem Func refered by int list with the same meaning as in Ref *)
   | Func of string * term list                             (* Function symbols with arguments *)
 
 (* Type for first-order logic formulas *)

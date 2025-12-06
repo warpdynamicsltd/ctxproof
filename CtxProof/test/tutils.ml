@@ -3,7 +3,7 @@ open Ctxproof
 open Fof_utils
 open Types
 
-let make_ref l = Ref (List.map Z.of_string l)
+let make_ref l = Ref (List.map int_of_string l)
 
 let assert_eq number f arg expected =
   let actual =

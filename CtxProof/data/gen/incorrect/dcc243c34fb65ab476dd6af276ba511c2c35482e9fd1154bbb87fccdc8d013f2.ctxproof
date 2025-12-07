@@ -1,0 +1,5 @@
+. $true => (p_P(V_x) | (~p_P(V_x)))
+{
+  0 (p_P(c_context__1) | (~p_P(c_context__1))) {A:LEM} {p_P(c_context__1)} {};
+  1 (p_P(V_x) | (~p_P(V_x))) {R:CTV} {0} {c_context__1,V_x};
+}

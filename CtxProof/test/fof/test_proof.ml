@@ -26,6 +26,41 @@ let read_error proof =
 let expect file code line col =
   assert (statement_of_file file |> read_error = (kernel_error_message code, line, col))
 
+(* Helper function to get all files in a directory *)
+let get_files_in_dir dir_path =
+  if Sys.file_exists dir_path && Sys.is_directory dir_path then
+    let files = Sys.readdir dir_path in
+    Array.to_list files
+    |> List.filter (fun f -> not (String.starts_with ~prefix:"." f))
+    |> List.map (fun f -> Filename.concat dir_path f)
+    |> List.sort String.compare
+  else
+    []
+
+(* Test all correct proofs in a directory *)
+let test_correct_proofs dir_path =
+  let files = get_files_in_dir dir_path in
+  List.iter (fun file ->
+    try
+      let proof = statement_of_file file in
+      if not (valid proof) then
+        failwith (Printf.sprintf "Expected valid proof but got invalid: %s" file)
+    with e ->
+      failwith (Printf.sprintf "Failed to validate correct proof %s: %s" file (Printexc.to_string e))
+  ) files
+
+(* Test all incorrect proofs in a directory *)
+let test_incorrect_proofs dir_path =
+  let files = get_files_in_dir dir_path in
+  List.iter (fun file ->
+    try
+      let proof = statement_of_file file in
+      if not (not_valid proof) then
+        failwith (Printf.sprintf "Expected invalid proof but got valid: %s" file)
+    with e ->
+      failwith (Printf.sprintf "Failed to process incorrect proof %s: %s" file (Printexc.to_string e))
+  ) files
+
 let run () =
     let proof = statement_of_file "../data/hello" in
     let cache = create_cache () in
@@ -77,4 +112,11 @@ let run () =
     expect "../data/incorrect/nproof9"  RuleConstraintViolation 7  5;
     expect "../data/incorrect/nproof10" NotAllowedSkolemTerm    9  9;
     expect "../data/incorrect/nproof11" AxiomViolation          4  5;
+
+
+    (* Test all generated correct proofs *)
+    test_correct_proofs "../data/gen/correct";
+
+    (* Test all generated incorrect proofs *)
+    test_incorrect_proofs "../data/gen/incorrect";
 

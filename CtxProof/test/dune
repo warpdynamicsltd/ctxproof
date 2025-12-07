@@ -1,5 +1,7 @@
 (include_subdirs unqualified)
 (copy_files ../data/*)
+(copy_files ../data/gen/correct/*)
+(copy_files ../data/gen/incorrect/*)
 (copy_files ../data/correct/*)
 (copy_files ../data/incorrect/*)
 (test

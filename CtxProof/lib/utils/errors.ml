@@ -16,6 +16,8 @@ type kernel_error_code =
   | ContextViolation
   | InvalidReference
   | UnknownProblem
+  | VarExpectedInSubMap
+  | DuplicateVarInSubMap
 
 let kernel_error_message = function
   | NotAdmissible -> "not admissible"
@@ -33,3 +35,5 @@ let kernel_error_message = function
   | ContextViolation -> "context violation"
   | InvalidReference -> "invalid reference"
   | UnknownProblem -> "problem"
+  | VarExpectedInSubMap -> "expected Var in sub_map"
+  | DuplicateVarInSubMap -> "duplicate variable in sub_map"

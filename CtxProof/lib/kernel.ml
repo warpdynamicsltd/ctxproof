@@ -5,6 +5,7 @@ exception KernelError of Errors.kernel_error_code
 exception KernelPosError of Errors.kernel_error_code * Lexing.position
 
 module StringSet = Set.Make(String)
+module StringMap = Map.Make(String)
 
 (* Map module for reference type to enable efficient caching *)
 module RefMap = Map.Make(struct
@@ -85,6 +86,106 @@ let rec free_vars_formula formula : StringSet.t =
   | Exists (x, f) ->
       let vars = free_vars_formula f in
       StringSet.remove x vars
+
+let sub_map vars terms =
+  let map =
+    List.fold_left2
+      (fun map var_term term ->
+        match var_term with
+        | Var v -> StringMap.add v term map
+        | _ -> raise (KernelError VarExpectedInSubMap))
+      StringMap.empty
+      vars
+      terms
+  in
+  if StringMap.cardinal map <> List.length vars then
+    raise (KernelError DuplicateVarInSubMap)
+  else
+    map
+
+let term_of_map map v =
+  match v with
+  | Var var_name ->
+      (match StringMap.find_opt var_name map with
+       | Some term -> term
+       | None -> v)
+  | _ -> v
+
+let rec batch_substitute_in_term map t =
+  match t with
+  | Var _ -> term_of_map map t
+  | Const _ -> t
+  | SkolemConst _ -> t
+  | Func (f, args) -> Func (f, List.map (batch_substitute_in_term map) args)
+  | SkolemFunc (f, args) -> SkolemFunc (f, List.map (batch_substitute_in_term map) args)
+
+let rec batch_substitute_in_formula map = function
+  | True -> True
+  | False -> False
+  | Pred (p, args) -> Pred (p, List.map (batch_substitute_in_term map) args)
+  | Not f -> Not (batch_substitute_in_formula map f)
+  | And (a, b) -> And (batch_substitute_in_formula map a, batch_substitute_in_formula map b)
+  | Or (a, b) -> Or (batch_substitute_in_formula map a, batch_substitute_in_formula map b)
+  | Implies (a, b) -> Implies (batch_substitute_in_formula map a, batch_substitute_in_formula map b)
+  | Iff (a, b) -> Iff (batch_substitute_in_formula map a, batch_substitute_in_formula map b)
+  | Exists (v, f) ->
+      let map' = StringMap.remove v map in
+      if StringMap.exists (fun _ term -> var_occurs_in_term v term) map then
+        raise (KernelError NotAdmissible)
+      else
+        Exists (v, batch_substitute_in_formula map' f)
+  | Forall (v, f) ->
+      let map' = StringMap.remove v map in
+      if StringMap.exists (fun _ term -> var_occurs_in_term v term) map then
+        raise (KernelError NotAdmissible)
+      else
+        Forall (v, batch_substitute_in_formula map' f)
+
+let substitute_predicate predicate replacement formula =
+  (* Extract predicate name and variables from the pattern *)
+  let (pred_name, pred_vars) = match predicate with
+    | Pred (name, vars) -> (name, vars)
+    | _ -> raise (KernelError NotAdmissible)
+  in
+
+  (* Get free variables in the original replacement formula *)
+  let free_in_original_replacement = free_vars_formula replacement in
+
+  (* Helper function that tracks bound variables *)
+  let rec subst_pred bound_vars = function
+    | True -> True
+    | False -> False
+    | Pred (p, args) when p = pred_name && List.length args = List.length pred_vars ->
+        (* Build substitution map from predicate variables to actual arguments *)
+        let map = sub_map pred_vars args in
+        (* Get the variables that are being substituted (keys of the map) *)
+        let vars_in_map = StringMap.fold (fun k _ acc -> StringSet.add k acc) map StringSet.empty in
+        (* Apply the substitution to the replacement formula *)
+        let substituted = batch_substitute_in_formula map replacement in
+        (* Check if any variable that was originally free in replacement (and still is after substitution) *)
+        (* but excluding variables that were substituted, conflicts with bound variables *)
+        let free_in_substituted = free_vars_formula substituted in
+        let originally_and_still_free = StringSet.inter free_in_original_replacement free_in_substituted in
+        let free_excluding_map_vars = StringSet.diff originally_and_still_free vars_in_map in
+        StringSet.iter (fun v ->
+          if StringSet.mem v bound_vars then
+            raise (KernelError NotAdmissible)
+        ) free_excluding_map_vars;
+        substituted
+    | Pred (p, args) -> Pred (p, args)
+    | Not f -> Not (subst_pred bound_vars f)
+    | And (a, b) -> And (subst_pred bound_vars a, subst_pred bound_vars b)
+    | Or (a, b) -> Or (subst_pred bound_vars a, subst_pred bound_vars b)
+    | Implies (a, b) -> Implies (subst_pred bound_vars a, subst_pred bound_vars b)
+    | Iff (a, b) -> Iff (subst_pred bound_vars a, subst_pred bound_vars b)
+    | Exists (v, f) ->
+        let bound_vars' = StringSet.add v bound_vars in
+        Exists (v, subst_pred bound_vars' f)
+    | Forall (v, f) ->
+        let bound_vars' = StringSet.add v bound_vars in
+        Forall (v, subst_pred bound_vars' f)
+  in
+  subst_pred StringSet.empty formula
 
 let rec substitute_in_term var replacement t =
   match t with

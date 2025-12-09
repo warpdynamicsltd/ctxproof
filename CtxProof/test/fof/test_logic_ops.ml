@@ -186,122 +186,122 @@ let run() =
   assert (batch_substitute_in_formula swap_map2 (formula_of_string "p(A) & q(B)") = formula_of_string "p(B) & q(A)");
 
   (* Test substitute_predicate function *)
-  (* Basic substitution: pp(X) -> q(X, a) *)
-  let pred = formula_of_string "pp(X)" in
+  (* Basic substitution: p(X) -> q(X, a) *)
+  let pred = formula_of_string "p(X)" in
   let repl = formula_of_string "q(X, a)" in
-  assert (check_sub pred repl "pp(b)" "q(b, a)");
-  assert (check_sub pred repl "pp(f(c))" "q(f(c), a)");
-  assert (check_sub pred repl "pp(X)" "q(X, a)");
-  assert (check_sub pred repl "pp(Y)" "q(Y, a)");
+  assert (check_sub pred repl "p(b)" "q(b, a)");
+  assert (check_sub pred repl "p(f(c))" "q(f(c), a)");
+  assert (check_sub pred repl "p(X)" "q(X, a)");
+  assert (check_sub pred repl "p(Y)" "q(Y, a)");
 
   (* Multiple occurrences *)
-  assert (check_sub pred repl "pp(a) & pp(b)" "q(a, a) & q(b, a)");
-  assert (check_sub pred repl "pp(X) | pp(Y)" "q(X, a) | q(Y, a)");
+  assert (check_sub pred repl "p(a) & p(b)" "q(a, a) & q(b, a)");
+  assert (check_sub pred repl "p(X) | p(Y)" "q(X, a) | q(Y, a)");
 
-  (* Binary predicate: pp(X, Y) -> r(X, Y, X) *)
-  let pred = formula_of_string "pp(X, Y)" in
+  (* Binary predicate: p(X, Y) -> r(X, Y, X) *)
+  let pred = formula_of_string "p(X, Y)" in
   let repl = formula_of_string "r(X, Y, X)" in
-  assert (check_sub pred repl "pp(a, b)" "r(a, b, a)");
-  assert (check_sub pred repl "pp(f(c), g(d))" "r(f(c), g(d), f(c))");
+  assert (check_sub pred repl "p(a, b)" "r(a, b, a)");
+  assert (check_sub pred repl "p(f(c), g(d))" "r(f(c), g(d), f(c))");
 
   (* Predicate doesn't match - no substitution *)
-  let pred = formula_of_string "pp(X)" in
+  let pred = formula_of_string "p(X)" in
   let repl = formula_of_string "q(X, a)" in
   assert (check_sub pred repl "qq(a)" "qq(a)");
   assert (check_sub pred repl "r(a, b)" "r(a, b)");
 
   (* Predicate with different arity - no substitution *)
-  assert (check_sub pred repl "pp(a, b)" "pp(a, b)");
-  let pred = formula_of_string "pp(X, Y)" in
+  assert (check_sub pred repl "p(a, b)" "p(a, b)");
+  let pred = formula_of_string "p(X, Y)" in
   let repl = formula_of_string "r(X, Y, X)" in
-  assert (check_sub pred repl "pp(a)" "pp(a)");
+  assert (check_sub pred repl "p(a)" "p(a)");
 
   (* Logical connectives *)
-  let pred = formula_of_string "pp(X)" in
+  let pred = formula_of_string "p(X)" in
   let repl = formula_of_string "q(X, a)" in
-  assert (check_sub pred repl "~pp(a)" "~q(a, a)");
-  assert (check_sub pred repl "pp(a) => pp(b)" "q(a, a) => q(b, a)");
-  assert (check_sub pred repl "pp(a) <=> pp(b)" "q(a, a) <=> q(b, a)");
+  assert (check_sub pred repl "~p(a)" "~q(a, a)");
+  assert (check_sub pred repl "p(a) => p(b)" "q(a, a) => q(b, a)");
+  assert (check_sub pred repl "p(a) <=> p(b)" "q(a, a) <=> q(b, a)");
 
   (* Quantifiers - no bound variable conflict *)
-  let pred = formula_of_string "pp(U)" in
+  let pred = formula_of_string "p(U)" in
   let repl = formula_of_string "q(U)" in
-  assert (check_sub pred repl "![X] : pp(X)" "![X] : q(X)");
-  assert (check_sub pred repl "![X] : pp(a)" "![X] : q(a)");
-  assert (check_sub pred repl "?[Z] : pp(b)" "?[Z] : q(b)");
+  assert (check_sub pred repl "![X] : p(X)" "![X] : q(X)");
+  assert (check_sub pred repl "![X] : p(a)" "![X] : q(a)");
+  assert (check_sub pred repl "?[Z] : p(b)" "?[Z] : q(b)");
 
   (* Test: Variables in the predicate pattern CAN match bound variables - this is OK*)
-  let pred = formula_of_string "pp(X)" in
+  let pred = formula_of_string "p(X)" in
   let repl = formula_of_string "q(X)" in
-  (* X in pp(X) matches bound X, but after substitution q(X) still has X bound - this is admissible *)
-  assert (check_sub pred repl "![X] : pp(X)" "![X] : q(X)");
+  (* X in p(X) matches bound X, but after substitution q(X) still has X bound - this is admissible *)
+  assert (check_sub pred repl "![X] : p(X)" "![X] : q(X)");
 
 
-  (* pp(Y) -> q(X) where X is bound and X is NOT a variable in the predicate pattern - should fail *)
-  let pred = formula_of_string "pp(Y)" in
+  (* p(Y) -> q(X) where X is bound and X is NOT a variable in the predicate pattern - should fail *)
+  let pred = formula_of_string "p(Y)" in
   let repl = formula_of_string "q(X)" in
-  assert (test_not_admissible_pred pred repl "![X] : pp(a)");
-  assert (test_not_admissible_pred pred repl "?[X] : pp(b)");
+  assert (test_not_admissible_pred pred repl "![X] : p(a)");
+  assert (test_not_admissible_pred pred repl "?[X] : p(b)");
 
-  (* pp(Z) -> r(X, Y) where X and Y are bound and NOT in predicate pattern - should fail *)
-  let pred = formula_of_string "pp(Z)" in
+  (* p(Z) -> r(X, Y) where X and Y are bound and NOT in predicate pattern - should fail *)
+  let pred = formula_of_string "p(Z)" in
   let repl = formula_of_string "r(X, Y)" in
-  assert (test_not_admissible_pred pred repl "![X] : pp(c)");
-  assert (test_not_admissible_pred pred repl "?[Y] : pp(d)");
-  assert (test_not_admissible_pred pred repl "![X] : (![Y] : pp(e))");
+  assert (test_not_admissible_pred pred repl "![X] : p(c)");
+  assert (test_not_admissible_pred pred repl "?[Y] : p(d)");
+  assert (test_not_admissible_pred pred repl "![X] : (![Y] : p(e))");
 
-  (* pp(X, Y) -> r(X, Y, Z) where Z is bound but X and Y are in pattern - should fail only for Z *)
-  let pred = formula_of_string "pp(X, Y)" in
+  (* p(X, Y) -> r(X, Y, Z) where Z is bound but X and Y are in pattern - should fail only for Z *)
+  let pred = formula_of_string "p(X, Y)" in
   let repl = formula_of_string "r(X, Y, Z)" in
-  assert (test_not_admissible_pred pred repl "![Z] : pp(a, b)");
+  assert (test_not_admissible_pred pred repl "![Z] : p(a, b)");
 
   (* More tricky quantifier tests *)
   (* Nested quantifiers - should work when no conflicts *)
-  let pred = formula_of_string "pp(A)" in
+  let pred = formula_of_string "p(A)" in
   let repl = formula_of_string "q(A)" in
-  assert (check_sub pred repl "![X] : (![Y] : pp(Z))" "![X] : (![Y] : q(Z))");
+  assert (check_sub pred repl "![X] : (![Y] : p(Z))" "![X] : (![Y] : q(Z))");
 
   (* Pattern variable matches nested bound variable - should work *)
-  let pred = formula_of_string "pp(U)" in
+  let pred = formula_of_string "p(U)" in
   let repl = formula_of_string "r(U, U)" in
-  assert (check_sub pred repl "![X] : (![Y] : pp(Y))" "![X] : (![Y] : r(Y, Y))");
+  assert (check_sub pred repl "![X] : (![Y] : p(Y))" "![X] : (![Y] : r(Y, Y))");
 
   (* Mixed: some occurrences under quantifiers, some not *)
-  let pred = formula_of_string "pp(V)" in
+  let pred = formula_of_string "p(V)" in
   let repl = formula_of_string "s(V)" in
-  assert (check_sub pred repl "pp(a) & (![X] : pp(b))" "s(a) & (![X] : s(b))");
+  assert (check_sub pred repl "p(a) & (![X] : p(b))" "s(a) & (![X] : s(b))");
 
   (* Replacement with multiple free variables, one gets bound *)
-  let pred = formula_of_string "pp(W)" in
+  let pred = formula_of_string "p(W)" in
   let repl = formula_of_string "q(W, M)" in
-  assert (check_sub pred repl "![X] : pp(c)" "![X] : q(c, M)");
-  assert (test_not_admissible_pred pred repl "![M] : pp(d)");
+  assert (check_sub pred repl "![X] : p(c)" "![X] : q(c, M)");
+  assert (test_not_admissible_pred pred repl "![M] : p(d)");
 
   (* Existential quantifiers *)
-  let pred = formula_of_string "pp(T)" in
-  let repl = formula_of_string "p(T, N)" in
-  assert (check_sub pred repl "?[X] : pp(e)" "?[X] : p(e, N)");
-  assert (test_not_admissible_pred pred repl "?[N] : pp(f)");
+  let pred = formula_of_string "p(T)" in
+  let repl = formula_of_string "q(T, N)" in
+  assert (check_sub pred repl "?[X] : p(e)" "?[X] : q(e, N)");
+  assert (test_not_admissible_pred pred repl "?[N] : p(f)");
 
   (* Combination of universal and existential *)
-  let pred = formula_of_string "pp(S)" in
+  let pred = formula_of_string "p(S)" in
   let repl = formula_of_string "r(S)" in
-  assert (check_sub pred repl "![X] : (?[Y] : pp(g))" "![X] : (?[Y] : r(g))");
+  assert (check_sub pred repl "![X] : (?[Y] : p(g))" "![X] : (?[Y] : r(g))");
 
   (* Pattern with multiple variables, replacement uses some of them *)
-  let pred = formula_of_string "pp(A, B)" in
+  let pred = formula_of_string "p(A, B)" in
   let repl = formula_of_string "q(A, B, A)" in
-  assert (check_sub pred repl "![X] : pp(h(X), i)" "![X] : q(h(X), i, h(X))");
+  assert (check_sub pred repl "![X] : p(h(X), i)" "![X] : q(h(X), i, h(X))");
 
   (* Should fail: pattern variables get bound, but there's an additional free var *)
-  let pred = formula_of_string "pp(A, B)" in
+  let pred = formula_of_string "p(A, B)" in
   let repl = formula_of_string "r(A, B, C)" in
-  assert (test_not_admissible_pred pred repl "![C] : pp(j, k)");
+  assert (test_not_admissible_pred pred repl "![C] : p(j, k)");
 
   (* Should work: all free vars in replacement are pattern variables *)
-  let pred = formula_of_string "pp(A, B, C)" in
+  let pred = formula_of_string "p(A, B, C)" in
   let repl = formula_of_string "q(A, B, C)" in
-  assert (check_sub pred repl "![A] : pp(A, m, n)" "![A] : q(A, m, n)");
+  assert (check_sub pred repl "![A] : p(A, m, n)" "![A] : q(A, m, n)");
 
   let pred = formula_of_string "p(X, Y)" in
   let repl = formula_of_string "a(X) & (b(Y) & c(Z))" in
@@ -317,60 +317,60 @@ let run() =
   assert (check_sub pred repl "![A] : p(Z, Y)" "![A] : ( a(Z) & (b(Y) & c(Z)) )");
 
   (* Replacement with universal quantifier *)
-  let pred = formula_of_string "pp(X)" in
+  let pred = formula_of_string "p(X)" in
   let repl = formula_of_string "![Y] : q(X, Y)" in
-  assert (check_sub pred repl "pp(a)" "![Y] : q(a, Y)");
-  assert (check_sub pred repl "pp(b) & pp(c)" "(![Y] : q(b, Y)) & (![Y] : q(c, Y))");
-  assert (check_sub pred repl "pp(Z)" "![Y] : q(Z, Y)");
+  assert (check_sub pred repl "p(a)" "![Y] : q(a, Y)");
+  assert (check_sub pred repl "p(b) & p(c)" "(![Y] : q(b, Y)) & (![Y] : q(c, Y))");
+  assert (check_sub pred repl "p(Z)" "![Y] : q(Z, Y)");
 
   (* Replacement with existential quantifier *)
-  let pred = formula_of_string "pp(X)" in
+  let pred = formula_of_string "p(X)" in
   let repl = formula_of_string "?[Y] : r(X, Y)" in
-  assert (check_sub pred repl "pp(a)" "?[Y] : r(a, Y)");
-  assert (check_sub pred repl "pp(b) | pp(c)" "(?[Y] : r(b, Y)) | (?[Y] : r(c, Y))");
+  assert (check_sub pred repl "p(a)" "?[Y] : r(a, Y)");
+  assert (check_sub pred repl "p(b) | p(c)" "(?[Y] : r(b, Y)) | (?[Y] : r(c, Y))");
 
   (* Replacement with nested quantifiers *)
-  let pred = formula_of_string "pp(X)" in
+  let pred = formula_of_string "p(X)" in
   let repl = formula_of_string "![Y] : (?[Z] : q(X, Y, Z))" in
-  assert (check_sub pred repl "pp(a)" "![Y] : (?[Z] : q(a, Y, Z))");
-  assert (check_sub pred repl "pp(W)" "![Y] : (?[Z] : q(W, Y, Z))");
+  assert (check_sub pred repl "p(a)" "![Y] : (?[Z] : q(a, Y, Z))");
+  assert (check_sub pred repl "p(W)" "![Y] : (?[Z] : q(W, Y, Z))");
 
   (* Replacement with quantifier over pattern variable *)
-  let pred = formula_of_string "pp(X)" in
+  let pred = formula_of_string "p(X)" in
   let repl = formula_of_string "![X] : q(X)" in
-  assert (check_sub pred repl "pp(a)" "![X] : q(X)");
-  assert (check_sub pred repl "pp(b)" "![X] : q(X)");
+  assert (check_sub pred repl "p(a)" "![X] : q(X)");
+  assert (check_sub pred repl "p(b)" "![X] : q(X)");
 
   (* Replacement with quantifier and free variable *)
-  let pred = formula_of_string "pp(X)" in
+  let pred = formula_of_string "p(X)" in
   let repl = formula_of_string "![Y] : r(X, Y, Z)" in
-  assert (check_sub pred repl "pp(a)" "![Y] : r(a, Y, Z)");
-  assert (test_not_admissible_pred pred repl "![Z] : pp(b)");
+  assert (check_sub pred repl "p(a)" "![Y] : r(a, Y, Z)");
+  assert (test_not_admissible_pred pred repl "![Z] : p(b)");
 
   (* Multiple pattern variables with quantifier in replacement *)
-  let pred = formula_of_string "pp(X, Y)" in
+  let pred = formula_of_string "p(X, Y)" in
   let repl = formula_of_string "![Z] : q(X, Y, Z)" in
-  assert (check_sub pred repl "pp(a, b)" "![Z] : q(a, b, Z)");
-  assert (check_sub pred repl "pp(f(c), g(d))" "![Z] : q(f(c), g(d), Z)");
+  assert (check_sub pred repl "p(a, b)" "![Z] : q(a, b, Z)");
+  assert (check_sub pred repl "p(f(c), g(d))" "![Z] : q(f(c), g(d), Z)");
 
   (* Replacement with quantifier that binds a free variable *)
-  let pred = formula_of_string "pp(A)" in
+  let pred = formula_of_string "p(A)" in
   let repl = formula_of_string "![B] : (q(A) & r(B))" in
-  assert (check_sub pred repl "pp(x)" "![B] : (q(x) & r(B))");
-  assert (check_sub pred repl "?[X]: pp(X)" "?[X]: ( ![B] : (q(X) & r(B)) )");
-  assert (test_not_admissible_pred pred repl "![B] : pp(B)");
+  assert (check_sub pred repl "p(x)" "![B] : (q(x) & r(B))");
+  assert (check_sub pred repl "?[X]: p(X)" "?[X]: ( ![B] : (q(X) & r(B)) )");
+  assert (test_not_admissible_pred pred repl "![B] : p(B)");
 
   (* Replacement with existential over pattern variable *)
-  let pred = formula_of_string "pp(X)" in
+  let pred = formula_of_string "p(X)" in
   let repl = formula_of_string "?[X] : q(X, X)" in
-  assert (check_sub pred repl "pp(a)" "?[X] : q(X, X)");
-  assert (check_sub pred repl "pp(Y)" "?[X] : q(X, X)");
+  assert (check_sub pred repl "p(a)" "?[X] : q(X, X)");
+  assert (check_sub pred repl "p(Y)" "?[X] : q(X, X)");
 
   (* Complex: replacement with multiple quantifiers and pattern variables *)
-  let pred = formula_of_string "pp(X, Y)" in
+  let pred = formula_of_string "p(X, Y)" in
   let repl = formula_of_string "![A] : (?[B] : q(X, Y, A, B))" in
-  assert (check_sub pred repl "pp(m, n)" "![A] : (?[B] : q(m, n, A, B))");
-  assert (check_sub pred repl "![C] : pp(m, n)" "![C] : (![A] : (?[B] : q(m, n, A, B)))");
+  assert (check_sub pred repl "p(m, n)" "![A] : (?[B] : q(m, n, A, B))");
+  assert (check_sub pred repl "![C] : p(m, n)" "![C] : (![A] : (?[B] : q(m, n, A, B)))");
 
   assert (Ref [1] >> Ref [0]);
   assert (Ref [1; 1] >> Ref [0]);

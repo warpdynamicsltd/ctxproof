@@ -60,6 +60,18 @@ let rec var_occurs_free_in_formula var = function
   | Exists(v, f) -> not (v = var) && var_occurs_free_in_formula var f
   | Forall(v, f) -> not (v = var) && var_occurs_free_in_formula var f
 
+let rec predicate_occurs_free_in_formula pred = function
+  | True -> false
+  | False -> false
+  | Pred(p, _) -> p = pred
+  | Not f -> predicate_occurs_free_in_formula pred f
+  | And(a, b) -> (predicate_occurs_free_in_formula pred a) || (predicate_occurs_free_in_formula pred b)
+  | Or(a, b) -> (predicate_occurs_free_in_formula pred a) || (predicate_occurs_free_in_formula pred b)
+  | Implies(a, b) -> (predicate_occurs_free_in_formula pred a) || (predicate_occurs_free_in_formula pred b)
+  | Iff(a, b) -> (predicate_occurs_free_in_formula pred a) || (predicate_occurs_free_in_formula pred b)
+  | Exists(_, f) -> predicate_occurs_free_in_formula pred f
+  | Forall(_, f) -> predicate_occurs_free_in_formula pred f
+
 let rec free_vars_term term : StringSet.t =
   match term with
   | Var x -> StringSet.singleton x
@@ -277,7 +289,7 @@ let rec skolem_compatibility_with_ref_in_formula cmp ref f =
       | Forall (_, f1) -> skolem_compatibility_with_ref_in_formula cmp ref f1
 
 let formula_less_than_ref ref f =
-  if  skolem_compatibility_with_ref_in_formula (>>) ref f then true
+  if skolem_compatibility_with_ref_in_formula (>>) ref f then true
   else raise (KernelError NotAllowedSkolemTerm)
 
 let formula_lesseq_than_ref ref f =
@@ -352,6 +364,12 @@ let rec var_occurs_free_in_assumptions proof ref_ var =
   match proof with
     | Statement {ref; formula=Implies(a, _); statements; inference=Inference {mode=Context;_};_} when is_suffix ref_ ref
         -> (var_occurs_free_in_formula var a) || Array.exists (fun s -> var_occurs_free_in_assumptions s ref_ var) statements
+    | _ -> false
+
+let rec predicate_occurs_in_assumptions proof ref_ pred =
+  match proof with
+    | Statement {ref; formula=Implies(a, _); statements; inference=Inference {mode=Context;_};_} when is_suffix ref_ ref
+        -> (predicate_occurs_free_in_formula pred a) || Array.exists (fun s -> predicate_occurs_in_assumptions s ref_ pred) statements
     | _ -> false
 
 let sko_rule_constrain cache ref terms refs proof =
@@ -442,6 +460,20 @@ let rec prove_thesis_cached cache proof ref_ =
                       && assumption_of_proof cache proof r = formula
                   )
                   AssumptionViolation
+              | Inference {mode = Rule "PSU"; gformulas; terms}
+                ->
+                  pass
+                  (
+                    match gformulas, terms with
+                      [Reference r; Formula Pred(p, args); Formula repl], [] 
+                        ->
+                          let f = formula_of_proof cache proof r in
+                            formula_lesseq_than_ref ref_ formula
+                            && not (predicate_occurs_in_assumptions proof ref_ p)
+                            && formula = substitute_predicate (Pred(p, args)) repl f
+                      | _ -> raise (KernelError MalformedRule)
+                  )
+                  RuleViolation
 
               | Inference {mode = Rule rule_label; gformulas; terms}
                 ->

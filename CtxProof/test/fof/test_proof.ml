@@ -88,6 +88,8 @@ let run () =
     assert (statement_of_file "../data/correct/proof12" |> valid);
     assert (statement_of_file "../data/correct/proof13" |> valid);
     assert (statement_of_file "../data/correct/proof14" |> valid);
+    assert (statement_of_file "../data/correct/proof15" |> valid);
+
 
     assert (statement_of_file "../data/incorrect/nproof1" |> not_valid);
     assert (statement_of_file "../data/incorrect/nproof2" |> not_valid);

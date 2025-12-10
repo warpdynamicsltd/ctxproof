@@ -51,6 +51,19 @@ let run() =
   assert (var_occurs_free_in_formula "Y" (formula_of_string "![X]: (p(X) & q(Y))"));
   assert (not (var_occurs_free_in_formula "X" (formula_of_string "p")));
 
+  assert (predicate_occurs_free_in_formula "p" (formula_of_string "p(X)"));
+  assert (predicate_occurs_free_in_formula "p" (formula_of_string "p(X) & q(Y)"));
+  assert (predicate_occurs_free_in_formula "q" (formula_of_string "p(X) | q(Y)"));
+  assert (predicate_occurs_free_in_formula "r" (formula_of_string "![X]: r(X)"));
+  assert (predicate_occurs_free_in_formula "s" (formula_of_string "?[Y]: s(Y)"));
+  assert (predicate_occurs_free_in_formula "p" (formula_of_string "~p(a)"));
+  assert (predicate_occurs_free_in_formula "q" (formula_of_string "p(X) => q(Y)"));
+  assert (predicate_occurs_free_in_formula "p" (formula_of_string "p(X) <=> q(Y)"));
+  assert (predicate_occurs_free_in_formula "t" (formula_of_string "![X]: (?[Y]: t(X, Y))"));
+  assert (not (predicate_occurs_free_in_formula "p" (formula_of_string "q(X)")));
+  assert (not (predicate_occurs_free_in_formula "r" (formula_of_string "p(X) & q(Y)")));
+  assert (not (predicate_occurs_free_in_formula "p" (formula_of_string "$true")));
+  assert (not (predicate_occurs_free_in_formula "q" (formula_of_string "$false")));
 
   assert_eq __LINE__  (free_vars_formula @ formula_of_string) "p(X)" (StringSet.of_list ["X"]);
   assert_eq __LINE__  (free_vars_formula @ formula_of_string) "![X] : p(X)" (StringSet.of_list []);
@@ -185,6 +198,10 @@ let run() =
   assert (batch_substitute_in_formula swap_map2 (formula_of_string "p(A, B)") = formula_of_string "p(B, A)");
   assert (batch_substitute_in_formula swap_map2 (formula_of_string "p(A) & q(B)") = formula_of_string "p(B) & q(A)");
 
+  let pred = formula_of_string "p" in
+  let repl = formula_of_string "q(X, a)" in
+  assert (check_sub pred repl "p" "q(X, a)");
+
   (* Test substitute_predicate function *)
   (* Basic substitution: p(X) -> q(X, a) *)
   let pred = formula_of_string "p(X)" in
@@ -270,6 +287,7 @@ let run() =
   let pred = formula_of_string "p(V)" in
   let repl = formula_of_string "s(V)" in
   assert (check_sub pred repl "p(a) & (![X] : p(b))" "s(a) & (![X] : s(b))");
+  assert (check_sub pred repl "p(a) & (![X] : p(X))" "s(a) & (![X] : s(X))");
 
   (* Replacement with multiple free variables, one gets bound *)
   let pred = formula_of_string "p(W)" in

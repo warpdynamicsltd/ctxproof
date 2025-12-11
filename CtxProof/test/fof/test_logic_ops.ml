@@ -405,10 +405,13 @@ let run() =
 
   (* Formulas with Skolem constants - should pass when ref > skolem ref *)
   assert (formula_lesseq_than_ref (Ref [1]) (Pred("p", [SkolemConst [0]])));
+  assert (formula_lesseq_than_ref (Ref [1;2;3]) (Pred("p", [SkolemConst [1;2;3]])));
+  assert (formula_lesseq_than_ref (Ref [1;2;4;5]) (Pred("p", [SkolemConst [1;2;3]])));
   assert (formula_lesseq_than_ref (Ref [2]) (Pred("p", [SkolemConst [1]])));
   assert (formula_lesseq_than_ref (Ref [1; 0]) (Pred("p", [SkolemConst [0]])));
   assert (formula_less_than_ref (Ref [1]) (Pred("p", [SkolemConst [0]])));
   assert (formula_less_than_ref (Ref [2]) (Pred("p", [SkolemConst [1]])));
+  assert (formula_less_than_ref (Ref [1;2;4;5]) (Pred("p", [SkolemConst [1;2;3]])));
 
   (* Formulas with Skolem constants - lesseq allows equality *)
   assert (formula_lesseq_than_ref (Ref [0]) (Pred("p", [SkolemConst [0]])));
@@ -438,6 +441,7 @@ let run() =
   assert (test_skolem_less_violation (Ref [0]) (Pred("p", [SkolemConst [1]])));
   assert (test_skolem_less_violation (Ref [0]) (Pred("p", [SkolemConst [0]])));
   assert (test_skolem_less_violation (Ref [1]) (Pred("p", [SkolemConst [1]])));
+  assert (test_skolem_less_violation (Ref [1]) (Pred("p", [SkolemFunc([1], [Var "X"])])));
   assert (test_skolem_less_violation (Ref [1]) (Pred("p", [SkolemFunc([1], [Var "X"])])));
 
   let test_skolem_lesseq_violation ref formula =
@@ -497,3 +501,50 @@ let run() =
     (And(Pred("p", [Var "X"]),
          And(Pred("q", [SkolemConst [0]]),
              Pred("r", [SkolemFunc([2], [Var "Z"])])))));
+
+  (* Test no_skolem_formula function *)
+  (* Formulas without Skolem symbols should return true *)
+  assert (no_skolem_formula (formula_of_string "p(X)"));
+  assert (no_skolem_formula (formula_of_string "p(X) & q(Y)"));
+  assert (no_skolem_formula (formula_of_string "p(X) | q(Y, Z)"));
+  assert (no_skolem_formula (formula_of_string "![X]: p(X)"));
+  assert (no_skolem_formula (formula_of_string "?[Y]: q(Y)"));
+  assert (no_skolem_formula (formula_of_string "~p(a)"));
+  assert (no_skolem_formula (formula_of_string "p(X) => q(Y)"));
+  assert (no_skolem_formula (formula_of_string "p(X) <=> q(Y)"));
+  assert (no_skolem_formula (formula_of_string "$true"));
+  assert (no_skolem_formula (formula_of_string "$false"));
+  assert (no_skolem_formula (Pred("p", [Var "X"; Const "c"; Func("f", [Var "Y"; Const "d"])])));
+  assert (no_skolem_formula (Forall("X", And(Pred("p", [Var "X"]), Pred("q", [Const "a"])))));
+  assert (no_skolem_formula (Exists("Y", Implies(Pred("r", [Var "Y"]), Pred("s", [Func("f", [Var "Y"])])))));
+
+  (* Formulas with Skolem constants should return false *)
+  assert (not (no_skolem_formula (Pred("p", [SkolemConst [0]]))));
+  assert (not (no_skolem_formula (Pred("p", [SkolemConst [1; 2; 3]]))));
+  assert (not (no_skolem_formula (And(Pred("p", [Var "X"]), Pred("q", [SkolemConst [0]])))));
+  assert (not (no_skolem_formula (Or(Pred("p", [Const "a"]), Pred("q", [SkolemConst [1]])))));
+  assert (not (no_skolem_formula (Not(Pred("p", [SkolemConst [0]])))));
+  assert (not (no_skolem_formula (Implies(Pred("p", [Var "X"]), Pred("q", [SkolemConst [0]])))));
+  assert (not (no_skolem_formula (Iff(Pred("p", [SkolemConst [1]]), Pred("q", [Var "Y"])))));
+
+  (* Formulas with Skolem functions should return false *)
+  assert (not (no_skolem_formula (Pred("p", [SkolemFunc([0], [])]))));
+  assert (not (no_skolem_formula (Pred("p", [SkolemFunc([1], [Var "X"])]))));
+  assert (not (no_skolem_formula (Pred("p", [SkolemFunc([2; 3], [Var "X"; Var "Y"])]))));
+  assert (not (no_skolem_formula (And(Pred("p", [SkolemFunc([0], [])]), Pred("q", [Var "Y"])))));
+
+  (* Formulas with nested Skolem terms should return false *)
+  assert (not (no_skolem_formula (Pred("p", [Func("f", [SkolemConst [0]])]))));
+  assert (not (no_skolem_formula (Pred("p", [Func("f", [Func("g", [SkolemConst [1]])])]))));
+  assert (not (no_skolem_formula (Pred("p", [SkolemFunc([0], [Var "X"; SkolemConst [1]])]))));
+  assert (not (no_skolem_formula (Pred("p", [Func("f", [SkolemFunc([0], [Var "X"])])]))));
+
+  (* Formulas with Skolem terms inside quantifiers should return false *)
+  assert (not (no_skolem_formula (Forall("X", Pred("p", [SkolemConst [0]])))));
+  assert (not (no_skolem_formula (Exists("Y", Pred("q", [SkolemFunc([1], [Var "Y"])])))));
+  assert (not (no_skolem_formula (Forall("Z", And(Pred("p", [Var "Z"]), Pred("q", [SkolemConst [0]]))))));
+  assert (not (no_skolem_formula (Exists("W", Or(Pred("r", [SkolemFunc([2], [])]), Pred("s", [Var "W"]))))));
+
+  (* Mixed cases with both regular and Skolem terms *)
+  assert (not (no_skolem_formula (Pred("p", [Var "X"; Const "c"; SkolemConst [1]; Func("f", [Var "Y"])]))));
+  assert (not (no_skolem_formula (And(And(Pred("p", [Var "X"]), Pred("q", [Const "a"])), Pred("r", [SkolemConst [0]])))));

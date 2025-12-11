@@ -393,3 +393,107 @@ let run() =
   assert (Ref [1] >> Ref [0]);
   assert (Ref [1; 1] >> Ref [0]);
   assert (Ref [1; 0] >> Ref [0]);
+
+  (* Test formula_lesseq_than_ref and formula_less_than_ref *)
+  (* Formulas without Skolem symbols should always pass *)
+  assert (formula_lesseq_than_ref (Ref [0]) (formula_of_string "p(X)"));
+  assert (formula_lesseq_than_ref (Ref [1]) (formula_of_string "p(X) & q(Y)"));
+  assert (formula_lesseq_than_ref (Ref [0; 0]) (formula_of_string "![X]: p(X)"));
+  assert (formula_less_than_ref (Ref [0]) (formula_of_string "p(X)"));
+  assert (formula_less_than_ref (Ref [1]) (formula_of_string "p(X) | q(Y)"));
+  assert (formula_less_than_ref (Ref [0; 0]) (formula_of_string "?[Y]: q(Y)"));
+
+  (* Formulas with Skolem constants - should pass when ref > skolem ref *)
+  assert (formula_lesseq_than_ref (Ref [1]) (Pred("p", [SkolemConst [0]])));
+  assert (formula_lesseq_than_ref (Ref [2]) (Pred("p", [SkolemConst [1]])));
+  assert (formula_lesseq_than_ref (Ref [1; 0]) (Pred("p", [SkolemConst [0]])));
+  assert (formula_less_than_ref (Ref [1]) (Pred("p", [SkolemConst [0]])));
+  assert (formula_less_than_ref (Ref [2]) (Pred("p", [SkolemConst [1]])));
+
+  (* Formulas with Skolem constants - lesseq allows equality *)
+  assert (formula_lesseq_than_ref (Ref [0]) (Pred("p", [SkolemConst [0]])));
+  assert (formula_lesseq_than_ref (Ref [1]) (Pred("p", [SkolemConst [1]])));
+
+  (* Formulas with Skolem functions *)
+  assert (formula_lesseq_than_ref (Ref [1]) (Pred("p", [SkolemFunc([0], [Var "X"])])));
+  assert (formula_lesseq_than_ref (Ref [2]) (Pred("p", [SkolemFunc([1], [Var "Y"])])));
+  assert (formula_less_than_ref (Ref [1]) (Pred("p", [SkolemFunc([0], [Var "X"])])));
+  assert (formula_lesseq_than_ref (Ref [0]) (Pred("p", [SkolemFunc([0], [Var "X"])])));
+
+  (* Complex formulas with nested Skolem terms *)
+  assert (formula_lesseq_than_ref (Ref [1])
+    (And(Pred("p", [SkolemConst [0]]), Pred("q", [Var "X"]))));
+  assert (formula_less_than_ref (Ref [2])
+    (Or(Pred("p", [SkolemConst [1]]), Pred("q", [SkolemFunc([0], [])]))));
+
+  (* Test that violations raise KernelError *)
+  let test_skolem_less_violation ref formula =
+    try
+      let _ = formula_less_than_ref ref formula in
+      false
+    with
+      | KernelError NotAllowedSkolemTerm -> true
+      | _ -> false
+  in
+  assert (test_skolem_less_violation (Ref [0]) (Pred("p", [SkolemConst [1]])));
+  assert (test_skolem_less_violation (Ref [0]) (Pred("p", [SkolemConst [0]])));
+  assert (test_skolem_less_violation (Ref [1]) (Pred("p", [SkolemConst [1]])));
+  assert (test_skolem_less_violation (Ref [1]) (Pred("p", [SkolemFunc([1], [Var "X"])])));
+
+  let test_skolem_lesseq_violation ref formula =
+    try
+      let _ = formula_lesseq_than_ref ref formula in
+      false
+    with
+      | KernelError NotAllowedSkolemTerm -> true
+      | _ -> false
+  in
+  assert (test_skolem_lesseq_violation (Ref [0]) (Pred("p", [SkolemConst [1]])));
+  assert (test_skolem_lesseq_violation (Ref [1]) (Pred("p", [SkolemConst [2]])));
+
+  (* Additional comprehensive tests for formula_less_than_ref *)
+  (* Test with nested references *)
+  assert (formula_less_than_ref (Ref [1; 0]) (Pred("p", [SkolemConst [0]])));
+  assert (formula_less_than_ref (Ref [2; 1; 3]) (Pred("p", [SkolemConst [2; 1; 2]])));
+
+  (* Test with multiple Skolem terms in a formula *)
+  assert (formula_less_than_ref (Ref [2])
+    (And(Pred("p", [SkolemConst [0]]), Pred("q", [SkolemConst [1]]))));
+  assert (formula_less_than_ref (Ref [3])
+    (And(Pred("p", [SkolemFunc([0], [])]), Pred("q", [SkolemFunc([1], [Var "X"])]))));
+
+  (* Test with deeply nested Skolem terms *)
+  assert (formula_less_than_ref (Ref [1])
+    (Pred("p", [Func("f", [SkolemConst [0]])])));
+  assert (formula_less_than_ref (Ref [2])
+    (Pred("p", [Func("f", [Func("g", [SkolemConst [1]])])])));
+  assert (formula_less_than_ref (Ref [1])
+    (Pred("p", [SkolemFunc([0], [Var "X"; SkolemConst [0]])])));
+
+  (* Test with quantifiers containing Skolem terms *)
+  assert (formula_less_than_ref (Ref [1])
+    (Forall("X", Pred("p", [SkolemConst [0]]))));
+  assert (formula_less_than_ref (Ref [2])
+    (Exists("Y", Pred("q", [SkolemFunc([1], [Var "Y"])]))));
+  assert (formula_less_than_ref (Ref [2])
+    (Implies(Pred("p", [SkolemConst [0]]), Pred("q", [SkolemConst [1]]))));
+
+  (* Test violations for formula_less_than_ref with equal references (should fail) *)
+  assert (test_skolem_less_violation (Ref [0]) (Pred("p", [SkolemConst [0]])));
+  assert (test_skolem_less_violation (Ref [1]) (Pred("p", [SkolemConst [1]])));
+  assert (test_skolem_less_violation (Ref [1; 0]) (Pred("p", [SkolemConst [1; 0]])));
+  assert (test_skolem_less_violation (Ref [1; 0]) (Pred("p", [SkolemConst [1]])));
+
+  (* Test violations with greater Skolem references *)
+  assert (test_skolem_less_violation (Ref [0]) (Pred("p", [SkolemConst [1]])));
+  assert (test_skolem_less_violation (Ref [0]) (Pred("p", [SkolemFunc([2], [])])));
+  assert (test_skolem_less_violation (Ref [1; 0]) (Pred("p", [SkolemConst [1; 1]])));
+  assert (test_skolem_less_violation (Ref [1; 0]) (Pred("p", [SkolemConst [2]])));
+
+  (* Test with mixed terms *)
+  assert (formula_less_than_ref (Ref [2])
+    (Pred("p", [Var "X"; Const "c"; SkolemConst [1]; Func("f", [Var "Y"])])));
+  assert (formula_less_than_ref (Ref [3])
+    (And(Pred("p", [Var "X"]),
+         And(Pred("q", [SkolemConst [0]]),
+             Pred("r", [SkolemFunc([2], [Var "Z"])])))));

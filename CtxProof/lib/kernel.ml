@@ -262,6 +262,25 @@ let rec (>>) current_ref ref =
 
 let (>>=) r1 r2 = r1 >> r2 || r1 = r2
 
+let rec no_skolem_term t =
+  match t with
+  | Var _ | Const _ -> true
+  | SkolemConst _ -> false
+  | SkolemFunc (_, _) -> false
+  | Func (_, terms) -> List.for_all no_skolem_term terms
+
+let rec no_skolem_formula f =
+  match f with
+  | True -> true
+  | False -> true
+  | Pred (_, args) -> List.for_all no_skolem_term args
+  | Not f1 -> no_skolem_formula f1
+  | And (f1, f2)
+  | Or (f1, f2)
+  | Implies (f1, f2)
+  | Iff (f1, f2) -> no_skolem_formula f1 && no_skolem_formula f2
+  | Exists (_, f1)
+  | Forall (_, f1) -> no_skolem_formula f1
 
 let rec skolem_compatibility_with_ref_in_term cmp ref t =
   match t with
@@ -468,7 +487,8 @@ let rec prove_thesis_cached cache proof ref_ =
                       [Reference r; Formula Pred(p, args); Formula repl], [] 
                         ->
                           let f = formula_of_proof cache proof r in
-                            formula_lesseq_than_ref ref_ formula
+                            no_skolem_formula f
+                            && formula_lesseq_than_ref ref_ formula
                             && not (predicate_occurs_in_assumptions proof ref_ p)
                             && formula = substitute_predicate (Pred(p, args)) repl f
                       | _ -> raise (KernelError MalformedRule)

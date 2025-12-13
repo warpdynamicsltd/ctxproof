@@ -548,8 +548,15 @@ Let $\L(\mathscr{C}, \mathscr{P}, \mathscr{F})$ be a signature of a language, le
 
 \begin{definition}[\textbf{substitution}]
 Let $\L$ be a signature of a language.
-If $\alpha\in\F(\L)$ and $\tau$ is an arbitrary term, then 
+If $\alpha\in\F(\L)$ and $\tau$ is an arbitrary term and $x\in\V$, then 
 by $\alpha(x/\tau)$ we denote a formula in which each instance of a free variable $x$ is replaced by a term $\tau$.
+\end{definition}
+
+\begin{definition}[\textbf{simultaneous substitution}]
+Let $\L$ be a signature of a language.
+If $\alpha\in\F(\L)$, $\tau_1, \dots, \tau_k$ are arbitrary terms and 
+$x_1, \dots, x_k\in\V$ are pairwise distinct, then
+by $\alpha(x_1/\tau_1, \dots, x_k/\tau_k)$ we denote a formula in which each instance of a free variable $x_i$ is replaced by a term $\tau_i$ for $i=1, \dots, k$. 
 \end{definition}
 
 \begin{definition}[\textbf{admissible substitution}]
@@ -559,6 +566,16 @@ Let $\alpha\in\F(\L)$ and $\tau$ be an arbitrary term.
 $\alpha(x/\tau)$ is admissible iff no free
 occurrence of $x$ in $\alpha$ is in the range of a quantifier that binds any variable which
 appears in $\tau$.
+\end{definition}
+
+\begin{definition}[\textbf{admissible simultaneous substitution}]
+\label{admissible}
+Let $\L$ be a signature of a language.
+Let $\alpha\in\F(\L)$, $\tau_1, \dots, \tau_k$ be arbitrary terms and 
+$x_1, \dots, x_k\in\V$ pairwise distinct.
+$\alpha(x_1/\tau_1, \dots, x_k/\tau_k)$ is admissible iff no free
+occurrence of $x_i$ in $\alpha$ is in the range of a quantifier that binds any variable which
+appears in $\tau_i$ for $i=1, \dots, k$.
 \end{definition}
 
 We will also employ the well-established notion of an $\L$-structure from the literature, (e.g. \cite{prestel2011}) which is defined as a domain equipped with a set of relations, a set of functions, and a set of objects corresponding to the predicate symbols, function symbols, and constants of $\L$, respectively.
@@ -590,6 +607,81 @@ Denote $\tau$ by $\tau(x_1, \dots, x_n)$ whete $x_i$ are all free variables used
 We can easily demonstrate that the assumption of \textit{admissability} in the above theorem is neccesary. Consider a trivial example for a model of Peano Arythmetic. 
 Let $\alpha \text{ be a formula } \ulcorner \exists y. x = y \urcorner$ and let $\tau$ be $\ulcorner \succ(y) \urcorner$. Obviously $\alpha(x/\tau)$ is not admissable and becomes 
 $\ulcorner \exists y. S(y) = y \urcorner$ which is simply false in any model of Peano Arythmetic.
+
+\begin{definition}
+\label{predicate-replacement}
+Let $\L=(\mathscr{C}, \mathscr{P}, \mathscr{F})$ be a signature of a language, $P\in \mathscr{P}$ and $\alpha, \phi\in\F(\L)$. By $\alpha(P(x_1, \dots, x_k)/\phi)$ with $x_1, \dots, x_k\in\V$ pairwise distinct, we will denote a formula $\alpha$ with each occurence of $P(\tau_1, \dots, \tau_k)$, where $\tau_1, \dots, \tau_k$ are terms from a given occurence, replaced by $\phi(x_1/\tau_1, \dots, x_k/\tau_k)$.
+\\
+\\
+We say that $\alpha(P(x_1, \dots, x_k)/\phi)$ is admissible if for each occurnce of $P(\tau_1, \dots, \tau_k)$ in $\alpha$:
+\begin{enumerate}
+\item $\phi(x_1/\tau_1, \dots, x_k/\tau_k)$ is admissible,
+\item an occurence $P(\tau_1, \dots, \tau_k)$ is not in range of any quantifier which binds a variable from $\free(\phi)\setminus \{x_1, \dots, x_k\}$.
+\end{enumerate} 
+\end{definition}
+
+\begin{lemma}
+Let $\L=(\mathscr{C}, \mathscr{P}, \mathscr{F})$ be a signature of a language and let $P\in \mathscr{P}$. Let $\phi\in\F(\L)$ and $x_1, \dots, x_k\in\V$ be pairwise distinct. Let $j_0: \free(\phi)\setminus \{x_1, \dots, x_k\} \to A$, where $A$ is a domain of an $\L$-structure $M$ for which 
+\begin{equation}
+M, j \models P(x_1, \dots, x_k) \text{ iff } M, j \models \phi
+\end{equation}
+for any $j$ that is an extention of $j_0$. If $\psi\in\F(\L)$ and $\psi(P(x_1, \dots, x_k)/\phi)$ is admissible, then
+\begin{equation}
+M, j \models \psi \text{ iff } M, j \models \psi(P(x_1, \dots, x_k)/\phi)
+\end{equation}
+for any $j$ that is an extention of $j_0$.
+\end{lemma}
+\begin{proof}
+We will prove it via induction over structure of $\psi$. Assume that $\psi(P(x_1, \dots, x_k)/\phi)$ is admissible.
+In first step we will show the ``if'' part holds for an atomic formula $\psi$. If 
+$\psi$ is $A(\tau_1, \dots, \tau_m)$ where $A$ is not $P$ or $m\not=k$, then $\psi$ is the same as $\psi(P(x_1, \dots, x_k)/\phi)$ and ``if'' part holds trivially.\\
+
+Let's assume that that $\psi$ is $P(\tau_1, \dots, \tau_k)$. Take an arbitrary $j$ that is extension of $j_0$.
+\begin{equation}
+M, j \models P(\tau_1, \dots, \tau_k) \text { iff }
+M, j\frac{\tau_1^{M, j}}{x_1}\dots\frac{\tau_k^{M, j}}{x_k} \models P(x_1, \dots, x_k).
+\end{equation}
+Note that $j\frac{\tau_1^{M, j}}{x_1}\dots\frac{\tau_k^{M, j}}{x_k}$ is still an extension of $j_0$, therefore
+\begin{equation}
+M, j \models P(\tau_1, \dots, \tau_k) \text { iff } M, j\frac{\tau_1^{M, j}}{x_1}\dots\frac{\tau_k^{M, j}}{x_k} \models \phi.
+\end{equation}
+Since $\phi(x_1/\tau_1, \dots, x_k/\tau_k)$ is admissible, we have
+\begin{equation}
+M, j \models P(\tau_1, \dots, \tau_k) \text { iff }
+M, j \models \phi(x_1/\tau_1, \dots, x_k/\tau_k).
+\end{equation}
+And therefore by Definition \ref{predicate-replacement}, we have
+\begin{equation}
+M, j \models \psi \text{ iff } M, j \models \psi(P(x_1, \dots, x_k)/\phi).
+\end{equation}\\
+
+It is an easy exercise to show that if ``if'' part holds for formulas $\alpha$ and $\beta$, then it holds for a formula $\alpha\to\beta$. Having this done for $\to$ we can go easily through all other logical connectives.\\
+
+This leaves us with quantifiers to deal with.\\
+
+Assume that ``if'' part holds for formulas $\alpha$, we will show that ``if'' part holds
+for $\psi$ being $\forall u. \alpha$. Note that since $\psi(P(x_1, \dots, x_k)/\phi)$ is admissible, $\alpha(P(x_1, \dots, x_k)/\phi)$ is admissible.
+
+Take an arbitrary $j$ that is extension of $j_0$. We have
+\begin{equation}
+M,j\models \forall u.\alpha \text{ iff } M, j\frac{a}{u} \models \alpha \text{ for any }
+a\in A.
+\end{equation}
+
+Take any $a\in A$. If $u\in \{x_1, \dots, x_k\}$ then $j\frac{a}{u}$ is still an extension of $j_0$. If $u\not\in \{x_1, \dots, x_k\}$, then since $\psi(P(x_1, \dots, x_k)/\phi)$ is admissible, we must have $u\not\in\free(\phi)$, thus $j\frac{a}{u}$ is still an extension of $j_0$. Since $j\frac{a}{u}$ is an extension of $j_0$, by induction assumption we have 
+\begin{equation}
+M, j\frac{a}{u} \models \alpha \text{ iff } M, j\frac{a}{u} \models \alpha(P(x_1, \dots, x_k)/\phi).
+\end{equation}
+Since $a\in A$ was arbitrary, therefore
+
+\begin{equation}
+M,j\models \forall u.\alpha \text{ iff } 
+M, j \models \forall u. \alpha(P(x_1, \dots, x_k)/\phi).
+\end{equation}
+Analogously one can show that `if'' part holds
+for $\psi$ being $\exists u. \alpha$. It is enough to repeat the above argument for a chosen $a\in A$.
+
+\end{proof}
 
 \subsection{Context Proof Definition}
 

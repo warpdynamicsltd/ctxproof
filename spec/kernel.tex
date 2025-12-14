@@ -621,6 +621,7 @@ We say that $\alpha(P(x_1, \dots, x_k)/\phi)$ is admissible if for each occurnce
 \end{definition}
 
 \begin{lemma}
+\label{predicate-substitution-lemma}
 Let $\L=(\mathscr{C}, \mathscr{P}, \mathscr{F})$ be a signature of a language and let $P\in \mathscr{P}$. Let $\phi\in\F(\L)$ and $x_1, \dots, x_k\in\V$ be pairwise distinct. Let $j_0: \free(\phi)\setminus \{x_1, \dots, x_k\} \to A$, where $A$ is a domain of an $\L$-structure $M$ for which 
 \begin{equation}
 M, j \models P(x_1, \dots, x_k) \text{ iff } M, j \models \phi
@@ -634,9 +635,9 @@ for any $j$ that is an extention of $j_0$.
 \begin{proof}
 We will prove it via induction over structure of $\psi$. Assume that $\psi(P(x_1, \dots, x_k)/\phi)$ is admissible.
 In first step we will show the ``if'' part holds for an atomic formula $\psi$. If 
-$\psi$ is $A(\tau_1, \dots, \tau_m)$ where $A$ is not $P$ or $m\not=k$, then $\psi$ is the same as $\psi(P(x_1, \dots, x_k)/\phi)$ and ``if'' part holds trivially.\\
+$\psi$ is $B(\tau_1, \dots, \tau_m)$ where $B$ is not $P$ or $m\not=k$, then $\psi$ is the same as $\psi(P(x_1, \dots, x_k)/\phi)$ and ``if'' part holds trivially.\\
 
-Let's assume that that $\psi$ is $P(\tau_1, \dots, \tau_k)$. Take an arbitrary $j$ that is extension of $j_0$.
+Let's assume that that $\psi$ is $P(\tau_1, \dots, \tau_k)$. Take an arbitrary $j$ that is an extension of $j_0$.
 \begin{equation}
 M, j \models P(\tau_1, \dots, \tau_k) \text { iff }
 M, j\frac{\tau_1^{M, j}}{x_1}\dots\frac{\tau_k^{M, j}}{x_k} \models P(x_1, \dots, x_k).
@@ -682,6 +683,42 @@ Analogously one can show that `if'' part holds
 for $\psi$ being $\exists u. \alpha$. It is enough to repeat the above argument for a chosen $a\in A$.
 
 \end{proof}
+
+\begin{theorem}
+Let $\L=(\mathscr{C}, \mathscr{P}, \mathscr{F})$ be a signature of a language and $P\in \mathscr{P}$. Let 
+$\phi, \psi\in \F(\L)$ and let $x_1, \dots, x_k\in\V$ be pairwise distinct. 
+If $\models \psi$ and $\psi(P(x_1, \dots, x_k)/\phi)$ is admissible, then
+$\models\psi(P(x_1, \dots, x_k)/\phi)$.
+\end{theorem}
+\begin{proof}
+Let $P'\not\in \mathscr{P}$, let $\L'=(\mathscr{C}, \mathscr{P}\cup \{P'\}, \mathscr{F})$. Let $\psi'$ be $\psi$ with simple replacement of predicative symbol $P$ into $P'$. One can easily show that $\models \psi'$.\\
+
+Take an arbitrary $\L$-structure $M$ and take an arbitrary $j_0: \free(\phi)\setminus \{x_1, \dots, x_k\} \to A$. Let $M'_{j_0}$ be a $\L'$-structure which is an extention of $M$ and $P'$ is modeled such that
+\begin{equation}
+M'_{j_0}, j \models P'(x_1, \dots, x_k) \text{ iff } M'_{j_0}, j \models \phi
+\end{equation}
+for any assignment $j$ that is an extention of $j_0$. Then by Lemma \ref{predicate-substitution-lemma}, we have
+
+\begin{equation}
+M'_{j_0}, j \models \psi' \text{ iff } M'_{j_0}, j \models \psi(P'(x_1, \dots, x_k)/\phi) 
+\end{equation}
+for any assignment $j$ that is an extention of $j_0$. And since $\models \psi'$, we have
+
+\begin{equation}
+M'_{j_0}, j \models \psi(P'(x_1, \dots, x_k)/\phi) 
+\end{equation}
+for any assignment $j$ that is an extention of $j_0$.
+
+But since $\psi(P'(x_1, \dots, x_k)/\psi)\in \F(\L)$ and $M'_{j_0}$ is an extension of $M$, we have
+
+\begin{equation}
+M, j \models \psi(P'(x_1, \dots, x_k)/\phi) 
+\end{equation}
+for any assignment $j$ that is an extention of $j_0$. Since $j_0$ was arbitrarly chosen we have proven the thesis.
+
+\end{proof}
+
+
 
 \subsection{Context Proof Definition}
 

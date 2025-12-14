@@ -7,7 +7,6 @@ exception KernelPosError of Errors.kernel_error_code * Lexing.position
 module StringSet = Set.Make(String)
 module StringMap = Map.Make(String)
 
-(* Map module for reference type to enable efficient caching *)
 module RefMap = Map.Make(struct
   type t = reference
   let compare r1 r2 =
@@ -25,7 +24,6 @@ module RefMap = Map.Make(struct
         compare_lists l1 l2
 end)
 
-(* Cache type for storing statement and formula lookups *)
 type proof_cache = {
   mutable statement_cache: statement RefMap.t;
   mutable formula_cache: first_order_formula RefMap.t;
@@ -33,7 +31,6 @@ type proof_cache = {
   mutable validation_cache: bool RefMap.t;
 }
 
-(* Create a new cache *)
 let create_cache () = {
   statement_cache = RefMap.empty;
   formula_cache = RefMap.empty;
@@ -154,31 +151,19 @@ let rec batch_substitute_in_formula map = function
         Forall (v, batch_substitute_in_formula map' f)
 
 let substitute_predicate predicate replacement formula =
-  (* Extract predicate name and variables from the pattern *)
   let (pred_name, pred_vars) = match predicate with
     | Pred (name, vars) -> (name, vars)
     | _ -> raise (KernelError NotAdmissible)
   in
-
-  (* Get free variables in the original replacement formula *)
   let free_in_original_replacement = free_vars_formula replacement in
-
-  (* Helper function that tracks bound variables *)
   let rec subst_pred bound_vars = function
     | True -> True
     | False -> False
     | Pred (p, args) when p = pred_name && List.length args = List.length pred_vars ->
-        (* Build substitution map from predicate variables to actual arguments *)
         let map = sub_map pred_vars args in
-        (* Get the variables that are being substituted (keys of the map) *)
         let vars_in_map = StringMap.fold (fun k _ acc -> StringSet.add k acc) map StringSet.empty in
-        (* Apply the substitution to the replacement formula *)
         let substituted = batch_substitute_in_formula map replacement in
-        (* Check if any variable that was originally free in replacement (and still is after substitution) *)
-        (* but excluding variables that were substituted, conflicts with bound variables *)
-        let free_in_substituted = free_vars_formula substituted in
-        let originally_and_still_free = StringSet.inter free_in_original_replacement free_in_substituted in
-        let free_excluding_map_vars = StringSet.diff originally_and_still_free vars_in_map in
+        let free_excluding_map_vars = StringSet.diff free_in_original_replacement vars_in_map in
         StringSet.iter (fun v ->
           if StringSet.mem v bound_vars then
             raise (KernelError NotAdmissible)
@@ -329,7 +314,6 @@ let last_elem lst = List.nth lst (List.length lst - 1)
 
 let last_of_ref ref = match ref with Ref lst -> last_elem lst
 
-(* Uncached version of get_statement for internal use *)
 let rec get_statement_uncached proof ref =
   match proof with
     | Statement {statements; _}
@@ -341,7 +325,6 @@ let rec get_statement_uncached proof ref =
                 then get_statement_uncached statements.(index) (Ref tail)
               else raise (KernelError RefOutOfBound)
 
-(* Cached version of get_statement *)
 let get_statement cache proof ref =
   match RefMap.find_opt ref cache.statement_cache with
   | Some stmt -> stmt
@@ -356,7 +339,6 @@ let formula_of_statement s =
 let ref_of_statement s =
   match s with Statement {ref; _} -> ref
 
-(* Cached version of formula_of_proof *)
 let formula_of_proof cache proof ref =
   match RefMap.find_opt ref cache.formula_cache with
   | Some formula -> formula
@@ -365,7 +347,6 @@ let formula_of_proof cache proof ref =
       cache.formula_cache <- RefMap.add ref formula cache.formula_cache;
       formula
 
-(* Cached version of assumption_of_proof *)
 let assumption_of_proof cache proof ref =
   match RefMap.find_opt ref cache.assumption_cache with
   | Some assumption -> assumption
@@ -440,13 +421,10 @@ let ref_of_generised_formula gf =
 
 let pass b code = if b then b else raise (KernelError code)
 
-(* Cached version of prove_thesis *)
 let rec prove_thesis_cached cache proof ref_ =
-  (* Check if already validated *)
   match RefMap.find_opt ref_ cache.validation_cache with
   | Some true -> true
   | Some false | None ->
-      (* Perform validation *)
       let result =
         match get_statement cache proof ref_ with
         | Statement
@@ -531,11 +509,9 @@ let rec prove_thesis_cached cache proof ref_ =
 
         | Statement {pos;_} -> raise (KernelPosError (InvalidReference, pos))
       in
-      (* Cache the successful validation result *)
       cache.validation_cache <- RefMap.add ref_ true cache.validation_cache;
       result
 
-(* Public API - creates cache and validates the proof *)
 let prove_thesis proof ref_ =
   let cache = create_cache () in
   prove_thesis_cached cache proof ref_

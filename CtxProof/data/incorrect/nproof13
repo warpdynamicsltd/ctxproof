@@ -1,0 +1,11 @@
+. $true => ( ?[X]: (p(X) => p(X)) )
+{
+    0 $true {ASM} {.};
+    1 q(sk.0(U)) => q(sk.0(U))
+    {
+        1.0 q(sk.0(U)) {ASM} {1};
+    }
+    2 p(sk.0(U))  => p(sk.0(U)) {R:PSU} {1; q(X); p(X)};
+    3 (  p(sk.0(U))  =>  p(sk.0(U))  ) => ( ?[X]: (p(X) => p(X)) ) {A:EXT} {p(X) => p(X)} {sk.0(U), X};
+    4 ?[X]: (p(X) => p(X)) {R:MOD} {3;2};
+}

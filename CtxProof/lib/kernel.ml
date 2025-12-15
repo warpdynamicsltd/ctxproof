@@ -372,6 +372,12 @@ let rec predicate_occurs_in_assumptions proof ref_ pred =
         -> (predicate_occurs_free_in_formula pred a) || Array.exists (fun s -> predicate_occurs_in_assumptions s ref_ pred) statements
     | _ -> false
 
+let rec all_assumptions_no_skolem proof ref_ =
+  match proof with
+    | Statement {ref; formula=Implies(a, _); statements; inference=Inference {mode=Context;_};_} when is_suffix ref_ ref
+        -> (no_skolem_formula a) && Array.for_all (fun s -> all_assumptions_no_skolem s ref_) statements
+    | _ -> true
+
 let sko_rule_constrain cache ref terms refs proof =
   let formula = formula_of_proof cache proof (List.nth refs 0) in
   let sk_term = List.nth terms 0 in
@@ -466,6 +472,7 @@ let rec prove_thesis_cached cache proof ref_ =
                         ->
                           let f = formula_of_proof cache proof r in
                             no_skolem_formula f
+                            && all_assumptions_no_skolem proof ref_
                             && formula_lesseq_than_ref ref_ formula
                             && not (predicate_occurs_in_assumptions proof ref_ p)
                             && formula = substitute_predicate (Pred(p, args)) repl f

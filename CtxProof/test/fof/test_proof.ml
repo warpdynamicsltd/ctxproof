@@ -89,6 +89,8 @@ let run () =
     assert (statement_of_file "../data/correct/proof13" |> valid);
     assert (statement_of_file "../data/correct/proof14" |> valid);
     assert (statement_of_file "../data/correct/proof15" |> valid);
+    assert (statement_of_file "../data/correct/proof16" |> valid);
+    assert (statement_of_file "../data/correct/proof17" |> valid);
 
 
     assert (statement_of_file "../data/incorrect/nproof1" |> not_valid);
@@ -102,6 +104,9 @@ let run () =
     assert (statement_of_file "../data/incorrect/nproof9" |> not_valid);
     assert (statement_of_file "../data/incorrect/nproof10" |> not_valid);
     assert (statement_of_file "../data/incorrect/nproof11" |> not_valid);
+    assert (statement_of_file "../data/incorrect/nproof12" |> not_valid);
+    assert (statement_of_file "../data/incorrect/nproof13" |> not_valid);
+    assert (statement_of_file "../data/incorrect/nproof14" |> not_valid);
 
     expect "../data/incorrect/nproof1"  InvalidReference        1  1;
     expect "../data/incorrect/nproof2"  InvalidReference        3  5;
@@ -114,6 +119,11 @@ let run () =
     expect "../data/incorrect/nproof9"  RuleConstraintViolation 7  5;
     expect "../data/incorrect/nproof10" NotAllowedSkolemTerm    9  9;
     expect "../data/incorrect/nproof11" AxiomViolation          4  5;
+    expect "../data/incorrect/nproof12" RuleViolation           8  5;
+    expect "../data/incorrect/nproof13" RuleViolation           8  5;
+    expect "../data/incorrect/nproof14" RuleViolation          12  9;
+
+
 
 
     (* Test all generated correct proofs *)

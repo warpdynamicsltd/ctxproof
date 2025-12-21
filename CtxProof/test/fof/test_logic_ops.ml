@@ -253,6 +253,15 @@ let run() =
   (* X in p(X) matches bound X, but after substitution q(X) still has X bound - this is admissible *)
   assert (check_sub pred repl "![X] : p(X)" "![X] : q(X)");
 
+  let pred = formula_of_string "p" in
+  let repl = formula_of_string "q(X)" in
+  assert (test_not_admissible_pred pred repl "![X] : p");
+  assert (test_not_admissible_pred pred repl "![X] : ( p => a(X) )");
+  assert (test_not_admissible_pred pred repl "( ![X] : ( p => a(X) ) ) => ( p => ( ![X]: a(X) ) )");
+
+  let pred = formula_of_string "p" in
+  let repl = formula_of_string "q(X)" in
+  assert (check_sub pred repl "![Y] : p" "![Y] : q(X)");
 
   (* p(Y) -> q(X) where X is bound and X is NOT a variable in the predicate pattern - should fail *)
   let pred = formula_of_string "p(Y)" in

@@ -472,6 +472,8 @@ let rec prove_thesis_cached cache proof ref_ =
                         ->
                           let f = formula_of_proof cache proof r in
                             no_skolem_formula f
+                            && ref_ >> r
+                            && prove_thesis_cached cache proof r
                             && all_assumptions_no_skolem proof ref_
                             && formula_lesseq_than_ref ref_ formula
                             && not (predicate_occurs_in_assumptions proof ref_ p)

@@ -1,0 +1,277 @@
+. $true => (((~p_P) => p_Q) <=> (p_P | p_Q))
+{
+  0 (p__p_iff_p_pred_0 <=> p__p_iff_p_pred_0) {R:MOD} {2;0} {};
+  1 (p__p_iff_not_not_p_pred_0 <=> (~(~p__p_iff_not_not_p_pred_0))) {R:MOD} {6;4} {};
+  2 ((~(~p__not_not_p_to_p_pred_0)) => p__not_not_p_to_p_pred_0)
+  {
+    2.0 (~(~p__not_not_p_to_p_pred_0)) {ASM} {2};
+    2.1 (p__not_not_p_to_p_pred_0 => p__not_not_p_to_p_pred_0)
+    {
+      2.1.0 p__not_not_p_to_p_pred_0 {ASM} {2.1};
+    }
+    2.2 ((~p__not_not_p_to_p_pred_0) => p__not_not_p_to_p_pred_0)
+    {
+      2.2.0 (~p__not_not_p_to_p_pred_0) {ASM} {2.2};
+      2.2.1 ((~(~p__not_not_p_to_p_pred_0)) => ((~p__not_not_p_to_p_pred_0) => p__not_not_p_to_p_pred_0)) {A:CON} {(~p__not_not_p_to_p_pred_0);p__not_not_p_to_p_pred_0} {};
+      2.2.2 ((~p__not_not_p_to_p_pred_0) => p__not_not_p_to_p_pred_0) {R:MOD} {2.2.1;2.0} {};
+      2.2.3 p__not_not_p_to_p_pred_0 {R:MOD} {2.2.2;2.2.0} {};
+    }
+    2.3 ((p__not_not_p_to_p_pred_0 => p__not_not_p_to_p_pred_0) => (((~p__not_not_p_to_p_pred_0) => p__not_not_p_to_p_pred_0) => ((p__not_not_p_to_p_pred_0 | (~p__not_not_p_to_p_pred_0)) => p__not_not_p_to_p_pred_0))) {A:DIS} {p__not_not_p_to_p_pred_0;(~p__not_not_p_to_p_pred_0);p__not_not_p_to_p_pred_0} {};
+    2.4 (((~p__not_not_p_to_p_pred_0) => p__not_not_p_to_p_pred_0) => ((p__not_not_p_to_p_pred_0 | (~p__not_not_p_to_p_pred_0)) => p__not_not_p_to_p_pred_0)) {R:MOD} {2.3;2.1} {};
+    2.5 ((p__not_not_p_to_p_pred_0 | (~p__not_not_p_to_p_pred_0)) => p__not_not_p_to_p_pred_0) {R:MOD} {2.4;2.2} {};
+    2.6 (p__not_not_p_to_p_pred_0 | (~p__not_not_p_to_p_pred_0)) {A:LEM} {p__not_not_p_to_p_pred_0} {};
+    2.7 p__not_not_p_to_p_pred_0 {R:MOD} {2.5;2.6} {};
+  }
+  3 (p__p_to_not_not_p_pred_0 => (~(~p__p_to_not_not_p_pred_0)))
+  {
+    3.0 p__p_to_not_not_p_pred_0 {ASM} {3};
+    3.1 ((~(~p__p_to_not_not_p_pred_0)) => (~(~p__p_to_not_not_p_pred_0)))
+    {
+      3.1.0 (~(~p__p_to_not_not_p_pred_0)) {ASM} {3.1};
+    }
+    3.2 ((~p__p_to_not_not_p_pred_0) => (~(~p__p_to_not_not_p_pred_0)))
+    {
+      3.2.0 (~p__p_to_not_not_p_pred_0) {ASM} {3.2};
+      3.2.1 ((~p__p_to_not_not_p_pred_0) => (p__p_to_not_not_p_pred_0 => (~(~p__p_to_not_not_p_pred_0)))) {A:CON} {p__p_to_not_not_p_pred_0;(~(~p__p_to_not_not_p_pred_0))} {};
+      3.2.2 (p__p_to_not_not_p_pred_0 => (~(~p__p_to_not_not_p_pred_0))) {R:MOD} {3.2.1;3.2.0} {};
+      3.2.3 (~(~p__p_to_not_not_p_pred_0)) {R:MOD} {3.2.2;3.0} {};
+    }
+    3.3 (((~p__p_to_not_not_p_pred_0) => (~(~p__p_to_not_not_p_pred_0))) => (((~(~p__p_to_not_not_p_pred_0)) => (~(~p__p_to_not_not_p_pred_0))) => (((~p__p_to_not_not_p_pred_0) | (~(~p__p_to_not_not_p_pred_0))) => (~(~p__p_to_not_not_p_pred_0))))) {A:DIS} {(~p__p_to_not_not_p_pred_0);(~(~p__p_to_not_not_p_pred_0));(~(~p__p_to_not_not_p_pred_0))} {};
+    3.4 (((~(~p__p_to_not_not_p_pred_0)) => (~(~p__p_to_not_not_p_pred_0))) => (((~p__p_to_not_not_p_pred_0) | (~(~p__p_to_not_not_p_pred_0))) => (~(~p__p_to_not_not_p_pred_0)))) {R:MOD} {3.3;3.2} {};
+    3.5 (((~p__p_to_not_not_p_pred_0) | (~(~p__p_to_not_not_p_pred_0))) => (~(~p__p_to_not_not_p_pred_0))) {R:MOD} {3.4;3.1} {};
+    3.6 ((~p__p_to_not_not_p_pred_0) | (~(~p__p_to_not_not_p_pred_0))) {A:LEM} {(~p__p_to_not_not_p_pred_0)} {};
+    3.7 (~(~p__p_to_not_not_p_pred_0)) {R:MOD} {3.5;3.6} {};
+  }
+  4 (((p__iff_tau_pred_0 => p__iff_tau_pred_1) & (p__iff_tau_pred_1 => p__iff_tau_pred_0)) => (p__iff_tau_pred_0 <=> p__iff_tau_pred_1))
+  {
+    4.0 ((p__iff_tau_pred_0 => p__iff_tau_pred_1) & (p__iff_tau_pred_1 => p__iff_tau_pred_0)) {ASM} {4};
+    4.1 ((p__iff_tau_pred_0 => p__iff_tau_pred_1) => ((p__iff_tau_pred_1 => p__iff_tau_pred_0) => (p__iff_tau_pred_0 <=> p__iff_tau_pred_1))) {A:IFI} {p__iff_tau_pred_0;p__iff_tau_pred_1} {};
+    4.2 (((p__iff_tau_pred_0 => p__iff_tau_pred_1) & (p__iff_tau_pred_1 => p__iff_tau_pred_0)) => (p__iff_tau_pred_0 => p__iff_tau_pred_1)) {A:ANL} {(p__iff_tau_pred_0 => p__iff_tau_pred_1);(p__iff_tau_pred_1 => p__iff_tau_pred_0)} {};
+    4.3 (p__iff_tau_pred_0 => p__iff_tau_pred_1) {R:MOD} {4.2;4.0} {};
+    4.4 (((p__iff_tau_pred_0 => p__iff_tau_pred_1) & (p__iff_tau_pred_1 => p__iff_tau_pred_0)) => (p__iff_tau_pred_1 => p__iff_tau_pred_0)) {A:ANR} {(p__iff_tau_pred_0 => p__iff_tau_pred_1);(p__iff_tau_pred_1 => p__iff_tau_pred_0)} {};
+    4.5 (p__iff_tau_pred_1 => p__iff_tau_pred_0) {R:MOD} {4.4;4.0} {};
+    4.6 ((p__iff_tau_pred_1 => p__iff_tau_pred_0) => (p__iff_tau_pred_0 <=> p__iff_tau_pred_1)) {R:MOD} {4.1;4.3} {};
+    4.7 (p__iff_tau_pred_0 <=> p__iff_tau_pred_1) {R:MOD} {4.6;4.5} {};
+  }
+  5 (((~p__dis_imp_pred_0) | p__dis_imp_pred_1) <=> (p__dis_imp_pred_0 => p__dis_imp_pred_1)) {R:MOD} {3;1} {};
+  6 (((~(~p_P)) | p__dis_imp_pred_1) <=> ((~p_P) => p__dis_imp_pred_1)) {R:PSU} {5;p__dis_imp_pred_0;(~p_P)} {};
+  7 (((~(~p_P)) | p_Q) <=> ((~p_P) => p_Q)) {R:PSU} {6;p__dis_imp_pred_1;p_Q} {};
+  8 ((((~(~p_P)) | p_Q) <=> ((~p_P) => p_Q)) => ((((~(~p_P)) | p_Q) => ((~p_P) => p_Q)) & (((~p_P) => p_Q) => ((~(~p_P)) | p_Q)))) {A:IFO} {((~(~p_P)) | p_Q);((~p_P) => p_Q)} {};
+  9 ((((~(~p_P)) | p_Q) => ((~p_P) => p_Q)) & (((~p_P) => p_Q) => ((~(~p_P)) | p_Q))) {R:MOD} {8;7} {};
+  10 (((((~(~p_P)) | p_Q) => ((~p_P) => p_Q)) & (((~p_P) => p_Q) => ((~(~p_P)) | p_Q))) => (((~(~p_P)) | p_Q) => ((~p_P) => p_Q))) {A:ANL} {(((~(~p_P)) | p_Q) => ((~p_P) => p_Q));(((~p_P) => p_Q) => ((~(~p_P)) | p_Q))} {};
+  11 (((~(~p_P)) | p_Q) => ((~p_P) => p_Q)) {R:MOD} {10;9} {};
+  12 (((((~(~p_P)) | p_Q) => ((~p_P) => p_Q)) & (((~p_P) => p_Q) => ((~(~p_P)) | p_Q))) => (((~p_P) => p_Q) => ((~(~p_P)) | p_Q))) {A:ANR} {(((~(~p_P)) | p_Q) => ((~p_P) => p_Q));(((~p_P) => p_Q) => ((~(~p_P)) | p_Q))} {};
+  13 (((~p_P) => p_Q) => ((~(~p_P)) | p_Q)) {R:MOD} {12;9} {};
+  14 ((((~p_P) => p_Q) => ((~(~p_P)) | p_Q)) => ((((~(~p_P)) | p_Q) => ((~p_P) => p_Q)) => ((((~p_P) => p_Q) => ((~(~p_P)) | p_Q)) & (((~(~p_P)) | p_Q) => ((~p_P) => p_Q))))) {A:AND} {(((~p_P) => p_Q) => ((~(~p_P)) | p_Q));(((~(~p_P)) | p_Q) => ((~p_P) => p_Q))} {};
+  15 ((((~(~p_P)) | p_Q) => ((~p_P) => p_Q)) => ((((~p_P) => p_Q) => ((~(~p_P)) | p_Q)) & (((~(~p_P)) | p_Q) => ((~p_P) => p_Q)))) {R:MOD} {14;13} {};
+  16 ((((~p_P) => p_Q) => ((~(~p_P)) | p_Q)) & (((~(~p_P)) | p_Q) => ((~p_P) => p_Q))) {R:MOD} {15;11} {};
+  17 (((((~p_P) => p_Q) => p__iff_tau_pred_1) & (p__iff_tau_pred_1 => ((~p_P) => p_Q))) => (((~p_P) => p_Q) <=> p__iff_tau_pred_1)) {R:PSU} {4;p__iff_tau_pred_0;((~p_P) => p_Q)} {};
+  18 (((((~p_P) => p_Q) => ((~(~p_P)) | p_Q)) & (((~(~p_P)) | p_Q) => ((~p_P) => p_Q))) => (((~p_P) => p_Q) <=> ((~(~p_P)) | p_Q))) {R:PSU} {17;p__iff_tau_pred_1;((~(~p_P)) | p_Q)} {};
+  19 (((~p_P) => p_Q) <=> ((~(~p_P)) | p_Q)) {R:MOD} {18;16} {};
+  20 (p_P <=> (~(~p_P))) {R:PSU} {1;p__p_iff_not_not_p_pred_0;p_P} {};
+  21 ((p_P <=> (~(~p_P))) => ((p_P => (~(~p_P))) & ((~(~p_P)) => p_P))) {A:IFO} {p_P;(~(~p_P))} {};
+  22 ((p_P => (~(~p_P))) & ((~(~p_P)) => p_P)) {R:MOD} {21;20} {};
+  23 (((p_P => (~(~p_P))) & ((~(~p_P)) => p_P)) => (p_P => (~(~p_P)))) {A:ANL} {(p_P => (~(~p_P)));((~(~p_P)) => p_P)} {};
+  24 (p_P => (~(~p_P))) {R:MOD} {23;22} {};
+  25 (((p_P => (~(~p_P))) & ((~(~p_P)) => p_P)) => ((~(~p_P)) => p_P)) {A:ANR} {(p_P => (~(~p_P)));((~(~p_P)) => p_P)} {};
+  26 ((~(~p_P)) => p_P) {R:MOD} {25;22} {};
+  27 (((~(~p_P)) => p_P) => ((p_P => (~(~p_P))) => (((~(~p_P)) => p_P) & (p_P => (~(~p_P)))))) {A:AND} {((~(~p_P)) => p_P);(p_P => (~(~p_P)))} {};
+  28 ((p_P => (~(~p_P))) => (((~(~p_P)) => p_P) & (p_P => (~(~p_P))))) {R:MOD} {27;26} {};
+  29 (((~(~p_P)) => p_P) & (p_P => (~(~p_P)))) {R:MOD} {28;24} {};
+  30 ((((~(~p_P)) => p__iff_tau_pred_1) & (p__iff_tau_pred_1 => (~(~p_P)))) => ((~(~p_P)) <=> p__iff_tau_pred_1)) {R:PSU} {4;p__iff_tau_pred_0;(~(~p_P))} {};
+  31 ((((~(~p_P)) => p_P) & (p_P => (~(~p_P)))) => ((~(~p_P)) <=> p_P)) {R:PSU} {30;p__iff_tau_pred_1;p_P} {};
+  32 ((~(~p_P)) <=> p_P) {R:MOD} {31;29} {};
+  33 (p_P <=> p_P) {R:PSU} {0;p__p_iff_p_pred_0;p_P} {};
+  34 (((~(~p_P)) <=> p_P) => (((~(~p_P)) => p_P) & (p_P => (~(~p_P))))) {A:IFO} {(~(~p_P));p_P} {};
+  35 (((~(~p_P)) => p_P) & (p_P => (~(~p_P)))) {R:MOD} {34;32} {};
+  36 ((p_P <=> p_P) => ((p_P => p_P) & (p_P => p_P))) {A:IFO} {p_P;p_P} {};
+  37 ((p_P => p_P) & (p_P => p_P)) {R:MOD} {36;33} {};
+  38 ((((~(~p_P)) => p_P) & (p_P => (~(~p_P)))) => ((~(~p_P)) => p_P)) {A:ANL} {((~(~p_P)) => p_P);(p_P => (~(~p_P)))} {};
+  39 ((~(~p_P)) => p_P) {R:MOD} {38;35} {};
+  40 (((p_P => p_P) & (p_P => p_P)) => (p_P => p_P)) {A:ANL} {(p_P => p_P);(p_P => p_P)} {};
+  41 (p_P => p_P) {R:MOD} {40;37} {};
+  42 ((~(~p_P)) => p_P)
+  {
+    42.0 (~(~p_P)) {ASM} {42};
+    42.1 p_P {R:MOD} {39;42.0} {};
+    42.2 p_P {R:MOD} {41;42.1} {};
+  }
+  43 ((((~(~p_P)) => p_P) & (p_P => (~(~p_P)))) => (p_P => (~(~p_P)))) {A:ANR} {((~(~p_P)) => p_P);(p_P => (~(~p_P)))} {};
+  44 (p_P => (~(~p_P))) {R:MOD} {43;35} {};
+  45 (((p_P => p_P) & (p_P => p_P)) => (p_P => p_P)) {A:ANR} {(p_P => p_P);(p_P => p_P)} {};
+  46 (p_P => p_P) {R:MOD} {45;37} {};
+  47 (p_P => (~(~p_P)))
+  {
+    47.0 p_P {ASM} {47};
+    47.1 p_P {R:MOD} {46;47.0} {};
+    47.2 (~(~p_P)) {R:MOD} {44;47.1} {};
+  }
+  48 (((~(~p_P)) => p_P) => ((p_P => (~(~p_P))) => ((~(~p_P)) <=> p_P))) {A:IFI} {(~(~p_P));p_P} {};
+  49 ((p_P => (~(~p_P))) => ((~(~p_P)) <=> p_P)) {R:MOD} {48;42} {};
+  50 ((~(~p_P)) <=> p_P) {R:MOD} {49;47} {};
+  51 (p_Q <=> p_Q) {R:PSU} {0;p__p_iff_p_pred_0;p_Q} {};
+  52 (((~(~p_P)) | p_Q) => (p_P | p_Q))
+  {
+    52.0 ((~(~p_P)) | p_Q) {ASM} {52};
+    52.1 ((~(~p_P)) => (p_P | p_Q))
+    {
+      52.1.0 (~(~p_P)) {ASM} {52.1};
+      52.1.1 (((~(~p_P)) <=> p_P) => (((~(~p_P)) => p_P) & (p_P => (~(~p_P))))) {A:IFO} {(~(~p_P));p_P} {};
+      52.1.2 (((~(~p_P)) => p_P) & (p_P => (~(~p_P)))) {R:MOD} {52.1.1;50} {};
+      52.1.3 ((((~(~p_P)) => p_P) & (p_P => (~(~p_P)))) => ((~(~p_P)) => p_P)) {A:ANL} {((~(~p_P)) => p_P);(p_P => (~(~p_P)))} {};
+      52.1.4 ((~(~p_P)) => p_P) {R:MOD} {52.1.3;52.1.2} {};
+      52.1.5 p_P {R:MOD} {52.1.4;52.1.0} {};
+      52.1.6 (p_P => (p_P | p_Q)) {A:ORL} {p_P;p_Q} {};
+      52.1.7 (p_P | p_Q) {R:MOD} {52.1.6;52.1.5} {};
+    }
+    52.2 (p_Q => (p_P | p_Q)) {A:ORR} {p_P;p_Q} {};
+    52.3 (((~(~p_P)) => (p_P | p_Q)) => ((p_Q => (p_P | p_Q)) => (((~(~p_P)) | p_Q) => (p_P | p_Q)))) {A:DIS} {(~(~p_P));p_Q;(p_P | p_Q)} {};
+    52.4 ((p_Q => (p_P | p_Q)) => (((~(~p_P)) | p_Q) => (p_P | p_Q))) {R:MOD} {52.3;52.1} {};
+    52.5 (((~(~p_P)) | p_Q) => (p_P | p_Q)) {R:MOD} {52.4;52.2} {};
+    52.6 (p_P | p_Q) {R:MOD} {52.5;52.0} {};
+  }
+  53 ((p_P | p_Q) => ((~(~p_P)) | p_Q))
+  {
+    53.0 (p_P | p_Q) {ASM} {53};
+    53.1 (((~(~p_P)) <=> p_P) => (((~(~p_P)) => p_P) & (p_P => (~(~p_P))))) {A:IFO} {(~(~p_P));p_P} {};
+    53.2 (((~(~p_P)) => p_P) & (p_P => (~(~p_P)))) {R:MOD} {53.1;50} {};
+    53.3 ((((~(~p_P)) => p_P) & (p_P => (~(~p_P)))) => ((~(~p_P)) => p_P)) {A:ANL} {((~(~p_P)) => p_P);(p_P => (~(~p_P)))} {};
+    53.4 ((~(~p_P)) => p_P) {R:MOD} {53.3;53.2} {};
+    53.5 ((((~(~p_P)) => p_P) & (p_P => (~(~p_P)))) => (p_P => (~(~p_P)))) {A:ANR} {((~(~p_P)) => p_P);(p_P => (~(~p_P)))} {};
+    53.6 (p_P => (~(~p_P))) {R:MOD} {53.5;53.2} {};
+    53.7 ((p_P => (~(~p_P))) => (((~(~p_P)) => p_P) => ((p_P => (~(~p_P))) & ((~(~p_P)) => p_P)))) {A:AND} {(p_P => (~(~p_P)));((~(~p_P)) => p_P)} {};
+    53.8 (((~(~p_P)) => p_P) => ((p_P => (~(~p_P))) & ((~(~p_P)) => p_P))) {R:MOD} {53.7;53.6} {};
+    53.9 ((p_P => (~(~p_P))) & ((~(~p_P)) => p_P)) {R:MOD} {53.8;53.4} {};
+    53.10 (((p_P => p__iff_tau_pred_1) & (p__iff_tau_pred_1 => p_P)) => (p_P <=> p__iff_tau_pred_1)) {R:PSU} {4;p__iff_tau_pred_0;p_P} {};
+    53.11 (((p_P => (~(~p_P))) & ((~(~p_P)) => p_P)) => (p_P <=> (~(~p_P)))) {R:PSU} {53.10;p__iff_tau_pred_1;(~(~p_P))} {};
+    53.12 (p_P <=> (~(~p_P))) {R:MOD} {53.11;53.9} {};
+    53.13 (p_P => ((~(~p_P)) | p_Q))
+    {
+      53.13.0 p_P {ASM} {53.13};
+      53.13.1 ((p_P <=> (~(~p_P))) => ((p_P => (~(~p_P))) & ((~(~p_P)) => p_P))) {A:IFO} {p_P;(~(~p_P))} {};
+      53.13.2 ((p_P => (~(~p_P))) & ((~(~p_P)) => p_P)) {R:MOD} {53.13.1;53.12} {};
+      53.13.3 (((p_P => (~(~p_P))) & ((~(~p_P)) => p_P)) => (p_P => (~(~p_P)))) {A:ANL} {(p_P => (~(~p_P)));((~(~p_P)) => p_P)} {};
+      53.13.4 (p_P => (~(~p_P))) {R:MOD} {53.13.3;53.13.2} {};
+      53.13.5 (~(~p_P)) {R:MOD} {53.13.4;53.13.0} {};
+      53.13.6 ((~(~p_P)) => ((~(~p_P)) | p_Q)) {A:ORL} {(~(~p_P));p_Q} {};
+      53.13.7 ((~(~p_P)) | p_Q) {R:MOD} {53.13.6;53.13.5} {};
+    }
+    53.14 (p_Q => ((~(~p_P)) | p_Q)) {A:ORR} {(~(~p_P));p_Q} {};
+    53.15 ((p_P => ((~(~p_P)) | p_Q)) => ((p_Q => ((~(~p_P)) | p_Q)) => ((p_P | p_Q) => ((~(~p_P)) | p_Q)))) {A:DIS} {p_P;p_Q;((~(~p_P)) | p_Q)} {};
+    53.16 ((p_Q => ((~(~p_P)) | p_Q)) => ((p_P | p_Q) => ((~(~p_P)) | p_Q))) {R:MOD} {53.15;53.13} {};
+    53.17 ((p_P | p_Q) => ((~(~p_P)) | p_Q)) {R:MOD} {53.16;53.14} {};
+    53.18 ((~(~p_P)) | p_Q) {R:MOD} {53.17;53.0} {};
+  }
+  54 ((((~(~p_P)) | p_Q) => (p_P | p_Q)) => (((p_P | p_Q) => ((~(~p_P)) | p_Q)) => (((~(~p_P)) | p_Q) <=> (p_P | p_Q)))) {A:IFI} {((~(~p_P)) | p_Q);(p_P | p_Q)} {};
+  55 (((p_P | p_Q) => ((~(~p_P)) | p_Q)) => (((~(~p_P)) | p_Q) <=> (p_P | p_Q))) {R:MOD} {54;52} {};
+  56 (((~(~p_P)) | p_Q) <=> (p_P | p_Q)) {R:MOD} {55;53} {};
+  57 ((p_P | p_Q) => (p_P | p_Q))
+  {
+    57.0 (p_P | p_Q) {ASM} {57};
+    57.1 (p_Q => (p_P | p_Q))
+    {
+      57.1.0 p_Q {ASM} {57.1};
+      57.1.1 ((p_Q <=> p_Q) => ((p_Q => p_Q) & (p_Q => p_Q))) {A:IFO} {p_Q;p_Q} {};
+      57.1.2 ((p_Q => p_Q) & (p_Q => p_Q)) {R:MOD} {57.1.1;51} {};
+      57.1.3 (((p_Q => p_Q) & (p_Q => p_Q)) => (p_Q => p_Q)) {A:ANL} {(p_Q => p_Q);(p_Q => p_Q)} {};
+      57.1.4 (p_Q => p_Q) {R:MOD} {57.1.3;57.1.2} {};
+      57.1.5 p_Q {R:MOD} {57.1.4;57.1.0} {};
+      57.1.6 (p_Q => (p_P | p_Q)) {A:ORR} {p_P;p_Q} {};
+      57.1.7 (p_P | p_Q) {R:MOD} {57.1.6;57.1.5} {};
+    }
+    57.2 (p_P => (p_P | p_Q)) {A:ORL} {p_P;p_Q} {};
+    57.3 ((p_P => (p_P | p_Q)) => ((p_Q => (p_P | p_Q)) => ((p_P | p_Q) => (p_P | p_Q)))) {A:DIS} {p_P;p_Q;(p_P | p_Q)} {};
+    57.4 ((p_Q => (p_P | p_Q)) => ((p_P | p_Q) => (p_P | p_Q))) {R:MOD} {57.3;57.2} {};
+    57.5 ((p_P | p_Q) => (p_P | p_Q)) {R:MOD} {57.4;57.1} {};
+    57.6 (p_P | p_Q) {R:MOD} {57.5;57.0} {};
+  }
+  58 ((p_P | p_Q) => (p_P | p_Q))
+  {
+    58.0 (p_P | p_Q) {ASM} {58};
+    58.1 ((p_Q <=> p_Q) => ((p_Q => p_Q) & (p_Q => p_Q))) {A:IFO} {p_Q;p_Q} {};
+    58.2 ((p_Q => p_Q) & (p_Q => p_Q)) {R:MOD} {58.1;51} {};
+    58.3 (((p_Q => p_Q) & (p_Q => p_Q)) => (p_Q => p_Q)) {A:ANL} {(p_Q => p_Q);(p_Q => p_Q)} {};
+    58.4 (p_Q => p_Q) {R:MOD} {58.3;58.2} {};
+    58.5 (((p_Q => p_Q) & (p_Q => p_Q)) => (p_Q => p_Q)) {A:ANR} {(p_Q => p_Q);(p_Q => p_Q)} {};
+    58.6 (p_Q => p_Q) {R:MOD} {58.5;58.2} {};
+    58.7 ((p_Q => p_Q) => ((p_Q => p_Q) => ((p_Q => p_Q) & (p_Q => p_Q)))) {A:AND} {(p_Q => p_Q);(p_Q => p_Q)} {};
+    58.8 ((p_Q => p_Q) => ((p_Q => p_Q) & (p_Q => p_Q))) {R:MOD} {58.7;58.6} {};
+    58.9 ((p_Q => p_Q) & (p_Q => p_Q)) {R:MOD} {58.8;58.4} {};
+    58.10 (((p_Q => p__iff_tau_pred_1) & (p__iff_tau_pred_1 => p_Q)) => (p_Q <=> p__iff_tau_pred_1)) {R:PSU} {4;p__iff_tau_pred_0;p_Q} {};
+    58.11 (((p_Q => p_Q) & (p_Q => p_Q)) => (p_Q <=> p_Q)) {R:PSU} {58.10;p__iff_tau_pred_1;p_Q} {};
+    58.12 (p_Q <=> p_Q) {R:MOD} {58.11;58.9} {};
+    58.13 (p_Q => (p_P | p_Q))
+    {
+      58.13.0 p_Q {ASM} {58.13};
+      58.13.1 ((p_Q <=> p_Q) => ((p_Q => p_Q) & (p_Q => p_Q))) {A:IFO} {p_Q;p_Q} {};
+      58.13.2 ((p_Q => p_Q) & (p_Q => p_Q)) {R:MOD} {58.13.1;58.12} {};
+      58.13.3 (((p_Q => p_Q) & (p_Q => p_Q)) => (p_Q => p_Q)) {A:ANL} {(p_Q => p_Q);(p_Q => p_Q)} {};
+      58.13.4 (p_Q => p_Q) {R:MOD} {58.13.3;58.13.2} {};
+      58.13.5 p_Q {R:MOD} {58.13.4;58.13.0} {};
+      58.13.6 (p_Q => (p_P | p_Q)) {A:ORR} {p_P;p_Q} {};
+      58.13.7 (p_P | p_Q) {R:MOD} {58.13.6;58.13.5} {};
+    }
+    58.14 (p_P => (p_P | p_Q)) {A:ORL} {p_P;p_Q} {};
+    58.15 ((p_P => (p_P | p_Q)) => ((p_Q => (p_P | p_Q)) => ((p_P | p_Q) => (p_P | p_Q)))) {A:DIS} {p_P;p_Q;(p_P | p_Q)} {};
+    58.16 ((p_Q => (p_P | p_Q)) => ((p_P | p_Q) => (p_P | p_Q))) {R:MOD} {58.15;58.14} {};
+    58.17 ((p_P | p_Q) => (p_P | p_Q)) {R:MOD} {58.16;58.13} {};
+    58.18 (p_P | p_Q) {R:MOD} {58.17;58.0} {};
+  }
+  59 (((p_P | p_Q) => (p_P | p_Q)) => (((p_P | p_Q) => (p_P | p_Q)) => ((p_P | p_Q) <=> (p_P | p_Q)))) {A:IFI} {(p_P | p_Q);(p_P | p_Q)} {};
+  60 (((p_P | p_Q) => (p_P | p_Q)) => ((p_P | p_Q) <=> (p_P | p_Q))) {R:MOD} {59;57} {};
+  61 ((p_P | p_Q) <=> (p_P | p_Q)) {R:MOD} {60;58} {};
+  62 ((((~(~p_P)) | p_Q) <=> (p_P | p_Q)) => ((((~(~p_P)) | p_Q) => (p_P | p_Q)) & ((p_P | p_Q) => ((~(~p_P)) | p_Q)))) {A:IFO} {((~(~p_P)) | p_Q);(p_P | p_Q)} {};
+  63 ((((~(~p_P)) | p_Q) => (p_P | p_Q)) & ((p_P | p_Q) => ((~(~p_P)) | p_Q))) {R:MOD} {62;56} {};
+  64 (((p_P | p_Q) <=> (p_P | p_Q)) => (((p_P | p_Q) => (p_P | p_Q)) & ((p_P | p_Q) => (p_P | p_Q)))) {A:IFO} {(p_P | p_Q);(p_P | p_Q)} {};
+  65 (((p_P | p_Q) => (p_P | p_Q)) & ((p_P | p_Q) => (p_P | p_Q))) {R:MOD} {64;61} {};
+  66 (((((~(~p_P)) | p_Q) => (p_P | p_Q)) & ((p_P | p_Q) => ((~(~p_P)) | p_Q))) => (((~(~p_P)) | p_Q) => (p_P | p_Q))) {A:ANL} {(((~(~p_P)) | p_Q) => (p_P | p_Q));((p_P | p_Q) => ((~(~p_P)) | p_Q))} {};
+  67 (((~(~p_P)) | p_Q) => (p_P | p_Q)) {R:MOD} {66;63} {};
+  68 ((((p_P | p_Q) => (p_P | p_Q)) & ((p_P | p_Q) => (p_P | p_Q))) => ((p_P | p_Q) => (p_P | p_Q))) {A:ANL} {((p_P | p_Q) => (p_P | p_Q));((p_P | p_Q) => (p_P | p_Q))} {};
+  69 ((p_P | p_Q) => (p_P | p_Q)) {R:MOD} {68;65} {};
+  70 (((~(~p_P)) | p_Q) => (p_P | p_Q))
+  {
+    70.0 ((~(~p_P)) | p_Q) {ASM} {70};
+    70.1 (p_P | p_Q) {R:MOD} {67;70.0} {};
+    70.2 (p_P | p_Q) {R:MOD} {69;70.1} {};
+  }
+  71 (((((~(~p_P)) | p_Q) => (p_P | p_Q)) & ((p_P | p_Q) => ((~(~p_P)) | p_Q))) => ((p_P | p_Q) => ((~(~p_P)) | p_Q))) {A:ANR} {(((~(~p_P)) | p_Q) => (p_P | p_Q));((p_P | p_Q) => ((~(~p_P)) | p_Q))} {};
+  72 ((p_P | p_Q) => ((~(~p_P)) | p_Q)) {R:MOD} {71;63} {};
+  73 ((((p_P | p_Q) => (p_P | p_Q)) & ((p_P | p_Q) => (p_P | p_Q))) => ((p_P | p_Q) => (p_P | p_Q))) {A:ANR} {((p_P | p_Q) => (p_P | p_Q));((p_P | p_Q) => (p_P | p_Q))} {};
+  74 ((p_P | p_Q) => (p_P | p_Q)) {R:MOD} {73;65} {};
+  75 ((p_P | p_Q) => ((~(~p_P)) | p_Q))
+  {
+    75.0 (p_P | p_Q) {ASM} {75};
+    75.1 (p_P | p_Q) {R:MOD} {74;75.0} {};
+    75.2 ((~(~p_P)) | p_Q) {R:MOD} {72;75.1} {};
+  }
+  76 ((((~(~p_P)) | p_Q) => (p_P | p_Q)) => (((p_P | p_Q) => ((~(~p_P)) | p_Q)) => (((~(~p_P)) | p_Q) <=> (p_P | p_Q)))) {A:IFI} {((~(~p_P)) | p_Q);(p_P | p_Q)} {};
+  77 (((p_P | p_Q) => ((~(~p_P)) | p_Q)) => (((~(~p_P)) | p_Q) <=> (p_P | p_Q))) {R:MOD} {76;70} {};
+  78 (((~(~p_P)) | p_Q) <=> (p_P | p_Q)) {R:MOD} {77;75} {};
+  79 ((((~p_P) => p_Q) <=> ((~(~p_P)) | p_Q)) => ((((~p_P) => p_Q) => ((~(~p_P)) | p_Q)) & (((~(~p_P)) | p_Q) => ((~p_P) => p_Q)))) {A:IFO} {((~p_P) => p_Q);((~(~p_P)) | p_Q)} {};
+  80 ((((~p_P) => p_Q) => ((~(~p_P)) | p_Q)) & (((~(~p_P)) | p_Q) => ((~p_P) => p_Q))) {R:MOD} {79;19} {};
+  81 ((((~(~p_P)) | p_Q) <=> (p_P | p_Q)) => ((((~(~p_P)) | p_Q) => (p_P | p_Q)) & ((p_P | p_Q) => ((~(~p_P)) | p_Q)))) {A:IFO} {((~(~p_P)) | p_Q);(p_P | p_Q)} {};
+  82 ((((~(~p_P)) | p_Q) => (p_P | p_Q)) & ((p_P | p_Q) => ((~(~p_P)) | p_Q))) {R:MOD} {81;78} {};
+  83 (((((~p_P) => p_Q) => ((~(~p_P)) | p_Q)) & (((~(~p_P)) | p_Q) => ((~p_P) => p_Q))) => (((~p_P) => p_Q) => ((~(~p_P)) | p_Q))) {A:ANL} {(((~p_P) => p_Q) => ((~(~p_P)) | p_Q));(((~(~p_P)) | p_Q) => ((~p_P) => p_Q))} {};
+  84 (((~p_P) => p_Q) => ((~(~p_P)) | p_Q)) {R:MOD} {83;80} {};
+  85 (((((~(~p_P)) | p_Q) => (p_P | p_Q)) & ((p_P | p_Q) => ((~(~p_P)) | p_Q))) => (((~(~p_P)) | p_Q) => (p_P | p_Q))) {A:ANL} {(((~(~p_P)) | p_Q) => (p_P | p_Q));((p_P | p_Q) => ((~(~p_P)) | p_Q))} {};
+  86 (((~(~p_P)) | p_Q) => (p_P | p_Q)) {R:MOD} {85;82} {};
+  87 (((~p_P) => p_Q) => (p_P | p_Q))
+  {
+    87.0 ((~p_P) => p_Q) {ASM} {87};
+    87.1 ((~(~p_P)) | p_Q) {R:MOD} {84;87.0} {};
+    87.2 (p_P | p_Q) {R:MOD} {86;87.1} {};
+  }
+  88 (((((~p_P) => p_Q) => ((~(~p_P)) | p_Q)) & (((~(~p_P)) | p_Q) => ((~p_P) => p_Q))) => (((~(~p_P)) | p_Q) => ((~p_P) => p_Q))) {A:ANR} {(((~p_P) => p_Q) => ((~(~p_P)) | p_Q));(((~(~p_P)) | p_Q) => ((~p_P) => p_Q))} {};
+  89 (((~(~p_P)) | p_Q) => ((~p_P) => p_Q)) {R:MOD} {88;80} {};
+  90 (((((~(~p_P)) | p_Q) => (p_P | p_Q)) & ((p_P | p_Q) => ((~(~p_P)) | p_Q))) => ((p_P | p_Q) => ((~(~p_P)) | p_Q))) {A:ANR} {(((~(~p_P)) | p_Q) => (p_P | p_Q));((p_P | p_Q) => ((~(~p_P)) | p_Q))} {};
+  91 ((p_P | p_Q) => ((~(~p_P)) | p_Q)) {R:MOD} {90;82} {};
+  92 ((p_P | p_Q) => ((~p_P) => p_Q))
+  {
+    92.0 (p_P | p_Q) {ASM} {92};
+    92.1 ((~(~p_P)) | p_Q) {R:MOD} {91;92.0} {};
+    92.2 ((~p_P) => p_Q) {R:MOD} {89;92.1} {};
+  }
+  93 ((((~p_P) => p_Q) => (p_P | p_Q)) => (((p_P | p_Q) => ((~p_P) => p_Q)) => (((~p_P) => p_Q) <=> (p_P | p_Q)))) {A:IFI} {((~p_P) => p_Q);(p_P | p_Q)} {};
+  94 (((p_P | p_Q) => ((~p_P) => p_Q)) => (((~p_P) => p_Q) <=> (p_P | p_Q))) {R:MOD} {93;87} {};
+  95 (((~p_P) => p_Q) <=> (p_P | p_Q)) {R:MOD} {94;92} {};
+}

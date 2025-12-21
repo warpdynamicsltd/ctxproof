@@ -107,6 +107,9 @@ let run () =
     assert (statement_of_file "../data/incorrect/nproof12" |> not_valid);
     assert (statement_of_file "../data/incorrect/nproof13" |> not_valid);
     assert (statement_of_file "../data/incorrect/nproof14" |> not_valid);
+    assert (statement_of_file "../data/incorrect/nproof15" |> not_valid);
+    assert (statement_of_file "../data/incorrect/nproof16" |> not_valid);
+    assert (statement_of_file "../data/incorrect/nproof14" |> not_valid);
 
     expect "../data/incorrect/nproof1"  InvalidReference        1  1;
     expect "../data/incorrect/nproof2"  InvalidReference        3  5;
@@ -122,6 +125,10 @@ let run () =
     expect "../data/incorrect/nproof12" RuleViolation           8  5;
     expect "../data/incorrect/nproof13" RuleViolation           8  5;
     expect "../data/incorrect/nproof14" RuleViolation          12  9;
+    expect "../data/incorrect/nproof15" RuleViolation          18  3;
+    expect "../data/incorrect/nproof16" RuleViolation           3  3;
+    expect "../data/incorrect/nproof17" NotAdmissible          15  3;
+
 
 
 

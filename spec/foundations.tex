@@ -1,0 +1,413 @@
+
+\documentclass[10pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{mathrsfs}
+\usepackage{natbib}
+\usepackage{listings}
+\usepackage{color}
+
+
+
+
+\title{Logical Foundations}
+\author{Michał Stanisław Wójcik}
+\date{\today}
+
+
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{fact}[theorem]{Fact}
+\newtheorem{conjecture}[theorem]{Conjecture}
+\newtheorem{question}[theorem]{Question}
+\newtheorem{claim}[theorem]{Claim}
+\newtheorem{example}[theorem]{Example}
+\newtheorem{assumption}[theorem]{Assumption}
+\newtheorem{remark}[theorem]{Remark}
+\newtheorem{axiom}[theorem]{Axiom}
+\newtheorem{note}[theorem]{Note}
+\newtheorem{law}{Law}
+
+
+\newcommand{\defeq}{\stackrel{\mathrm{def}}{=}}
+\newcommand{\elev}{\text{elev}}
+\newcommand{\free}{\text{free}}
+\newcommand{\bound}{\text{bound}}
+\renewcommand{\axiom}{\text{Axiom}}
+\renewcommand{\rule}{\text{Rule}}
+\newcommand{\asm}{\text{Asm}}
+\newcommand{\block}{\text{Block}}
+\newcommand{\Sk}{\mathcal{S}}
+\newcommand{\sk}{\mathfrak{s}}
+\renewcommand{\i}{\mathfrak{i}}
+\newcommand{\ii}{\hat{\mathfrak{i}}}
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\F}{\mathcal{F}}
+\newcommand{\A}{\mathcal{A}}
+\newcommand{\B}{\mathcal{B}}
+\newcommand{\C}{\mathcal{C}}
+\renewcommand{\root}{\text{root}}
+\newcommand{\final}{\text{final}}
+\newcommand{\truth}{\mathfrak{t}}
+\newcommand{\false}{\mathfrak{f}}
+\newcommand{\context}{\text{Ctx}}
+\newcommand{\Cnr}{\text{Cn}_\text{R}}
+\renewcommand{\L}{\mathscr{L}}
+\newcommand{\V}{\mathscr{V}}
+\newcommand{\prove}{\vdash}
+\newcommand{\M}{\mathbf{M}}
+\renewcommand{\succ}{\text{S}}
+\newcommand{\shift}{\text{shift}}
+\newcommand{\fixed}{\text{fixed}}
+\newcommand{\refset}{\text{ref}}
+\newcommand{\arity}{\mathfrak{a}}
+
+
+\definecolor{dkgreen}{rgb}{0,0.6,0}
+\definecolor{gray}{rgb}{0.5,0.5,0.5}
+\definecolor{mauve}{rgb}{0.58,0,0.82}
+
+
+\lstset{frame=tb,
+  language=Python,
+  aboveskip=3mm,
+  belowskip=3mm,
+  showstringspaces=false,
+  columns=flexible,
+  basicstyle={\small\ttfamily},
+  numbers=none,
+  numberstyle=\tiny\color{gray},
+  keywordstyle=\color{blue},
+  commentstyle=\color{dkgreen},
+  stringstyle=\color{mauve},
+  breaklines=true,
+  breakatwhitespace=true,
+  tabsize=3
+}
+\setlength{\parindent}{0pt}
+
+
+\begin{document}
+\maketitle
+\section{Well Formed Formula}
+
+\subsection{Syntax}
+
+Let $\V$ be an infinite countable set of variable symbols. And $\false$ be a special predicate symbol.
+
+\begin{definition}
+Let $\mathscr{P}$ be a set of predicate symbols for which $\false\in \mathscr{P}$ and $\mathscr{F}$ be a set of function symbols. Let $\arity : \mathscr{P} \cup \mathscr{F} \to \N$ be an arity function. 
+then $\L \defeq (\mathscr{P}, \mathscr{F}, \arity)$ is a signature of a language.
+\end{definition}
+
+\begin{definition}[\textbf{arity}]
+Let $\L \defeq (\mathscr{P}, \mathscr{F}, \arity)$ be a signature of a language.
+
+\begin{equation}
+\mathscr{P}_k \defeq \{p\in \mathscr{P}: \arity(p) = k \}, 
+\end{equation}
+
+\begin{equation}
+\mathscr{F}_k \defeq \{f\in \mathscr{F}: \arity(f) = k \}. 
+\end{equation}
+
+
+
+\end{definition}
+
+\begin{definition}[\textbf{recursive: term}]
+Let $\L = (\mathscr{P}, \mathscr{F}, \arity)$ be a signature of a language.
+\begin{enumerate}
+\item For any $v\in \V$, $v$ is a \textbf{term}.
+\item For any $c\in \mathscr{F}_0$, $c$ is a \textbf{term}.
+\item For any $f\in \mathscr{F}_k$ and $\tau_1, \dots, \tau_k$ are terms, $f(\tau_1, \dots, \tau_k)$ is a \textbf{term}.
+\end{enumerate}
+\end{definition}
+
+\begin{definition}[\textbf{recursive: atomic formula}]
+Let $\L = (\mathscr{P}, \mathscr{F}, \arity)$ be a signature of a language.
+\begin{enumerate}
+\item For any $p\in \mathscr{P}_0$, $p$ is an \textbf{atomic formula}.
+\item For any $p\in \mathscr{P}_k$ and $\tau_1, \dots, \tau_k$ are terms, $p(\tau_1, \dots, \tau_k)$ is an \textbf{atomic formula}.
+\end{enumerate}
+
+We will denote a set of all atomic formulas as $\A(\L)$.
+\end{definition}
+
+
+\begin{definition}[\textbf{recursive: base formula, well formed formula}]
+Let $\L = (\mathscr{P}, \mathscr{F}, \arity)$ be a signature of a language.
+\begin{enumerate}
+\item For any atomic formula $\phi$, $\phi$ is a \textbf{base formula}.
+\item For any \textbf{base formula} $\phi$, $\phi$ is a \textbf{well formed formula}.
+\item For any \textbf{well formed formula} $\phi$, $(\phi)$ is a \textbf{base formula}.
+\item For any \textbf{base formulas} $\alpha, \beta$, $\alpha \to \beta$ is a \textbf{well formed formula}.
+\item For any $v\in \V$ and a \textbf{base formula} $\phi$, $\forall v. \phi$ is a \textbf{well formed formula}.
+\end{enumerate}
+
+We will denote set of all base formulas as $\B(\L)$ and set of all well formed formulas as $\F(\L)$.
+\end{definition}
+
+\begin{definition}[\textbf{recursive: variable in a term}]
+Let $\L = (\mathscr{P}, \mathscr{F}, \arity)$ be a signature of a language.
+Let $v\in \V$ and $\tau$ be a term.
+\begin{enumerate}
+\item If $\tau$ is $v$ then $v$ is a \textbf{variable in} term $\tau$.
+\item If $\tau$ is $f(\tau_1, \dots \tau_k)$ where $f\in \mathscr{F}_k$ and $\tau_1, \dots \tau_k$ are terms and $v$ is a \textbf{variable in} some term $\tau_i$ where $i$ is an integer with $1 \leq i \leq k$, then $v$ is a \textbf{variable in} term $\tau$.
+\item Otherwise $v$ is not a \textbf{variable in} a term $\tau$.
+\end{enumerate}
+
+\end{definition}
+
+\begin{definition}[\textbf{recursive: variable in a well formed formula}]
+Let $\L = (\mathscr{P}, \mathscr{F}, \arity)$ be a signature of a language.
+Let $v\in \V$ and $\phi\in\F(\L)$.
+\begin{enumerate}
+\item If $\phi$ is $p(\tau_1, \dots, \tau_k)$ where $p\in \mathscr{P}_k$ and $\tau_1, \dots, \tau_k$ are terms, and $v$ is a \textbf{variable in} some term $\tau_i$ where $i$ is an integer with $1 \leq i \leq k$, then $v$ is a \textbf{variable in} $\phi$.
+\item If $\phi$ is $\alpha \to \beta$ where $\alpha, \beta\in\B(\L)$, and $v$ is a \textbf{variable in} $\alpha$ or $v$ is a \textbf{variable in} $\beta$, then $v$ is a \textbf{variable in} $\phi$.
+\item If $\phi$ is $\forall x. \psi$ where $x\in \V$ and $\psi\in\B(\L)$, and either $v$ is $x$ or $v$ is a \textbf{variable in} $\psi$, then $v$ is a \textbf{variable in} $\phi$.
+\item Otherwise $v$ is not a \textbf{variable in} $\phi$.
+\end{enumerate}
+
+\end{definition}
+
+\begin{definition}[\textbf{recursive: free variable in a well formed formula}]
+Let $\L = (\mathscr{P}, \mathscr{F}, \arity)$ be a signature of a language.
+Let $v\in \V$ and $\phi\in\F(\L)$.
+\begin{enumerate}
+\item If $\phi\in\A(\L)$ and $v$ is a variable in $\phi$, then $v$ is a \textbf{free variable in} $\phi$.
+\item If $\phi$ is $\alpha \to \beta$ where $\alpha, \beta\in\B(\L)$, and $v$ is a \textbf{free variable in} $\alpha$ or $v$ is a \textbf{free variable in} $\beta$, then $v$ is a \textbf{free variable in} $\phi$.
+\item If $\phi$ is $\forall x. \psi$ where $x\in \V$ and $\psi\in\B(\L)$ and $v$ is not $x$ and $v$ is a \textbf{free variable in} $\psi$, then $v$ is a \textbf{free variable in} $\phi$.
+\item Otherwise $v$ is not a \textbf{free variable in} $\phi$.
+\end{enumerate}
+
+\end{definition}
+
+\begin{definition}[\textbf{recursive: substitution in term}]
+Let $\L = (\mathscr{P}, \mathscr{F}, \arity)$ be a signature of a language.
+Let $v, x\in \V$ and $\tau, \sigma$ be terms.
+\begin{enumerate}
+\item If $\sigma$ is $x$, then $\sigma(x/\tau) \defeq \tau$.
+\item If $\sigma$ is $v$ and $v$ is not $x$, then $\sigma(x/\tau) \defeq v$.
+\item If $\sigma$ is $c$ where $c\in \mathscr{F}_0$, then $\sigma(x/\tau) \defeq c$.
+\item If $\sigma$ is $f(\sigma_1, \dots, \sigma_k)$ where $f\in \mathscr{F}_k$ and $\sigma_1, \dots, \sigma_k$ are terms, then $\sigma(x/\tau) \defeq f(\sigma_1(x/\tau), \dots, \sigma_k(x/\tau))$.
+\end{enumerate}
+
+\end{definition}
+
+\begin{definition}[\textbf{recursive: substitution in well formed formula}]
+Let $\L = (\mathscr{P}, \mathscr{F}, \arity)$ be a signature of a language.
+Let $x\in \V$, $\tau$ be a term, and $\phi\in\F(\L)$.
+\begin{enumerate}
+\item If $\phi$ is $p$ where $p\in \mathscr{P}_0$, then $\phi(x/\tau) \defeq p$.
+\item If $\phi$ is $p(\sigma_1, \dots, \sigma_k)$ where $p\in \mathscr{P}_k$ and $\sigma_1, \dots, \sigma_k$ are terms, then $\phi(x/\tau) \defeq p(\sigma_1(x/\tau), \dots, \sigma_k(x/\tau))$.
+\item If $\phi$ is $\alpha \to \beta$ where $\alpha, \beta\in\B(\L)$, then $\phi(x/\tau) \defeq \alpha(x/\tau) \to \beta(x/\tau)$.
+\item If $\phi$ is $\forall y. \psi$ where $y\in \V$ and $\psi\in\B(\L)$ and $y$ is $x$, then $\phi(x/\tau) \defeq \forall y. \psi$.
+\item If $\phi$ is $\forall y. \psi$ where $y\in \V$ and $\psi\in\B(\L)$ and $y$ is not $x$ and $y$ is not a variable in $\tau$, then $\phi(x/\tau) \defeq \forall y. \psi(x/\tau)$.
+\item Otherwise $\phi(x/\tau)$ is \textbf{not admissible}.
+\end{enumerate}
+
+\end{definition}
+
+\section{Semantics}
+
+\begin{definition} [\textbf{$\L$-structure}]
+Let $\L = (\mathscr{P}, \mathscr{F}, \arity)$ be a signature of a language and $A$ be an arbitrary mathematical domain, then a mapping $\M$ such that 
+\begin{equation}
+\M: \mathscr{P} \cup \mathscr{F} \to \{0, 1\} \cup \bigcup_{k=1}^\infty \{0, 1\}^{(A^k)} \cup A
+\cup \bigcup_{k=1}^\infty A^{(A^k)},
+\end{equation}
+where $\M(\false) = 0$,
+\begin{equation}
+\M(\mathscr{P}_0) \subset \{0, 1\} \text{ and } \M(\mathscr{P}_k) \subset \{0, 1\}^{(A^k)} \text{ for } k = 1, \dots,
+\end{equation}
+and
+\begin{equation}
+\M(\mathscr{F}_0)\subset A \text{ and } \M(\mathscr{F}_k) \subset A^{(A^k)}
+\text{ for } k = 1, \dots
+\end{equation}
+is called an $\L$-structure with domain $A$.\\
+
+For convenience we will denote values of $\M$ as $p^\M \defeq \M(p)$ for $p\in\mathscr{P}$ and $f^\M \defeq \M(f)$ for $f\in\mathscr{F}$.
+\end{definition}
+
+\begin{definition}[\textbf{assignment}]
+Let $A$ be an arbitrary mathematical domain. Then $j: \V \to A$ is called an variables assignment in $A$.
+\end{definition}
+
+\begin{definition}[\textbf{recursive: term evaluation}]
+Let $\L = (\mathscr{P}, \mathscr{F}, \arity)$ be a signature of a language and $A$ be an arbitrary mathematical domain, let $\M$ be an $\L$-structure and $j:\V\to A$. Let $\tau$ be an arbitrary term.
+\begin{enumerate}
+\item If $\tau$ is $v$ where $v\in\V$, then $\tau^{\M,j} \defeq j(v)$.
+\item If $\tau$ is $f$ where $f\in\F_0$, then $\tau^{\M,j} \defeq f^\M$.
+\item If $\tau$ is $f(\tau_1, \dots, \tau_k)$ where $f\in\F_k$ and $\tau_1, \dots, \tau_k$ 
+are terms, then $\tau^{\M,j} \defeq f^\M(\tau_1^{\M, j}, \dots, \tau_k^{\M,j})$.
+\end{enumerate}
+\end{definition}
+
+\begin{definition}
+Let $\L$ be a signature of a language.
+Let $\M$ be a $\L$-structure with domain $A$ and let $j:\V\to A$ be an assignment of variables. Then we define  
+
+
+\begin{equation}
+j\cfrac{a}{x}(v) \defeq
+\begin{cases}
+a \text{ if } v \text{ is } x,\\
+j(v) \text{ otherwise}.
+\end{cases}
+\end{equation}
+\end{definition}
+
+For the purpouses of this work, we will define product of infinite number of 0s and 1s.
+\begin{definition}
+Let $S$ be an arbitrary set and $a_s\in\{0, 1\}$ for any $s\in S$.
+\begin{equation}
+\prod_{s\in S} a_s = 
+\begin{cases}
+1 \text{ if } a_s = 1 \text{ for all } s\in S, \\
+0 \text{ otherwise }.
+\end{cases}
+\end{equation}
+\end{definition}
+
+\begin{definition} [\textbf{recursive: formula evaluation}]
+Let $\L = (\mathscr{P}, \mathscr{F}, \arity)$ be a signature of a language and $A$ be an arbitrary mathematical domain, let $\M$ be an $\L$-structure with domain $A$ and $j:\V\to A$. Let $\phi\in\F(\L)$.
+\begin{enumerate}
+\item If $\phi$ is $p$ where $p\in \mathscr{P}$, then $\phi^{\M, j} \defeq p^\M$.
+\item If $\phi$ is $p(\tau_1, \dots, \tau_k)$ where $p\in\mathscr{P}_k$ and $\tau_1, \dots, \tau_k$ are terms, then $\phi^{\M, j} \defeq p^\M(\tau_1^{\M, j}, \dots, \tau_k^{\M,j})$.
+\item If $\phi$ is $\alpha \to \beta$ where $\alpha, \beta\in\B(\L)$, then
+\begin{equation}
+\phi^{\M, j} \defeq 1 - \alpha^{\M, j}(1 - \beta^{\M, j}).
+\end{equation}
+\item If $\phi$ is $\forall x. \psi$ where $x\in \V$ and $\psi\in\B(\L)$, then
+\begin{equation}
+\phi^{\M, j} \defeq \prod_{a\in A} \psi^{\M, j\cfrac{a}{x}}.
+\end{equation}
+ 
+\end{enumerate}
+
+\end{definition}
+
+\begin{corollary}
+Let $\L = (\mathscr{P}, \mathscr{F}, \arity)$ be a signature of a language and $A$ be an arbitrary mathematical domain, let $\M$ be an $\L$-structure with domain $A$ and $j:\V\to A$. Let $\phi\in\F(\L)$, then
+\begin{equation}
+(\phi \to \false)^{\M, j} = 1 - \phi^{\M, j}.
+\end{equation}
+\end{corollary}
+
+\begin{definition} [\textbf{model}]
+Let $\L = (\mathscr{P}, \mathscr{F}, \arity)$ be a signature of a language and $A$ be an arbitrary mathematical domain, let $\M$ be an $\L$-structure with domain $A$ and $j:\V\to A$. Let $\phi\in\F(\L)$, then
+
+\begin{equation}
+\M, j\models \phi \text{ iff } \phi^{\M, j} = 1.
+\end{equation}
+
+\begin{theorem}
+\label{admissible-theorem}
+Let $\L$ be a signature of a language. Let $\phi\in\F(\L)$ and let $\tau$ be an arbitrary term. If $\phi(x/\tau)$ is admissible, then for any $\L$-structure $\M$ with domain $A$ and for any assignment of variables $j:\V\to A$ we have
+\begin{equation}
+(\M, j\cfrac{\tau^{(\M, j)}}{x})\models \phi \text{ iff } (\M, j)\models \phi(x/\tau).
+\end{equation}
+\end{theorem}
+
+\begin{proof}
+We proceed by structural induction on $\phi\in\F(\L)$.
+
+\textbf{Case 1:} $\phi = p$ where $p\in\mathscr{P}_0$.
+
+By the definition of substitution in well formed formula, $\phi(x/\tau) = p$. By the definition of formula evaluation, $\phi^{\M, j} = p^\M$ for any assignment $j$. Thus
+\begin{align*}
+(\M, j\cfrac{\tau^{(\M, j)}}{x})\models \phi &\iff \phi^{\M, j\cfrac{\tau^{(\M, j)}}{x}} = 1 \\
+&\iff p^\M = 1 \\
+&\iff \phi^{\M, j} = 1 \\
+&\iff (\M, j)\models \phi \\
+&\iff (\M, j)\models \phi(x/\tau).
+\end{align*}
+
+\textbf{Case 2:} $\phi = p(\sigma_1, \dots, \sigma_k)$ where $p\in\mathscr{P}_k$ and $\sigma_1, \dots, \sigma_k$ are terms.
+
+By the definition of substitution in well formed formula, $\phi(x/\tau) = p(\sigma_1(x/\tau), \dots, \sigma_k(x/\tau))$. We need to show that for each term $\sigma_i$, we have $\sigma_i^{\M, j\cfrac{\tau^{(\M, j)}}{x}} = (\sigma_i(x/\tau))^{\M, j}$.
+
+We prove this by structural induction on terms:
+\begin{itemize}
+\item If $\sigma_i = x$, then $\sigma_i(x/\tau) = \tau$ and $\sigma_i^{\M, j\cfrac{\tau^{(\M, j)}}{x}} = (j\cfrac{\tau^{(\M, j)}}{x})(x) = \tau^{\M, j} = (\sigma_i(x/\tau))^{\M, j}$.
+\item If $\sigma_i = v$ where $v\neq x$, then $\sigma_i(x/\tau) = v$ and $\sigma_i^{\M, j\cfrac{\tau^{(\M, j)}}{x}} = (j\cfrac{\tau^{(\M, j)}}{x})(v) = j(v) = v^{\M, j} = (\sigma_i(x/\tau))^{\M, j}$.
+\item If $\sigma_i = c$ where $c\in\mathscr{F}_0$, then $\sigma_i(x/\tau) = c$ and $\sigma_i^{\M, j\cfrac{\tau^{(\M, j)}}{x}} = c^\M = (\sigma_i(x/\tau))^{\M, j}$.
+\item If $\sigma_i = f(\sigma_{i,1}, \dots, \sigma_{i,m})$ where $f\in\mathscr{F}_m$, then by inductive hypothesis on terms, $\sigma_{i,\ell}^{\M, j\cfrac{\tau^{(\M, j)}}{x}} = (\sigma_{i,\ell}(x/\tau))^{\M, j}$ for all $\ell$. Thus
+\begin{align*}
+\sigma_i^{\M, j\cfrac{\tau^{(\M, j)}}{x}} &= f^\M(\sigma_{i,1}^{\M, j\cfrac{\tau^{(\M, j)}}{x}}, \dots, \sigma_{i,m}^{\M, j\cfrac{\tau^{(\M, j)}}{x}}) \\
+&= f^\M((\sigma_{i,1}(x/\tau))^{\M, j}, \dots, (\sigma_{i,m}(x/\tau))^{\M, j}) \\
+&= (f(\sigma_{i,1}(x/\tau), \dots, \sigma_{i,m}(x/\tau)))^{\M, j} \\
+&= (\sigma_i(x/\tau))^{\M, j}.
+\end{align*}
+\end{itemize}
+
+Therefore,
+\begin{align*}
+(\M, j\cfrac{\tau^{(\M, j)}}{x})\models \phi &\iff \phi^{\M, j\cfrac{\tau^{(\M, j)}}{x}} = 1 \\
+&\iff p^\M(\sigma_1^{\M, j\cfrac{\tau^{(\M, j)}}{x}}, \dots, \sigma_k^{\M, j\cfrac{\tau^{(\M, j)}}{x}}) = 1 \\
+&\iff p^\M((\sigma_1(x/\tau))^{\M, j}, \dots, (\sigma_k(x/\tau))^{\M, j}) = 1 \\
+&\iff (p(\sigma_1(x/\tau), \dots, \sigma_k(x/\tau)))^{\M, j} = 1 \\
+&\iff (\phi(x/\tau))^{\M, j} = 1 \\
+&\iff (\M, j)\models \phi(x/\tau).
+\end{align*}
+
+\textbf{Case 3:} $\phi = \alpha \to \beta$ where $\alpha, \beta\in\B(\L)$.
+
+By the definition of substitution in well formed formula, $\phi(x/\tau) = \alpha(x/\tau) \to \beta(x/\tau)$. By inductive hypothesis,
+\begin{align*}
+(\M, j\cfrac{\tau^{(\M, j)}}{x})\models \alpha &\iff (\M, j)\models \alpha(x/\tau), \\
+(\M, j\cfrac{\tau^{(\M, j)}}{x})\models \beta &\iff (\M, j)\models \beta(x/\tau).
+\end{align*}
+
+By the definition of formula evaluation,
+\begin{align*}
+(\M, j\cfrac{\tau^{(\M, j)}}{x})\models \phi &\iff \phi^{\M, j\cfrac{\tau^{(\M, j)}}{x}} = 1 \\
+&\iff 1 - \alpha^{\M, j\cfrac{\tau^{(\M, j)}}{x}}(1 - \beta^{\M, j\cfrac{\tau^{(\M, j)}}{x}}) = 1 \\
+&\iff 1 - (\alpha(x/\tau))^{\M, j}(1 - (\beta(x/\tau))^{\M, j}) = 1 \\
+&\iff (\alpha(x/\tau) \to \beta(x/\tau))^{\M, j} = 1 \\
+&\iff (\phi(x/\tau))^{\M, j} = 1 \\
+&\iff (\M, j)\models \phi(x/\tau).
+\end{align*}
+
+\textbf{Case 4:} $\phi = \forall y. \psi$ where $y\in\V$ and $\psi\in\B(\L)$.
+
+\textbf{Subcase 4a:} If $y = x$, then by the definition of substitution, $\phi(x/\tau) = \forall y. \psi$. Thus
+\begin{align*}
+(\M, j\cfrac{\tau^{(\M, j)}}{x})\models \phi &\iff \phi^{\M, j\cfrac{\tau^{(\M, j)}}{x}} = 1 \\
+&\iff \prod_{a\in A} \psi^{\M, (j\cfrac{\tau^{(\M, j)}}{x})\cfrac{a}{y}} = 1 \\
+&\iff \prod_{a\in A} \psi^{\M, j\cfrac{a}{y}} = 1 \quad \text{(since $y = x$ and $(j\cfrac{\tau^{(\M, j)}}{x})\cfrac{a}{x} = j\cfrac{a}{x}$)} \\
+&\iff \phi^{\M, j} = 1 \\
+&\iff (\M, j)\models \phi \\
+&\iff (\M, j)\models \phi(x/\tau).
+\end{align*}
+
+\textbf{Subcase 4b:} If $y\neq x$ and $y$ is not a \textbf{variable in} $\tau$, then by the definition of substitution, $\phi(x/\tau) = \forall y. \psi(x/\tau)$. By inductive hypothesis, for any $a\in A$,
+$$(\M, j\cfrac{a}{y}\cfrac{\tau^{(\M, j\cfrac{a}{y})}}{x})\models \psi \iff (\M, j\cfrac{a}{y})\models \psi(x/\tau).$$
+
+Since $y$ is not a \textbf{variable in} $\tau$, the evaluation of $\tau$ does not depend on the value assigned to $y$. Therefore, $\tau^{(\M, j\cfrac{a}{y})} = \tau^{(\M, j)}$ for all $a\in A$.
+
+Moreover, since $x\neq y$, we have $j\cfrac{\tau^{(\M, j)}}{x}\cfrac{a}{y} = j\cfrac{a}{y}\cfrac{\tau^{(\M, j)}}{x}$ for all $a\in A$.
+
+Thus,
+\begin{align*}
+(\M, j\cfrac{\tau^{(\M, j)}}{x})\models \phi &\iff \phi^{\M, j\cfrac{\tau^{(\M, j)}}{x}} = 1 \\
+&\iff \prod_{a\in A} \psi^{\M, (j\cfrac{\tau^{(\M, j)}}{x})\cfrac{a}{y}} = 1 \\
+&\iff \prod_{a\in A} \psi^{\M, j\cfrac{a}{y}\cfrac{\tau^{(\M, j)}}{x}} = 1 \\
+&\iff \prod_{a\in A} (\psi(x/\tau))^{\M, j\cfrac{a}{y}} = 1 \quad \text{(by inductive hypothesis)} \\
+&\iff (\forall y. \psi(x/\tau))^{\M, j} = 1 \\
+&\iff (\phi(x/\tau))^{\M, j} = 1 \\
+&\iff (\M, j)\models \phi(x/\tau).
+\end{align*}
+
+This completes the proof by structural induction.
+\end{proof}
+
+\end{definition}
+
+\end{document}

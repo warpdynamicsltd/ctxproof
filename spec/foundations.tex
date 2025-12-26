@@ -307,6 +307,51 @@ Let $\L = (\mathscr{P}, \mathscr{F}, \arity)$ be a signature of a language and $
 \M, j\models \phi \text{ iff } \phi^{\M, j} = 1.
 \end{equation}
 
+\begin{lemma}
+\label{term-substitution-lemma}
+Let $\L$ be a signature of a language and $A$ be an arbitrary mathematical domain. Let $\M$ be an $\L$-structure with domain $A$ and $j:\V\to A$ be an assignment. For any term $\sigma$, any $x\in\V$, and any term $\tau$, we have
+\begin{equation}
+\sigma^{\M, j\cfrac{\tau^{(\M, j)}}{x}} = (\sigma(x/\tau))^{\M, j}.
+\end{equation}
+\end{lemma}
+
+\begin{proof}
+We proceed by structural induction on the term $\sigma$.
+
+\textbf{Case 1:} $\sigma = x$.
+
+Then $\sigma(x/\tau) = \tau$ and
+\begin{equation*}
+\sigma^{\M, j\cfrac{\tau^{(\M, j)}}{x}} = (j\cfrac{\tau^{(\M, j)}}{x})(x) = \tau^{\M, j} = (\sigma(x/\tau))^{\M, j}.
+\end{equation*}
+
+\textbf{Case 2:} $\sigma = v$ where $v\in\V$ and $v\neq x$.
+
+Then $\sigma(x/\tau) = v$ and
+\begin{equation*}
+\sigma^{\M, j\cfrac{\tau^{(\M, j)}}{x}} = (j\cfrac{\tau^{(\M, j)}}{x})(v) = j(v) = v^{\M, j} = (\sigma(x/\tau))^{\M, j}.
+\end{equation*}
+
+\textbf{Case 3:} $\sigma = c$ where $c\in\mathscr{F}_0$.
+
+Then $\sigma(x/\tau) = c$ and
+\begin{equation*}
+\sigma^{\M, j\cfrac{\tau^{(\M, j)}}{x}} = c^\M = (\sigma(x/\tau))^{\M, j}.
+\end{equation*}
+
+\textbf{Case 4:} $\sigma = f(\sigma_1, \dots, \sigma_k)$ where $f\in\mathscr{F}_k$ and $\sigma_1, \dots, \sigma_k$ are terms.
+
+Then $\sigma(x/\tau) = f(\sigma_1(x/\tau), \dots, \sigma_k(x/\tau))$. By inductive hypothesis, $\sigma_i^{\M, j\cfrac{\tau^{(\M, j)}}{x}} = (\sigma_i(x/\tau))^{\M, j}$ for all $i = 1, \dots, k$. Thus
+\begin{align*}
+\sigma^{\M, j\cfrac{\tau^{(\M, j)}}{x}} &= f^\M(\sigma_1^{\M, j\cfrac{\tau^{(\M, j)}}{x}}, \dots, \sigma_k^{\M, j\cfrac{\tau^{(\M, j)}}{x}}) \\
+&= f^\M((\sigma_1(x/\tau))^{\M, j}, \dots, (\sigma_k(x/\tau))^{\M, j}) \\
+&= (f(\sigma_1(x/\tau), \dots, \sigma_k(x/\tau)))^{\M, j} \\
+&= (\sigma(x/\tau))^{\M, j}.
+\end{align*}
+
+This completes the proof by structural induction.
+\end{proof}
+
 \begin{theorem}
 \label{admissible-theorem}
 Let $\L$ be a signature of a language. Let $\phi\in\F(\L)$ and let $\tau$ be an arbitrary term. If $\phi(x/\tau)$ is admissible, then for any $\L$-structure $\M$ with domain $A$ and for any assignment of variables $j:\V\to A$ we have
@@ -331,23 +376,7 @@ By the definition of substitution in well formed formula, $\phi(x/\tau) = p$. By
 
 \textbf{Case 2:} $\phi = p(\sigma_1, \dots, \sigma_k)$ where $p\in\mathscr{P}_k$ and $\sigma_1, \dots, \sigma_k$ are terms.
 
-By the definition of substitution in well formed formula, $\phi(x/\tau) = p(\sigma_1(x/\tau), \dots, \sigma_k(x/\tau))$. We need to show that for each term $\sigma_i$, we have $\sigma_i^{\M, j\cfrac{\tau^{(\M, j)}}{x}} = (\sigma_i(x/\tau))^{\M, j}$.
-
-We prove this by structural induction on terms:
-\begin{itemize}
-\item If $\sigma_i = x$, then $\sigma_i(x/\tau) = \tau$ and $\sigma_i^{\M, j\cfrac{\tau^{(\M, j)}}{x}} = (j\cfrac{\tau^{(\M, j)}}{x})(x) = \tau^{\M, j} = (\sigma_i(x/\tau))^{\M, j}$.
-\item If $\sigma_i = v$ where $v\neq x$, then $\sigma_i(x/\tau) = v$ and $\sigma_i^{\M, j\cfrac{\tau^{(\M, j)}}{x}} = (j\cfrac{\tau^{(\M, j)}}{x})(v) = j(v) = v^{\M, j} = (\sigma_i(x/\tau))^{\M, j}$.
-\item If $\sigma_i = c$ where $c\in\mathscr{F}_0$, then $\sigma_i(x/\tau) = c$ and $\sigma_i^{\M, j\cfrac{\tau^{(\M, j)}}{x}} = c^\M = (\sigma_i(x/\tau))^{\M, j}$.
-\item If $\sigma_i = f(\sigma_{i,1}, \dots, \sigma_{i,m})$ where $f\in\mathscr{F}_m$, then by inductive hypothesis on terms, $\sigma_{i,\ell}^{\M, j\cfrac{\tau^{(\M, j)}}{x}} = (\sigma_{i,\ell}(x/\tau))^{\M, j}$ for all $\ell$. Thus
-\begin{align*}
-\sigma_i^{\M, j\cfrac{\tau^{(\M, j)}}{x}} &= f^\M(\sigma_{i,1}^{\M, j\cfrac{\tau^{(\M, j)}}{x}}, \dots, \sigma_{i,m}^{\M, j\cfrac{\tau^{(\M, j)}}{x}}) \\
-&= f^\M((\sigma_{i,1}(x/\tau))^{\M, j}, \dots, (\sigma_{i,m}(x/\tau))^{\M, j}) \\
-&= (f(\sigma_{i,1}(x/\tau), \dots, \sigma_{i,m}(x/\tau)))^{\M, j} \\
-&= (\sigma_i(x/\tau))^{\M, j}.
-\end{align*}
-\end{itemize}
-
-Therefore,
+By the definition of substitution in well formed formula, $\phi(x/\tau) = p(\sigma_1(x/\tau), \dots, \sigma_k(x/\tau))$. By Lemma \ref{term-substitution-lemma}, for each term $\sigma_i$, we have $\sigma_i^{\M, j\cfrac{\tau^{(\M, j)}}{x}} = (\sigma_i(x/\tau))^{\M, j}$. Therefore,
 \begin{align*}
 (\M, j\cfrac{\tau^{(\M, j)}}{x})\models \phi &\iff \phi^{\M, j\cfrac{\tau^{(\M, j)}}{x}} = 1 \\
 &\iff p^\M(\sigma_1^{\M, j\cfrac{\tau^{(\M, j)}}{x}}, \dots, \sigma_k^{\M, j\cfrac{\tau^{(\M, j)}}{x}}) = 1 \\

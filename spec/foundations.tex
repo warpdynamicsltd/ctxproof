@@ -366,6 +366,15 @@ Let $\L = (\mathscr{P}, \mathscr{F}, \arity)$ be a signature of a language and $
 \M, j\models \phi \defiff \phi^{\M, j} = 1.
 \end{equation}
 
+\begin{theorem}
+\label{signature-of-formula}
+Let $\L = (\mathscr{P}, \mathscr{F}, \arity)$ be a signature of a language and $A$ be an arbitrary mathematical domain, let $\M$ be an $\L$-structure with domain $A$ and $j_1, j_2:\V\to A$. Let $\phi\in\F(\L)$.
+If $j_1\big(\free(\phi)\big) = j_2\big(\free(\phi)\big)$, then
+
+\begin{equation}
+\phi^{M, j_1} = \phi^{M, j_2}.
+\end{equation}
+\end{theorem}
 
 \section{Substitutions}
 \subsection{Syntax}
@@ -425,7 +434,7 @@ Let $\sigma\in\T(\L)$.
 Let's establish that $\sigma(\emptyset/\emptyset) \defeq \sigma$.
 \begin{enumerate}
 \item If $\sigma \sxeq x_i$ for some $i\in\{1, \dots, k\}$, then $\sigma(\bm{x}/\bm{\tau}) \defeq \tau_i$.
-\item If $\sigma \sxeq v$ where $v\in\V$ and $v$ is not $x$, then $\sigma(\bm{x}/\bm{\tau}) \defeq v$.
+\item If $\sigma \sxeq v$ where $v\in\V$ and $v\not=x$, then $\sigma(\bm{x}/\bm{\tau}) \defeq v$.
 \item If $\tau \sxeq f(\bm{\eta})$ where $\bm{\eta}\in\T(\L)^*$ and $f\in \mathscr{F}_{|\bm{\eta}|}$, then $\sigma(\bm{x}/\bm{\tau}) \defeq f(\bm{\eta}(\bm{x}/\bm{\tau}))$
 where
 \begin{equation}
@@ -459,174 +468,46 @@ $u\not\in\var(\bm{\sigma})$, then $\phi(\bm{x}/\bm{\tau}) \defeq \forall u. \psi
 \end{enumerate}
 \end{definition}
 
-\begin{lemma}
-\label{substitutions-composition-for-term}
-Let $\L = (\mathscr{P}, \mathscr{F}, \arity)$ be a signature of a language. Let $\sigma$ be a term.
-Let $x\in \V$ and $\tau$ be a term. Let $y\in \V$ and $y\not\in\var(\tau)\cup\var(\sigma)$.
-Then
-\begin{equation}
-\sigma(x/y)(y/\tau) \sxeq \sigma(x/\tau).
-\end{equation}
-\end{lemma}
-
-\begin{proof}
-We proceed by structural induction on the term $\sigma$.
-
-\textbf{Case 1:} $\sigma \sxeq x$.
-
-Then $\sigma(x/y) \sxeq y$, and
-\begin{equation*}
-(\sigma(x/y))(y/\tau) \sxeq y(y/\tau) \sxeq \tau.
-\end{equation*}
-Also, $\sigma(x/\tau) \sxeq \tau$. Therefore, $\sigma(x/y)(y/\tau) \sxeq \sigma(x/\tau)$.
-
-\textbf{Case 2:} $\sigma \sxeq v$ where $v\in\V$ and $v\neq x$.
-
-Since $y$ is not a variable in $\sigma$, we have $v\neq y$. Then $\sigma(x/y) \sxeq v$, and
-\begin{equation*}
-(\sigma(x/y))(y/\tau) \sxeq v(y/\tau) \sxeq v
-\end{equation*}
-(since $v\neq y$). Also, $\sigma(x/\tau) \sxeq v$ (since $v\neq x$). Therefore, $\sigma(x/y)(y/\tau) \sxeq \sigma(x/\tau)$.
-
-\textbf{Case 3:} $\sigma \sxeq c$ where $c\in\mathscr{F}_0$.
-
-Then $\sigma(x/y) \sxeq c$, and
-\begin{equation*}
-(\sigma(x/y))(y/\tau) \sxeq c(y/\tau) \sxeq c.
-\end{equation*}
-Also, $\sigma(x/\tau) \sxeq c$. Therefore, $\sigma(x/y)(y/\tau) \sxeq \sigma(x/\tau)$.
-
-\textbf{Case 4:} $\sigma \sxeq f(\sigma_1, \dots, \sigma_k)$ where $f\in\mathscr{F}_k$ and $\sigma_1, \dots, \sigma_k$ are terms.
-
-Since $y\not\in\var(\sigma)$, $y\not\in\var(\sigma_i)$ for $i = 1, \dots, k$. By the definition of substitution in term, $\sigma(x/y) \sxeq f(\sigma_1(x/y), \dots, \sigma_k(x/y))$. Then
-\begin{equation*}
-(\sigma(x/y))(y/\tau) \sxeq f(\sigma_1(x/y)(y/\tau), \dots, \sigma_k(x/y)(y/\tau)).
-\end{equation*}
-By inductive hypothesis, $\sigma_i(x/y)(y/\tau) \sxeq \sigma_i(x/\tau)$ for all $i = 1, \dots, k$. Therefore,
-\begin{equation*}
-(\sigma(x/y))(y/\tau) \sxeq f(\sigma_1(x/\tau), \dots, \sigma_k(x/\tau)) \sxeq \sigma(x/\tau).
-\end{equation*}
-
-This completes the proof by structural induction.
-\end{proof}
-
-\begin{lemma}
-\label{substitutions-composition-for-formula}
-Let $\L = (\mathscr{P}, \mathscr{F}, \arity)$ be a signature of a language. Let $\phi\in\F(\L)$.
-Let $x\in \V$ and $\tau$ be a term. Let $y\in \V$ and $y\not\in\var(\tau)\cup\var(\phi)$.
-If $\phi(x/\tau)$ is admissible then
-\begin{equation}
-\phi(x/y)(y/\tau) \sxeq \phi(x/\tau).
-\end{equation}
-\end{lemma}
-
-\begin{proof}
-We proceed by structural induction on the formula $\phi$.
-
-\textbf{Case 1:} $\phi \sxeq p$ where $p\in\mathscr{P}_0$.
-
-Then $\phi(x/y) \sxeq p$, and
-\begin{equation*}
-(\phi(x/y))(y/\tau) \sxeq p(y/\tau) \sxeq p.
-\end{equation*}
-Also, $\phi(x/\tau) \sxeq p$. Therefore, $\phi(x/y)(y/\tau) \sxeq \phi(x/\tau)$.
-
-\textbf{Case 2:} $\phi \sxeq p(\sigma_1, \dots, \sigma_k)$ where $p\in\mathscr{P}_k$ and $\sigma_1, \dots, \sigma_k$ are terms.
-
-Since $y$ is not a variable in $\phi$, $y$ is not a variable in any $\sigma_i$ for $i = 1, \dots, k$. By the definition of substitution in well formed formula, $\phi(x/y) \sxeq p(\sigma_1(x/y), \dots, \sigma_k(x/y))$. Then
-\begin{equation*}
-(\phi(x/y))(y/\tau) \sxeq p(\sigma_1(x/y)(y/\tau), \dots, \sigma_k(x/y)(y/\tau)).
-\end{equation*}
-By Lemma \ref{substitutions-composition-for-term}, $\sigma_i(x/y)(y/\tau) \sxeq \sigma_i(x/\tau)$ for all $i = 1, \dots, k$. Therefore,
-\begin{equation*}
-(\phi(x/y))(y/\tau) \sxeq p(\sigma_1(x/\tau), \dots, \sigma_k(x/\tau)) \sxeq \phi(x/\tau).
-\end{equation*}
-
-\textbf{Case 3:} $\phi \sxeq \alpha \to \beta$ where $\alpha, \beta\in\B(\L)$.
-
-Since $y\not\in\var(\phi)$, $y\not\in\var(\alpha)$ and $y\not\in\var(\beta)$. By the definition of substitution in well formed formula, $\phi(x/y) \sxeq \alpha(x/y) \to \beta(x/y)$. Then
-\begin{equation*}
-(\phi(x/y))(y/\tau) \sxeq \alpha(x/y)(y/\tau) \to \beta(x/y)(y/\tau).
-\end{equation*}
-By inductive hypothesis, $\alpha(x/y)(y/\tau) \sxeq \alpha(x/\tau)$ and $\beta(x/y)(y/\tau) \sxeq \beta(x/\tau)$. Therefore,
-\begin{equation*}
-(\phi(x/y))(y/\tau) \sxeq \alpha(x/\tau) \to \beta(x/\tau) \sxeq \phi(x/\tau).
-\end{equation*}
-
-\textbf{Case 4:} $\phi \sxeq \forall z. \psi$ where $z\in\V$ and $\psi\in\B(\L)$.
-
-\textbf{Subcase 4a:} If $z = x$ or $x\not\in\free(\psi)$, then by the definition of substitution, $\phi(x/y) \sxeq \forall z. \psi$. Since $y\not\in\var(\phi)$, $y\not\in\var(\psi)$. Then
-\begin{equation*}
-(\phi(x/y))(y/\tau) \sxeq (\forall z. \psi)(y/\tau) \sxeq \forall z. \psi(y/\tau).
-\end{equation*}
-Since $y\not\in\var(\psi)$, we have $\psi(y/\tau) \sxeq \psi$. Also, $\phi(x/\tau) \sxeq \forall z. \psi$ (since $z = x$ or $x\not\in\free(\psi)$). Therefore, $\phi(x/y)(y/\tau) \sxeq \phi(x/\tau)$.
-
-\textbf{Subcase 4b:} If $z\not=x$ and $x\in\free(\psi)$, then since $\phi(x/\tau)$ is admissible, we have $z\not\in\var(\tau)$ and $\psi(x/\tau)$ is admissible. Since $y\not\in\var(\phi)$, we have $y \neq z$ and $y\not\in\var(\psi)$ and then by the definition of substitution, $\phi(x/y) \sxeq \forall z. \psi(x/y)$ ($\psi(x/y)$ is trivially admissible). Thus, we have
-\begin{equation*}
-(\phi(x/y))(y/\tau) \sxeq (\forall z. \psi(x/y))(y/\tau) \sxeq \forall z. \psi(x/y)(y/\tau).
-\end{equation*}
-By inductive hypothesis, $\psi(x/y)(y/\tau) \sxeq \psi(x/\tau)$. Therefore,
-\begin{equation*}
-(\phi(x/y))(y/\tau) \sxeq \forall z. \psi(x/\tau) \sxeq \phi(x/\tau).
-\end{equation*}
-
-This completes the proof by structural induction.
-\end{proof}
-
-\begin{definition}
-Let $\L = (\mathscr{P}, \mathscr{F}, \arity)$ be a signature of a language.
-Let $x_1, \dots, x_k \in \V$ be pairwise distincive variables, let $\tau_1, \dots, \tau_k$ be terms, and $\phi\in\F(\L)$. Let $\phi(x_i/\tau_i)$ be admissible for $i=1, \dots, k$.
-
-\begin{equation}
-\phi(x_1/\tau_1, \dots, x_k/\tau_k) \defeq \phi(x_1/y_1) \dots (x_k/y_k)
-(y_1/\tau_1)\dots(y_k/\tau_k),
-\end{equation}
-where $y_j\not\in \var(\phi)\cup\bigcup_{i=1}^k \var(\tau_i)$ for $j=1, \dots, k$.
-
-\end{definition}
 
 \subsection{Semantics}
 
 \begin{lemma}
 \label{term-substitution-lemma}
-Let $\L$ be a signature of a language and $A$ be an arbitrary mathematical domain. Let $\M$ be an $\L$-structure with domain $A$ and $j:\V\to A$ be an assignment. For any term $\sigma$, any $x\in\V$, and any term $\tau$, we have
+Let $\L$ be a signature of a language and $A$ be an arbitrary mathematical domain. Let $\M$ be an $\L$-structure with domain $A$ and $j:\V\to A$ be an assignment. 
+
+Let $k$ be a positive integer and
+let $\bm{x}\in \dis{\V}{k}$ and $\bm{\tau}\in\T(\L)^k$.\\
+
+
+Then for any term $\sigma$, we have
 \begin{equation}
-\sigma^{\M, j\cfrac{\tau^{(\M, j)}}{x}} = (\sigma(x/\tau))^{\M, j}.
+\sigma^{\M, j\cfrac{\bm{\tau}^{(\M, j)}}{\bm{x}}} = \sigma(\bm{x}/\bm{\tau})^{\M, j}.
 \end{equation}
 \end{lemma}
 
 \begin{proof}
 We proceed by structural induction on the term $\sigma$.
 
-\textbf{Case 1:} $\sigma \sxeq x$.
+\textbf{Case 1:} $\sigma \sxeq x_i$ for some $i\in\{1, \dots, k\}$.
 
-Then $\sigma(x/\tau) \sxeq \tau$ and
+Then $\sigma(\bm{x}/\bm{\tau}) \sxeq \tau_i$ and
 \begin{equation*}
-\sigma^{\M, j\cfrac{\tau^{(\M, j)}}{x}} = (j\cfrac{\tau^{(\M, j)}}{x})(x) = \tau^{\M, j} = (\sigma(x/\tau))^{\M, j}.
+\sigma^{\M, j\cfrac{\bm{\tau}^{(\M, j)}}{\bm{x}}} = (j\cfrac{\bm{\tau}^{(\M, j)}}{\bm{x}})(x_i) = \tau_i^{\M, j} = \sigma(\bm{x}/\bm{\tau})^{\M, j}.
 \end{equation*}
 
 \textbf{Case 2:} $\sigma \sxeq v$ where $v\in\V$ and $v\neq x$.
 
 Then $\sigma(x/\tau) \sxeq v$ and
 \begin{equation*}
-\sigma^{\M, j\cfrac{\tau^{(\M, j)}}{x}} = (j\cfrac{\tau^{(\M, j)}}{x})(v) = j(v) = v^{\M, j} = (\sigma(x/\tau))^{\M, j}.
+\sigma^{\M, j\cfrac{\bm{\tau}^{(\M, j)}}{\bm{x}}} = (j\cfrac{\bm{\tau}^{(\M, j)}}{\bm{x}})(v) = j(v) = v^{\M, j} = (\bm{x}/\bm{\tau})^{\M, j}.
 \end{equation*}
 
-\textbf{Case 3:} $\sigma \sxeq c$ where $c\in\mathscr{F}_0$.
+\textbf{Case 3:} $\sigma \sxeq f(\bm{\eta})$ where $\bm{\eta}\in\T(\L)^*$ and $f\in \mathscr{F}_{|\bm{\eta}|}$.
 
-Then $\sigma(x/\tau) \sxeq c$ and
-\begin{equation*}
-\sigma^{\M, j\cfrac{\tau^{(\M, j)}}{x}} = c^\M = (\sigma(x/\tau))^{\M, j}.
-\end{equation*}
-
-\textbf{Case 4:} $\sigma \sxeq f(\sigma_1, \dots, \sigma_k)$ where $f\in\mathscr{F}_k$ and $\sigma_1, \dots, \sigma_k$ are terms.
-
-Then $\sigma(x/\tau) \sxeq f(\sigma_1(x/\tau), \dots, \sigma_k(x/\tau))$. By inductive hypothesis, $\sigma_i^{\M, j\cfrac{\tau^{(\M, j)}}{x}} = (\sigma_i(x/\tau))^{\M, j}$ for all $i = 1, \dots, k$. Thus
+Then $\sigma(\bm{x}/\bm{\tau}) \sxeq f(\bm{\eta}(\bm{x}/\bm{\tau}))$. By inductive hypothesis, $\bm{\eta}^{\M, j\cfrac{\bm{\tau}^{(\M, j)}}{\bm{x}}} = \bm{\eta}(\bm{x}/\bm{\tau})^{\M, j}$. Thus
 \begin{align*}
-\sigma^{\M, j\cfrac{\tau^{(\M, j)}}{x}} &= f^\M(\sigma_1^{\M, j\cfrac{\tau^{(\M, j)}}{x}}, \dots, \sigma_k^{\M, j\cfrac{\tau^{(\M, j)}}{x}}) \\
-&= f^\M((\sigma_1(x/\tau))^{\M, j}, \dots, (\sigma_k(x/\tau))^{\M, j}) \\
-&= (f(\sigma_1(x/\tau), \dots, \sigma_k(x/\tau)))^{\M, j} \\
-&= (\sigma(x/\tau))^{\M, j}.
+\sigma^{\M, j\cfrac{\bm{\tau}^{(\M, j)}}{\bm{x}}} &= f^\M\bigg(\bm{\eta}^{\M, j\cfrac{\bm{\tau}^{(\M, j)}}{\bm{x}}}\bigg) = f^\M\bigg(\bm{\eta}(\bm{x}/\bm{\tau})^{\M, j}\bigg) \\
+&= f(\bm{\eta}(\bm{x}/\bm{\tau}))^{\M, j} = \sigma(\bm{x}/\bm{\tau})^{\M, j}.\\
 \end{align*}
 
 This completes the proof by structural induction.
@@ -634,84 +515,70 @@ This completes the proof by structural induction.
 
 \begin{theorem}
 \label{admissible-theorem}
-Let $\L$ be a signature of a language. Let $\phi\in\F(\L)$ and let $\tau$ be an arbitrary term. If $\phi(x/\tau)$ is admissible, then for any $\L$-structure $\M$ with domain $A$ and for any assignment of variables $j:\V\to A$ we have
+Let $\L$ be a signature of a language. Let $\phi\in\F(\L)$.
+Let $k$ be a positive integer and
+let $\bm{x}\in \dis{\V}{k}$ and $\bm{\tau}\in\T(\L)^k$.
+If $\phi(\bm{x}/\bm{\tau})$ is admissible, then for any $\L$-structure $\M$ with domain $A$ and for any assignment of variables $j:\V\to A$ we have
 \begin{equation}
-(\M, j\cfrac{\tau^{(\M, j)}}{x})\models \phi \iff (\M, j)\models \phi(x/\tau).
+(\M, j\cfrac{\bm{\tau}^{(\M, j)}}{\bm{x}})\models \phi \iff (\M, j)\models \phi(\bm{x}/\bm{\tau}).
 \end{equation}
 \end{theorem}
 
 \begin{proof}
 We proceed by structural induction on $\phi\in\F(\L)$.
 
-\textbf{Case 1:} $\phi \sxeq p$ where $p\in\mathscr{P}_0$.
+\textbf{Case 1:} $\phi \sxeq p(\bm{\eta})$ where $\bm{\eta}\in\T(\L)^*$ and $p\in \mathscr{P}_{|\bm{\eta}|}$.
 
-By the definition of substitution in well formed formula, $\phi(x/\tau) \sxeq p$. By the definition of formula evaluation, $\phi^{\M, j} = p^\M$ for any assignment $j$. Thus
+By the definition of substitution in well formed formula, $\phi(\bm{x}/\bm{\tau}) \sxeq p(\bm{\eta(\bm{x}/\bm{\tau}}))$. By Lemma \ref{term-substitution-lemma}, we have
+$\bm{\eta}^{\M, j\cfrac{\bm{\tau}^{(\M, j)}}{\bm{x}}} = \bm{\eta}(\bm{x}/\bm{\tau})^{\M, j}$. Therefore,
 \begin{align*}
-(\M, j\cfrac{\tau^{(\M, j)}}{x})\models \phi &\iff \phi^{\M, j\cfrac{\tau^{(\M, j)}}{x}} = 1 \\
-&\iff p^\M = 1 \\
-&\iff \phi^{\M, j} = 1 \\
-&\iff (\M, j)\models \phi \\
-&\iff (\M, j)\models \phi(x/\tau).
+\phi^{\M, j\cfrac{\tau^{(\M, j)}}{x}} = p^\M\bigg(\bm{\eta}^{\M, j\cfrac{\bm{\tau}^{(\M, j)}}{\bm{x}}}\bigg) = p^\M(\bm{\eta}(\bm{x}/\bm{\tau})^{\M, j}) 
+= p(\bm{\eta}(\bm{x}/\bm{\tau}))^{\M, j} 
+= \phi(\bm{x}/\bm{\tau})^{\M, j}.
 \end{align*}
 
-\textbf{Case 2:} $\phi \sxeq p(\sigma_1, \dots, \sigma_k)$ where $p\in\mathscr{P}_k$ and $\sigma_1, \dots, \sigma_k$ are terms.
+\textbf{Case 2:} $\phi \sxeq \alpha \to \beta$ where $\alpha, \beta\in\B(\L)$.
 
-By the definition of substitution in well formed formula, $\phi(x/\tau) \sxeq p(\sigma_1(x/\tau), \dots, \sigma_k(x/\tau))$. By Lemma \ref{term-substitution-lemma}, for each term $\sigma_i$, we have $\sigma_i^{\M, j\cfrac{\tau^{(\M, j)}}{x}} = (\sigma_i(x/\tau))^{\M, j}$. Therefore,
+By the definition of substitution in well formed formula, $\phi(\bm{x}/\bm{\tau}) \sxeq \alpha(\bm{x}/\bm{\tau}) \to \beta(\bm{x}/\bm{\tau})$. By inductive hypothesis,
 \begin{align*}
-(\M, j\cfrac{\tau^{(\M, j)}}{x})\models \phi &\iff \phi^{\M, j\cfrac{\tau^{(\M, j)}}{x}} = 1 \\
-&\iff p^\M(\sigma_1^{\M, j\cfrac{\tau^{(\M, j)}}{x}}, \dots, \sigma_k^{\M, j\cfrac{\tau^{(\M, j)}}{x}}) = 1 \\
-&\iff p^\M((\sigma_1(x/\tau))^{\M, j}, \dots, (\sigma_k(x/\tau))^{\M, j}) = 1 \\
-&\iff (p(\sigma_1(x/\tau), \dots, \sigma_k(x/\tau)))^{\M, j} = 1 \\
-&\iff (\phi(x/\tau))^{\M, j} = 1 \\
-&\iff (\M, j)\models \phi(x/\tau).
-\end{align*}
-
-\textbf{Case 3:} $\phi \sxeq \alpha \to \beta$ where $\alpha, \beta\in\B(\L)$.
-
-By the definition of substitution in well formed formula, $\phi(x/\tau) \sxeq \alpha(x/\tau) \to \beta(x/\tau)$. By inductive hypothesis,
-\begin{align*}
-(\M, j\cfrac{\tau^{(\M, j)}}{x})\models \alpha &\iff (\M, j)\models \alpha(x/\tau), \\
-(\M, j\cfrac{\tau^{(\M, j)}}{x})\models \beta &\iff (\M, j)\models \beta(x/\tau).
+(\M, j\cfrac{\bm{\tau}^{(\M, j)}}{\bm{x}})\models \alpha &\iff (\M, j)\models \alpha(\bm{x}/\bm{\tau}), \\
+(\M, j\cfrac{\bm{\tau}^{(\M, j)}}{\bm{x}})\models \beta &\iff (\M, j)\models \beta(\bm{x}/\bm{\tau}).
 \end{align*}
 
 By the definition of formula evaluation,
 \begin{align*}
-(\M, j\cfrac{\tau^{(\M, j)}}{x})\models \phi &\iff \phi^{\M, j\cfrac{\tau^{(\M, j)}}{x}} = 1 \\
-&\iff 1 - \alpha^{\M, j\cfrac{\tau^{(\M, j)}}{x}}(1 - \beta^{\M, j\cfrac{\tau^{(\M, j)}}{x}}) = 1 \\
-&\iff 1 - (\alpha(x/\tau))^{\M, j}(1 - (\beta(x/\tau))^{\M, j}) = 1 \\
-&\iff (\alpha(x/\tau) \to \beta(x/\tau))^{\M, j} = 1 \\
-&\iff (\phi(x/\tau))^{\M, j} = 1 \\
-&\iff (\M, j)\models \phi(x/\tau).
+\phi^{\M, j\cfrac{\bm{\tau}^{(\M, j)}}{\bm{x}}} 
+&= 1 - \alpha^{\M, j\cfrac{\bm{\tau}^{(\M, j)}}{\bm{x}}}\bigg(1 - \beta^{\M, j\cfrac{\bm{\tau}^{(\M, j)}}{\bm{x}}}\bigg) 
+= 1 - (\alpha(\bm{x}/\bm{\tau}))^{\M, j}(1 - (\beta(\bm{x}/\bm{\tau}))^{\M, j}) = 1 \\
+&= (\alpha(\bm{x}/\bm{\tau}) \to \beta(\bm{x}/\bm{\tau}))^{\M, j} = (\phi(\bm{x}/\bm{\tau}))^{\M, j}\\
 \end{align*}
 
-\textbf{Case 4:} $\phi \sxeq \forall y. \psi$ where $y\in\V$ and $\psi\in\B(\L)$.
+\textbf{Case 3:} $\phi \sxeq \forall u. \psi$ where $u\in \V$ and $\psi\in\B(\L)$:\\
+Let $\bm{v}$ be $\bm{x}$ with $x_i$ removed when $x_i=u$ or $x_i\not\in\free(\psi)$. And let $\bm{\sigma}$ be $\bm{\tau}$ with $\tau_i$ removed for which $x_i$ was removed from $\bm{x}$.
 
-\textbf{Subcase 4a:} If $y = x$ or $x\not\in\free(\psi)$, then by the definition of substitution, $\phi(x/\tau) \sxeq \forall y. \psi$. Thus
+Since $\phi(\bm{x}/\bm{\tau})$ is admissable, $\psi(\bm{v}/\bm{\sigma})$ is \textbf{admissible} and 
+$u\not\in\var(\bm{\sigma})$, and we have $\phi(\bm{x}/\bm{\tau}) \sxeq \forall u. \psi(\bm{v}/\bm{\sigma})$.
+Thus
 \begin{align*}
-(\M, j\cfrac{\tau^{(\M, j)}}{x})\models \phi &\iff \phi^{\M, j\cfrac{\tau^{(\M, j)}}{x}} = 1 \\
-&\iff \prod_{a\in A} \psi^{\M, (j\cfrac{\tau^{(\M, j)}}{x})\cfrac{a}{y}} = 1 \\
-&\iff \prod_{a\in A} \psi^{\M, j\cfrac{a}{y}} = 1 \quad \text{(since $y = x$ and $(j\cfrac{\tau^{(\M, j)}}{x})\cfrac{a}{x} = j\cfrac{a}{x}$, or $x\not\in\free(\psi)$)} \\
-&\iff \phi^{\M, j} = 1 \\
-&\iff (\M, j)\models \phi \\
-&\iff (\M, j)\models \phi(x/\tau).
-\end{align*}
-
-\textbf{Subcase 4b:} If $y\neq x$ and $x\in\free(\psi)$. Since $\phi(x/\tau)$ is admissible, $y\not\in\var(\tau)$ and $\psi(x/\tau)$ is admissible, then by the definition of substitution, $\phi(x/\tau) \sxeq \forall y. \psi(x/\tau)$. By inductive hypothesis, for any $a\in A$,
-$$(\M, j\cfrac{a}{y}\cfrac{\tau^{(\M, j\cfrac{a}{y})}}{x})\models \psi \iff (\M, j\cfrac{a}{y})\models \psi(x/\tau).$$
-
-Since $y\not\in\var(\tau)$, the evaluation of $\tau$ does not depend on the value assigned to $y$. Therefore, $\tau^{(\M, j\cfrac{a}{y})} = \tau^{(\M, j)}$ for all $a\in A$.
-
-Moreover, since $x\neq y$, we have $j\cfrac{\tau^{(\M, j)}}{x}\cfrac{a}{y} = j\cfrac{a}{y}\cfrac{\tau^{(\M, j)}}{x}$ for all $a\in A$.
-
-Thus,
-\begin{align*}
-(\M, j\cfrac{\tau^{(\M, j)}}{x})\models \phi &\iff \phi^{\M, j\cfrac{\tau^{(\M, j)}}{x}} = 1 \\
-&\iff \prod_{a\in A} \psi^{\M, (j\cfrac{\tau^{(\M, j)}}{x})\cfrac{a}{y}} = 1 \\
-&\iff \prod_{a\in A} \psi^{\M, j\cfrac{a}{y}\cfrac{\tau^{(\M, j)}}{x}} = 1 \\
-&\iff \prod_{a\in A} (\psi(x/\tau))^{\M, j\cfrac{a}{y}} = 1 \quad \text{(by inductive hypothesis)} \\
-&\iff (\forall y. \psi(x/\tau))^{\M, j} = 1 \\
-&\iff (\phi(x/\tau))^{\M, j} = 1 \\
-&\iff (\M, j)\models \phi(x/\tau).
+\phi^{\M, j\cfrac{\bm{\tau}^{\M, j}}{\bm{x}}} 
+&= \prod_{a\in A} \psi^{\M, j\cfrac{\bm{\tau}^{\M, j}}{\bm{x}}\cfrac{a}{u}} \\
+&= \prod_{a\in A} \psi^{\M, j\cfrac{\bm{\sigma}^{\M, j}}{\bm{v}}\cfrac{a}{u}}
+\quad 
+\big(\text{by choice of $\bm{v}$, $j\cfrac{\bm{\tau}^{\M, j}}{\bm{x}}\cfrac{a}{u}$ and 
+$j\cfrac{\bm{\sigma}^{\M, j}}{\bm{v}}\cfrac{a}{u}$ agrees on $\free(\psi)$}\big)\\
+&= \prod_{a\in A} \psi^{\M, j\cfrac{a}{u}\cfrac{\bm{\sigma}^{\M, j}}{\bm{v}}}
+\quad 
+\big(
+\text{since $u$ not in $\bm{v}$}
+\big)
+\\
+&= \prod_{a\in A} \psi(\bm{v}/\bm{\sigma})^{\M, j\cfrac{a}{u}}
+\quad
+\big(
+\text{by inductive hypothesis}
+\big)
+\\
+&= (\forall u. \psi(\bm{v}/\bm{\sigma}))^{\M, j} = \phi(\bm{x}/\bm{\tau})^{M,j}.
 \end{align*}
 
 This completes the proof by structural induction.

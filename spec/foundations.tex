@@ -157,7 +157,7 @@ Let $S$ be an arbitrary set.
 
 
 
-Let $\mathfrak{L}$ denote a set of all logic symbols `` $($ $)$ ", `` $\to$ ", `` $.$ ", ``$,$ ", `` $\forall$ ".
+Let $\mathfrak{L}$ denote a set of all logical symbols `` $($ ", `` $)$ ", `` $\to$ ", `` $.$ ", ``$,$ ", `` $\forall$ ".
 Let $\V$ be an infinite countable set of variable symbols. And $\false$ be a special predicate symbol.
 
 \begin{definition}
@@ -219,16 +219,17 @@ We will define recursively a set of all terms $\T(\L)$.\\
 Let $s\in \S(\L)^*$.
 \begin{enumerate}
 \item If $s \sxeq v$ where $v\in \V$, then $s\in \T(\L)$.
-\item If $s \sxeq f(\bm{\tau})$ where $\bm{\tau}\in \T(\L)^*$ and $f\in \mathscr{F}_{|\bm{\tau}|}$.
+\item If $s \sxeq f(\bm{\tau})$ where $\bm{\tau}\in \T(\L)^*$ and $f\in \mathscr{F}_{|\bm{\tau}|}$, then $s\in \T(\L)$.
 \item Otherwise $s\not\in \T(\L)$.
 \end{enumerate}
 \end{definition}
 
 \begin{definition}[\textbf{atomic formula}]
 Let $\L = (\mathscr{P}, \mathscr{F}, \arity)$ be a signature of a language.
+We will define a set of all atomic formulas $\A(\L)$.
 
 \begin{equation}
-\A(\L) = \bigcup_{k=0}^\infty \{p(\bm{\tau}): p\in\mathscr{P}_k, \bm{\tau}\in \T(\L)^k\}
+\A(\L) \defeq \bigcup_{k=0}^\infty \{p(\bm{\tau}): p\in\mathscr{P}_k, \bm{\tau}\in \T(\L)^k\}.
 \end{equation}
 
 \end{definition}
@@ -249,7 +250,7 @@ Let $s\in \S(\L)^*$.
 \end{enumerate}
 \end{definition}
 
-\begin{definition}[\textbf{recursive: variable in a term}]
+\begin{definition}[\textbf{recursive: variable in term}]
 Let $\L = (\mathscr{P}, \mathscr{F}, \arity)$ be a signature of a language.
 We will define recursively a set $\var(\tau)$ of all variables in a term $\tau$.\\
 
@@ -263,7 +264,7 @@ $v\in\var(\bm{\sigma}) \defeq \bigcup_{k=1}^{|\bm{\sigma}|} \var(\sigma_k)$, the
 
 \end{definition}
 
-\begin{definition}[\textbf{recursive: variable in a formula}]
+\begin{definition}[\textbf{recursive: variable in formula}]
 Let $\L = (\mathscr{P}, \mathscr{F}, \arity)$ be a signature of a language.
 We will define recursively a set $\var(\phi)$ of all variables in a formula $\phi$.\\
 
@@ -279,7 +280,7 @@ $\bm{\tau}\in\T(\L)^*$ and $p\in\mathscr{P}_{|\bm{\tau}|}$ and $v\in\var(\bm{\ta
 \end{definition}
 
 
-\begin{definition}[\textbf{recursive: free variable in a formula}]
+\begin{definition}[\textbf{recursive: free variable in formula}]
 Let $\L = (\mathscr{P}, \mathscr{F}, \arity)$ be a signature of a language.
 We will define recursively a set $\free(\phi)$ of all free variables in a formula $\phi$.\\
 

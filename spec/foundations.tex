@@ -39,6 +39,7 @@
 \newcommand{\sxeq}{\stackrel{\mathrm{sx}}{=}}
 \newcommand{\elev}{\text{elev}}
 \newcommand{\free}{\text{free}}
+\newcommand{\var}{\text{var}}
 \newcommand{\bound}{\text{bound}}
 \renewcommand{\axiom}{\text{Axiom}}
 \renewcommand{\rule}{\text{Rule}}
@@ -268,38 +269,43 @@ Let $\L = (\mathscr{P}, \mathscr{F}, \arity)$ be a signature of a language and $
 \subsection{Syntax}
 
 
-
+We will define recursively a set $\var(\tau)$ of all variables in a term $\tau$.
 \begin{definition}[\textbf{recursive: variable in a term}]
 Let $\L = (\mathscr{P}, \mathscr{F}, \arity)$ be a signature of a language.
 Let $v\in \V$ and $\tau$ be a term.
 \begin{enumerate}
-\item If $\tau \sxeq v$ then $v$ is a \textbf{variable in} term $\tau$.
-\item If $\tau \sxeq f(\tau_1, \dots \tau_k)$ where $f\in \mathscr{F}_k$ and $\tau_1, \dots \tau_k$ are terms and $v$ is a \textbf{variable in} some term $\tau_i$ where $i$ is an integer with $1 \leq i \leq k$, then $v$ is a \textbf{variable in} term $\tau$.
-\item Otherwise $v$ is not a \textbf{variable in} a term $\tau$.
+\item If $\tau \sxeq v$ then $v\in\var(\tau)$.
+\item If $\tau \sxeq f(\tau_1, \dots \tau_k)$ where $f\in \mathscr{F}_k$ and $\tau_1, \dots \tau_k$ are terms and $v\in\var(\tau_i)$ where $i$ is an integer with $1 \leq i \leq k$, then $v\in\var(\tau)$.
+\item Otherwise $v\not\in\var(\tau)$.
 \end{enumerate}
 
 \end{definition}
+
+We will define recursively a set $\var(\phi)$ of all variables in a formula $\phi$.
 
 \begin{definition}[\textbf{recursive: variable in a well formed formula}]
 Let $\L = (\mathscr{P}, \mathscr{F}, \arity)$ be a signature of a language.
 Let $v\in \V$ and $\phi\in\F(\L)$.
 \begin{enumerate}
-\item If $\phi \sxeq p(\tau_1, \dots, \tau_k)$ where $p\in \mathscr{P}_k$ and $\tau_1, \dots, \tau_k$ are terms, and $v$ is a \textbf{variable in} some term $\tau_i$ where $i$ is an integer with $1 \leq i \leq k$, then $v$ is a \textbf{variable in} $\phi$.
-\item If $\phi \sxeq \alpha \to \beta$ where $\alpha, \beta\in\B(\L)$, and $v$ is a \textbf{variable in} $\alpha$ or $v$ is a \textbf{variable in} $\beta$, then $v$ is a \textbf{variable in} $\phi$.
-\item If $\phi \sxeq \forall x. \psi$ where $x\in \V$ and $\psi\in\B(\L)$, and either $v = x$ or $v$ is a \textbf{variable in} $\psi$, then $v$ is a \textbf{variable in} $\phi$.
-\item Otherwise $v$ is not a \textbf{variable in} $\phi$.
+\item If $\phi \sxeq p(\tau_1, \dots, \tau_k)$ where $p\in \mathscr{P}_k$ and $\tau_1, \dots, \tau_k$ are terms, and $v\in\var(\tau_i)$ where $i$ is an integer with $1 \leq i \leq k$, then $v\in\var(\phi)$.
+\item If $\phi \sxeq \alpha \to \beta$ where $\alpha, \beta\in\B(\L)$, and $v\in\var(\alpha)$ or $v\in\var(\beta)$, then $v\in\var(\phi)$.
+\item If $\phi \sxeq \forall x. \psi$ where $x\in \V$ and $\psi\in\B(\L)$, and either $v = x$ or $v\in\var(\psi)$, then $v\in\var(\phi)$.
+\item Otherwise $v\not\in\var(\phi)$.
 \end{enumerate}
 
 \end{definition}
+
+We will define recursively a set $\free(\phi)$ of all free variables in a formula $\phi$.
+
 
 \begin{definition}[\textbf{recursive: free variable in a well formed formula}]
 Let $\L = (\mathscr{P}, \mathscr{F}, \arity)$ be a signature of a language.
 Let $v\in \V$ and $\phi\in\F(\L)$.
 \begin{enumerate}
-\item If $\phi\in\A(\L)$ and $v$ is a variable in $\phi$, then $v$ is a \textbf{free variable in} $\phi$.
-\item If $\phi \sxeq \alpha \to \beta$ where $\alpha, \beta\in\B(\L)$, and $v$ is a \textbf{free variable in} $\alpha$ or $v$ is a \textbf{free variable in} $\beta$, then $v$ is a \textbf{free variable in} $\phi$.
-\item If $\phi \sxeq \forall x. \psi$ where $x\in \V$ and $\psi\in\B(\L)$ and $v$ is not $x$ and $v$ is a \textbf{free variable in} $\psi$, then $v$ is a \textbf{free variable in} $\phi$.
-\item Otherwise $v$ is not a \textbf{free variable in} $\phi$.
+\item If $\phi\in\A(\L)$ and $v\in\var(\phi)$, then $v\in\free(\phi)$.
+\item If $\phi \sxeq \alpha \to \beta$ where $\alpha, \beta\in\B(\L)$, and $v\in\free(\alpha)$ or $v\in\free(\beta)$, then $v\in\free(\phi)$.
+\item If $\phi \sxeq \forall x. \psi$ where $x\in \V$ and $\psi\in\B(\L)$ and $v\not=x$ and $v\in\free(\psi)$, then $v\in\free(\phi)$.
+\item Otherwise $v\not\in\free(\phi)$.
 \end{enumerate}
 
 \end{definition}
@@ -325,16 +331,22 @@ Let $x\in \V$, $\tau$ be a term, and $\phi\in\F(\L)$.
 \item If $\phi \sxeq p$ where $p\in \mathscr{P}_0$, then $\phi(x/\tau) \defeq p$.
 \item If $\phi \sxeq p(\sigma_1, \dots, \sigma_k)$ where $p\in \mathscr{P}_k$ and $\sigma_1, \dots, \sigma_k$ are terms, then $\phi(x/\tau) \defeq p(\sigma_1(x/\tau), \dots, \sigma_k(x/\tau))$.
 \item If $\phi \sxeq \alpha \to \beta$ where $\alpha, \beta\in\B(\L)$, then $\phi(x/\tau) \defeq \alpha(x/\tau) \to \beta(x/\tau)$.
-\item If $\phi \sxeq \forall y. \psi$ where $y\in \V$ and $\psi\in\B(\L)$ and $y \sxeq x$, then $\phi(x/\tau) \defeq \forall y. \psi$.
-\item If $\phi \sxeq \forall y. \psi$ where $y\in \V$ and $\psi\in\B(\L)$ and $y$ is not $x$ and $y$ is not a variable in $\tau$, then $\phi(x/\tau) \defeq \forall y. \psi(x/\tau)$.
-\item Otherwise $\phi(x/\tau)$ is \textbf{not admissible}.
+\item If $\phi \sxeq \forall y. \psi$ where $y\in \V$ and $\psi\in\B(\L)$:
+\begin{enumerate}
+\item if $y = x$ or $x\not\in\free(\psi)$, then $\phi(x/\tau) \defeq \forall y. \psi$.
+\item if $y \not= x$ and $x\in\free(\psi)$:
+\begin{enumerate}
+\item if $y\not\in\var(\tau)$ and $\psi(x/\tau)$ \textbf{is admissible} , then $\phi(x/\tau) \defeq \forall y. \psi(x/\tau)$.
+\item otherwise $\phi(x/\tau)$ is \textbf{not admissible}.
+\end{enumerate} 
+\end{enumerate}
 \end{enumerate}
 \end{definition}
 
 \begin{lemma}
 \label{substitutions-composition-for-term}
 Let $\L = (\mathscr{P}, \mathscr{F}, \arity)$ be a signature of a language. Let $\sigma$ be a term.
-Let $x\in \V$ and $\tau$ be a term. Let $y\in \V$ and $y$ is not in term $\tau$ and $y$ is not in term $\sigma$.
+Let $x\in \V$ and $\tau$ be a term. Let $y\in \V$ and $y\not\in\var(\tau)\cup\var(\sigma)$.
 Then
 \begin{equation}
 \sigma(x/y)(y/\tau) \sxeq \sigma(x/\tau).
@@ -354,7 +366,7 @@ Also, $\sigma(x/\tau) \sxeq \tau$. Therefore, $\sigma(x/y)(y/\tau) \sxeq \sigma(
 
 \textbf{Case 2:} $\sigma \sxeq v$ where $v\in\V$ and $v\neq x$.
 
-Since $y$ is not a \textbf{variable in} $\sigma$, we have $v\neq y$. Then $\sigma(x/y) \sxeq v$, and
+Since $y$ is not a variable in $\sigma$, we have $v\neq y$. Then $\sigma(x/y) \sxeq v$, and
 \begin{equation*}
 (\sigma(x/y))(y/\tau) \sxeq v(y/\tau) \sxeq v
 \end{equation*}
@@ -370,7 +382,7 @@ Also, $\sigma(x/\tau) \sxeq c$. Therefore, $\sigma(x/y)(y/\tau) \sxeq \sigma(x/\
 
 \textbf{Case 4:} $\sigma \sxeq f(\sigma_1, \dots, \sigma_k)$ where $f\in\mathscr{F}_k$ and $\sigma_1, \dots, \sigma_k$ are terms.
 
-Since $y$ is not a \textbf{variable in} $\sigma$, $y$ is not a \textbf{variable in} any $\sigma_i$ for $i = 1, \dots, k$. By the definition of substitution in term, $\sigma(x/y) \sxeq f(\sigma_1(x/y), \dots, \sigma_k(x/y))$. Then
+Since $y\not\in\var(\sigma)$, $y\not\in\var(\sigma_i)$ for $i = 1, \dots, k$. By the definition of substitution in term, $\sigma(x/y) \sxeq f(\sigma_1(x/y), \dots, \sigma_k(x/y))$. Then
 \begin{equation*}
 (\sigma(x/y))(y/\tau) \sxeq f(\sigma_1(x/y)(y/\tau), \dots, \sigma_k(x/y)(y/\tau)).
 \end{equation*}
@@ -381,6 +393,81 @@ By inductive hypothesis, $\sigma_i(x/y)(y/\tau) \sxeq \sigma_i(x/\tau)$ for all 
 
 This completes the proof by structural induction.
 \end{proof}
+
+\begin{lemma}
+\label{substitutions-composition-for-formula}
+Let $\L = (\mathscr{P}, \mathscr{F}, \arity)$ be a signature of a language. Let $\phi\in\F(\L)$.
+Let $x\in \V$ and $\tau$ be a term. Let $y\in \V$ and $y\not\in\var(\tau)\cup\var(\phi)$.
+If $\phi(x/\tau)$ is admissible then
+\begin{equation}
+\phi(x/y)(y/\tau) \sxeq \phi(x/\tau).
+\end{equation}
+\end{lemma}
+
+\begin{proof}
+We proceed by structural induction on the formula $\phi$.
+
+\textbf{Case 1:} $\phi \sxeq p$ where $p\in\mathscr{P}_0$.
+
+Then $\phi(x/y) \sxeq p$, and
+\begin{equation*}
+(\phi(x/y))(y/\tau) \sxeq p(y/\tau) \sxeq p.
+\end{equation*}
+Also, $\phi(x/\tau) \sxeq p$. Therefore, $\phi(x/y)(y/\tau) \sxeq \phi(x/\tau)$.
+
+\textbf{Case 2:} $\phi \sxeq p(\sigma_1, \dots, \sigma_k)$ where $p\in\mathscr{P}_k$ and $\sigma_1, \dots, \sigma_k$ are terms.
+
+Since $y$ is not a variable in $\phi$, $y$ is not a variable in any $\sigma_i$ for $i = 1, \dots, k$. By the definition of substitution in well formed formula, $\phi(x/y) \sxeq p(\sigma_1(x/y), \dots, \sigma_k(x/y))$. Then
+\begin{equation*}
+(\phi(x/y))(y/\tau) \sxeq p(\sigma_1(x/y)(y/\tau), \dots, \sigma_k(x/y)(y/\tau)).
+\end{equation*}
+By Lemma \ref{substitutions-composition-for-term}, $\sigma_i(x/y)(y/\tau) \sxeq \sigma_i(x/\tau)$ for all $i = 1, \dots, k$. Therefore,
+\begin{equation*}
+(\phi(x/y))(y/\tau) \sxeq p(\sigma_1(x/\tau), \dots, \sigma_k(x/\tau)) \sxeq \phi(x/\tau).
+\end{equation*}
+
+\textbf{Case 3:} $\phi \sxeq \alpha \to \beta$ where $\alpha, \beta\in\B(\L)$.
+
+Since $y\not\in\var(\phi)$, $y\not\in\var(\alpha)$ and $y\not\in\var(\beta)$. By the definition of substitution in well formed formula, $\phi(x/y) \sxeq \alpha(x/y) \to \beta(x/y)$. Then
+\begin{equation*}
+(\phi(x/y))(y/\tau) \sxeq \alpha(x/y)(y/\tau) \to \beta(x/y)(y/\tau).
+\end{equation*}
+By inductive hypothesis, $\alpha(x/y)(y/\tau) \sxeq \alpha(x/\tau)$ and $\beta(x/y)(y/\tau) \sxeq \beta(x/\tau)$. Therefore,
+\begin{equation*}
+(\phi(x/y))(y/\tau) \sxeq \alpha(x/\tau) \to \beta(x/\tau) \sxeq \phi(x/\tau).
+\end{equation*}
+
+\textbf{Case 4:} $\phi \sxeq \forall z. \psi$ where $z\in\V$ and $\psi\in\B(\L)$.
+
+\textbf{Subcase 4a:} If $z = x$ or $x\not\in\free(\psi)$, then by the definition of substitution, $\phi(x/y) \sxeq \forall z. \psi$. Since $y\not\in\var(\phi)$, $y\not\in\var(\psi)$. Then
+\begin{equation*}
+(\phi(x/y))(y/\tau) \sxeq (\forall z. \psi)(y/\tau) \sxeq \forall z. \psi(y/\tau).
+\end{equation*}
+Since $y\not\in\var(\psi)$, we have $\psi(y/\tau) \sxeq \psi$. Also, $\phi(x/\tau) \sxeq \forall z. \psi$ (since $z = x$ or $x\not\in\free(\psi)$). Therefore, $\phi(x/y)(y/\tau) \sxeq \phi(x/\tau)$.
+
+\textbf{Subcase 4b:} If $z\not=x$ and $x\in\free(\psi)$, then since $\phi(x/\tau)$ is admissible, we have $z\not\in\var(\tau)$ and $\psi(x/\tau)$ is admissible. Since $y\not\in\var(\phi)$, we have $y \neq z$ and $y\not\in\var(\psi)$ and then by the definition of substitution, $\phi(x/y) \sxeq \forall z. \psi(x/y)$ ($\psi(x/y)$ is trivially admissible). Thus, we have
+\begin{equation*}
+(\phi(x/y))(y/\tau) \sxeq (\forall z. \psi(x/y))(y/\tau) \sxeq \forall z. \psi(x/y)(y/\tau).
+\end{equation*}
+By inductive hypothesis, $\psi(x/y)(y/\tau) \sxeq \psi(x/\tau)$. Therefore,
+\begin{equation*}
+(\phi(x/y))(y/\tau) \sxeq \forall z. \psi(x/\tau) \sxeq \phi(x/\tau).
+\end{equation*}
+
+This completes the proof by structural induction.
+\end{proof}
+
+\begin{definition}
+Let $\L = (\mathscr{P}, \mathscr{F}, \arity)$ be a signature of a language.
+Let $x_1, \dots, x_k \in \V$ be pairwise distincive variables, let $\tau_1, \dots, \tau_k$ be terms, and $\phi\in\F(\L)$. Let $\phi(x_i/\tau_i)$ be admissible for $i=1, \dots, k$.
+
+\begin{equation}
+\phi(x_1/\tau_1, \dots, x_k/\tau_k) \defeq \phi(x_1/y_1) \dots (x_k/y_k)
+(y_1/\tau_1)\dots(y_k/\tau_k),
+\end{equation}
+where $y_j\not\in \var(\phi)\cup\bigcup_{i=1}^k \var(\tau_i)$ for $j=1, \dots, k$.
+
+\end{definition}
 
 \subsection{Semantics}
 
@@ -483,20 +570,20 @@ By the definition of formula evaluation,
 
 \textbf{Case 4:} $\phi \sxeq \forall y. \psi$ where $y\in\V$ and $\psi\in\B(\L)$.
 
-\textbf{Subcase 4a:} If $y = x$, then by the definition of substitution, $\phi(x/\tau) \sxeq \forall y. \psi$. Thus
+\textbf{Subcase 4a:} If $y = x$ or $x\not\in\free(\psi)$, then by the definition of substitution, $\phi(x/\tau) \sxeq \forall y. \psi$. Thus
 \begin{align*}
 (\M, j\cfrac{\tau^{(\M, j)}}{x})\models \phi &\iff \phi^{\M, j\cfrac{\tau^{(\M, j)}}{x}} = 1 \\
 &\iff \prod_{a\in A} \psi^{\M, (j\cfrac{\tau^{(\M, j)}}{x})\cfrac{a}{y}} = 1 \\
-&\iff \prod_{a\in A} \psi^{\M, j\cfrac{a}{y}} = 1 \quad \text{(since $y = x$ and $(j\cfrac{\tau^{(\M, j)}}{x})\cfrac{a}{x} = j\cfrac{a}{x}$)} \\
+&\iff \prod_{a\in A} \psi^{\M, j\cfrac{a}{y}} = 1 \quad \text{(since $y = x$ and $(j\cfrac{\tau^{(\M, j)}}{x})\cfrac{a}{x} = j\cfrac{a}{x}$, or $x\not\in\free(\psi)$)} \\
 &\iff \phi^{\M, j} = 1 \\
 &\iff (\M, j)\models \phi \\
 &\iff (\M, j)\models \phi(x/\tau).
 \end{align*}
 
-\textbf{Subcase 4b:} If $y\neq x$ and $y$ is not a \textbf{variable in} $\tau$, then by the definition of substitution, $\phi(x/\tau) \sxeq \forall y. \psi(x/\tau)$. By inductive hypothesis, for any $a\in A$,
+\textbf{Subcase 4b:} If $y\neq x$ and $x\in\free(\psi)$. Since $\phi(x/\tau)$ is admissible, $y\not\in\var(\tau)$ and $\psi(x/\tau)$ is admissible, then by the definition of substitution, $\phi(x/\tau) \sxeq \forall y. \psi(x/\tau)$. By inductive hypothesis, for any $a\in A$,
 $$(\M, j\cfrac{a}{y}\cfrac{\tau^{(\M, j\cfrac{a}{y})}}{x})\models \psi \iff (\M, j\cfrac{a}{y})\models \psi(x/\tau).$$
 
-Since $y$ is not a \textbf{variable in} $\tau$, the evaluation of $\tau$ does not depend on the value assigned to $y$. Therefore, $\tau^{(\M, j\cfrac{a}{y})} = \tau^{(\M, j)}$ for all $a\in A$.
+Since $y\not\in\var(\tau)$, the evaluation of $\tau$ does not depend on the value assigned to $y$. Therefore, $\tau^{(\M, j\cfrac{a}{y})} = \tau^{(\M, j)}$ for all $a\in A$.
 
 Moreover, since $x\neq y$, we have $j\cfrac{\tau^{(\M, j)}}{x}\cfrac{a}{y} = j\cfrac{a}{y}\cfrac{\tau^{(\M, j)}}{x}$ for all $a\in A$.
 

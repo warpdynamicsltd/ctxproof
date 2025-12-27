@@ -109,7 +109,7 @@
 
 \section{Acknowledgements}
 
-This document presents the logical foundations for a formal system based on first-order logic. The definitions and theorems presented here were designed by the human author. Claude AI assisted with writing proofs and definitions following the author's specifications and design. All AI-generated content in this paper has been carefully reviewed, verified and corercted by the human author who takes the full responsibility for the content of this book.
+This document presents the logical foundations for a formal system based on first-order logic. The net of definitions and theorems presented here were designed by a human author - Michał Stanisław Wójcik. Claude AI assisted with writing proofs and definitions following the author's specifications and design. All AI-generated content in this paper has been carefully reviewed, verified and corercted by Michał Stanisław Wójcik who takes the full responsibility for the content of this work.
 
 \tableofcontents
 \newpage
@@ -151,7 +151,7 @@ Let $S$ be an arbitrary set.
 \end{definition}
 
 
-\section{Well Formed Formula}
+\section{First Order Logic Formula}
 
 \subsection{Syntax}
 
@@ -233,9 +233,9 @@ Let $\L = (\mathscr{P}, \mathscr{F}, \arity)$ be a signature of a language.
 
 \end{definition}
 
-\begin{definition}[\textbf{recursive: base formula, well formed formula}]
+\begin{definition}[\textbf{recursive: base formula, well-formed formula}]
 Let $\L = (\mathscr{P}, \mathscr{F}, \arity)$ be a signature of a language.
-We will define recursively a set of all base formulas $\B(\L)$ and a set of all well formed formulas $\F(\L)$.\\
+We will define recursively a set of all base formulas $\B(\L)$ and a set of all well-formed formulas $\F(\L)$.\\
 
 Let $s\in \S(\L)^*$.
 
@@ -249,6 +249,51 @@ Let $s\in \S(\L)^*$.
 \end{enumerate}
 \end{definition}
 
+\begin{definition}[\textbf{recursive: variable in a term}]
+Let $\L = (\mathscr{P}, \mathscr{F}, \arity)$ be a signature of a language.
+We will define recursively a set $\var(\tau)$ of all variables in a term $\tau$.\\
+
+Let $v\in \V$ and $\tau\in\T(\L)$.
+\begin{enumerate}
+\item If $\tau \sxeq v$ then $v\in\var(\tau)$.
+\item If $\tau \sxeq f(\bm{\sigma})$ where $\bm{\sigma}\in\T(\L)^*$ and $f\in \mathscr{F}_{|\bm{\sigma}|}$ and 
+$v\in\var(\bm{\sigma}) \defeq \bigcup_{k=1}^{|\bm{\sigma}|} \var(\sigma_k)$, then $v\in\var(\tau)$.
+\item Otherwise $v\not\in\var(\tau)$.
+\end{enumerate}
+
+\end{definition}
+
+\begin{definition}[\textbf{recursive: variable in a formula}]
+Let $\L = (\mathscr{P}, \mathscr{F}, \arity)$ be a signature of a language.
+We will define recursively a set $\var(\phi)$ of all variables in a formula $\phi$.\\
+
+Let $v\in \V$ and $\phi\in\F(\L)$.
+\begin{enumerate}
+\item If $\phi \sxeq p(\bm{\tau})$ where 
+$\bm{\tau}\in\T(\L)^*$ and $p\in\mathscr{P}_{|\bm{\tau}|}$ and $v\in\var(\bm{\tau})$, then $v\in\var(\phi)$.
+\item If $\phi \sxeq \alpha \to \beta$ where $\alpha, \beta\in\B(\L)$, and $v\in\var(\alpha)$ or $v\in\var(\beta)$, then $v\in\var(\phi)$.
+\item If $\phi \sxeq \forall x. \psi$ where $x\in \V$ and $\psi\in\B(\L)$, and either $v = x$ or $v\in\var(\psi)$, then $v\in\var(\phi)$.
+\item Otherwise $v\not\in\var(\phi)$.
+\end{enumerate}
+
+\end{definition}
+
+
+\begin{definition}[\textbf{recursive: free variable in a formula}]
+Let $\L = (\mathscr{P}, \mathscr{F}, \arity)$ be a signature of a language.
+We will define recursively a set $\free(\phi)$ of all free variables in a formula $\phi$.\\
+
+Let $v\in \V$ and $\phi\in\F(\L)$.
+\begin{enumerate}
+\item If $\phi\in\A(\L)$ and $v\in\var(\phi)$, then $v\in\free(\phi)$.
+\item If $\phi \sxeq \alpha \to \beta$ where $\alpha, \beta\in\B(\L)$, and $v\in\free(\alpha)$ or $v\in\free(\beta)$, then $v\in\free(\phi)$.
+\item If $\phi \sxeq \forall x. \psi$ where $\psi\in\B(\L)$, $x\in \V$ and $x\not=v$, and $v\in\free(\psi)$, then $v\in\free(\phi)$.
+\item Otherwise $v\not\in\free(\phi)$.
+\end{enumerate}
+
+\end{definition}
+
+
 \subsection{Semantics}
 
 \begin{definition} [\textbf{$\L$-structure}]
@@ -259,17 +304,18 @@ Let $\L = (\mathscr{P}, \mathscr{F}, \arity)$ be a signature of a language and $
 where 
 \begin{align*}
 &\M(\false) = (\emptyset \mapsto 0),\\
-&\M(\mathscr{P}) \subset \bigcup_{k=0}^\infty \{0, 1\}^{(A^k)},\\
-&\M(\mathscr{F}) \subset \bigcup_{k=0}^\infty A^{(A^k)}\\
+&\M(\mathscr{P}_k) \subset \{0, 1\}^{(A^k)} \text{ for } k\in\N,\\
+&\M(\mathscr{F}_k) \subset A^{(A^k)} \text{ for } k\in\N.\\
 \end{align*}
 
 is called an $\L$-structure with domain $A$.\\
 
 For convenience we will denote values of $\M$ as $p^\M \defeq \M(p)$ for $p\in\mathscr{P}$ and $f^\M \defeq \M(f)$ for $f\in\mathscr{F}$.
+Note that $p^\M:A^k\to\{0, 1\}$ and $f^\M:A^k\to A$.
 \end{definition}
 
 \begin{definition}[\textbf{assignment}]
-Let $A$ be an arbitrary mathematical domain. Then $j: \V \to A$ is called an variables assignment in $A$.
+Let $A$ be an arbitrary mathematical domain. Then $j: \V \to A$ is called a variables assignment in $A$.
 \end{definition}
 
 \begin{definition}[\textbf{recursive: term evaluation}]
@@ -337,9 +383,9 @@ Let $S$ be an arbitrary set and $a_s\in\{0, 1\}$ for any $s\in S$.
 \begin{definition} [\textbf{recursive: formula evaluation}]
 Let $\L = (\mathscr{P}, \mathscr{F}, \arity)$ be a signature of a language and $A$ be an arbitrary mathematical domain, let $\M$ be an $\L$-structure with domain $A$ and $j:\V\to A$. Let $\phi\in\F(\L)$.
 \begin{enumerate}
-\item If $\phi \sxeq p$ where $p\in \mathscr{P}$, then $\phi^{\M, j} \defeq p^\M$.
 \item If $\phi \sxeq p(\bm{\tau})$ where 
 $\bm{\tau}\in\T(\L)^*$ and $p\in\mathscr{P}_{|\bm{\tau}|}$, then $\phi^{\M, j} \defeq p^\M(\bm{\tau}^{\M, j})$.
+\item If $\phi \sxeq \alpha \to \beta$ where $\alpha, \beta\in \B(\L)$, then
 \begin{equation}
 \phi^{\M, j} \defeq 1 - \alpha^{\M, j}(1 - \beta^{\M, j}).
 \end{equation}
@@ -366,62 +412,79 @@ Let $\L = (\mathscr{P}, \mathscr{F}, \arity)$ be a signature of a language and $
 \M, j\models \phi \defiff \phi^{\M, j} = 1.
 \end{equation}
 
+\begin{lemma}
+\label{term-evaluation-independence}
+Let $\L = (\mathscr{P}, \mathscr{F}, \arity)$ be a signature of a language and $A$ be an arbitrary mathematical domain, let $\M$ be an $\L$-structure with domain $A$ and $j_1, j_2:\V\to A$. Let $\tau\in\T(\L)$.
+If $j_1\big(\var(\tau)\big) = j_2\big(\var(\tau)\big)$, then
+\begin{equation}
+\tau^{\M, j_1} = \tau^{\M, j_2}.
+\end{equation}
+\end{lemma}
+
+\begin{proof}
+We proceed by structural induction on the term $\tau$.
+
+\textbf{Case 1:} $\tau \sxeq v$ where $v\in\V$.
+
+Then $\var(\tau) = \{v\}$. Since $j_1(\var(\tau)) = j_2(\var(\tau))$, we have $j_1(v) = j_2(v)$. By the definition of term evaluation,
+\begin{equation*}
+\tau^{\M, j_1} = j_1(v) = j_2(v) = \tau^{\M, j_2}.
+\end{equation*}
+
+\textbf{Case 2:} $\tau \sxeq f(\bm{\sigma})$ where $\bm{\sigma}\in\T(\L)^*$ and $f\in\mathscr{F}_{|\bm{\sigma}|}$.
+
+Then $\var(\tau) = \var(\bm{\sigma}) = \bigcup_{i=1}^{|\bm{\sigma}|} \var(\sigma_i)$. Since $j_1(\var(\tau)) = j_2(\var(\tau))$, we have $j_1(\var(\sigma_i)) = j_2(\var(\sigma_i))$ for all $i \in \{1, \dots, |\bm{\sigma}|\}$. By inductive hypothesis, $\sigma_i^{\M, j_1} = \sigma_i^{\M, j_2}$ for all $i$. Therefore, $\bm{\sigma}^{\M, j_1} = \bm{\sigma}^{\M, j_2}$. By the definition of term evaluation,
+\begin{equation*}
+\tau^{\M, j_1} = f^\M(\bm{\sigma}^{\M, j_1}) = f^\M(\bm{\sigma}^{\M, j_2}) = \tau^{\M, j_2}.
+\end{equation*}
+
+This completes the proof by structural induction.
+\end{proof}
+
 \begin{theorem}
 \label{signature-of-formula}
 Let $\L = (\mathscr{P}, \mathscr{F}, \arity)$ be a signature of a language and $A$ be an arbitrary mathematical domain, let $\M$ be an $\L$-structure with domain $A$ and $j_1, j_2:\V\to A$. Let $\phi\in\F(\L)$.
 If $j_1\big(\free(\phi)\big) = j_2\big(\free(\phi)\big)$, then
 
 \begin{equation}
-\phi^{M, j_1} = \phi^{M, j_2}.
+\phi^{\M, j_1} = \phi^{\M, j_2}.
 \end{equation}
 \end{theorem}
 
+\begin{proof}
+We proceed by structural induction on the formula $\phi$.
+
+\textbf{Case 1:} $\phi \sxeq p(\bm{\tau})$ where $\bm{\tau}\in\T(\L)^*$ and $p\in\mathscr{P}_{|\bm{\tau}|}$.
+
+Then $\free(\phi) = \var(\phi) = \var(\bm{\tau}) = \bigcup_{i=1}^{|\bm{\tau}|} \var(\tau_i)$. Since $j_1(\free(\phi)) = j_2(\free(\phi))$, we have $j_1(\var(\tau_i)) = j_2(\var(\tau_i))$ for all $i$. By Lemma \ref{term-evaluation-independence}, $\tau_i^{\M, j_1} = \tau_i^{\M, j_2}$ for all $i$. Therefore, $\bm{\tau}^{\M, j_1} = \bm{\tau}^{\M, j_2}$. By the definition of formula evaluation,
+\begin{equation*}
+\phi^{\M, j_1} = p^\M(\bm{\tau}^{\M, j_1}) = p^\M(\bm{\tau}^{\M, j_2}) = \phi^{\M, j_2}.
+\end{equation*}
+
+\textbf{Case 2:} $\phi \sxeq \alpha \to \beta$ where $\alpha, \beta\in\B(\L)$.
+
+Then $\free(\phi) = \free(\alpha) \cup \free(\beta)$. Since $j_1(\free(\phi)) = j_2(\free(\phi))$, we have $j_1(\free(\alpha)) = j_2(\free(\alpha))$ and $j_1(\free(\beta)) = j_2(\free(\beta))$. By inductive hypothesis, $\alpha^{\M, j_1} = \alpha^{\M, j_2}$ and $\beta^{\M, j_1} = \beta^{\M, j_2}$. By the definition of formula evaluation,
+\begin{equation*}
+\phi^{\M, j_1} = 1 - \alpha^{\M, j_1}(1 - \beta^{\M, j_1}) = 1 - \alpha^{\M, j_2}(1 - \beta^{\M, j_2}) = \phi^{\M, j_2}.
+\end{equation*}
+
+\textbf{Case 3:} $\phi \sxeq \forall x. \psi$ where $x\in\V$ and $\psi\in\B(\L)$.
+
+Then $\free(\phi) = \free(\psi) \setminus \{x\}$. For any $a\in A$, the assignments $j_1\cfrac{a}{x}$ and $j_2\cfrac{a}{x}$ agree on $\free(\psi)$ because:
+\begin{itemize}
+\item For $v \in \free(\psi) \setminus \{x\}$, we have $v \in \free(\phi)$, so $(j_1\cfrac{a}{x})(v) = j_1(v) = j_2(v) = (j_2\cfrac{a}{x})(v)$.
+\item For $v = x$, we have $(j_1\cfrac{a}{x})(x) = a = (j_2\cfrac{a}{x})(x)$.
+\end{itemize}
+Thus $j_1\cfrac{a}{x}(\free(\psi)) = j_2\cfrac{a}{x}(\free(\psi))$. By inductive hypothesis, $\psi^{\M, j_1\cfrac{a}{x}} = \psi^{\M, j_2\cfrac{a}{x}}$ for all $a\in A$. By the definition of formula evaluation,
+\begin{equation*}
+\phi^{\M, j_1} = \prod_{a\in A} \psi^{\M, j_1\cfrac{a}{x}} = \prod_{a\in A} \psi^{\M, j_2\cfrac{a}{x}} = \phi^{\M, j_2}.
+\end{equation*}
+
+This completes the proof by structural induction.
+\end{proof}
+
 \section{Substitutions}
 \subsection{Syntax}
-
-\begin{definition}[\textbf{recursive: variable in a term}]
-Let $\L = (\mathscr{P}, \mathscr{F}, \arity)$ be a signature of a language.
-We will define recursively a set $\var(\tau)$ of all variables in a term $\tau$.\\
-
-Let $v\in \V$ and $\tau\in\T(\L)$.
-\begin{enumerate}
-\item If $\tau \sxeq v$ then $v\in\var(\tau)$.
-\item If $\tau \sxeq f(\bm{\sigma})$ where $\bm{\sigma}\in\T(\L)^*$ and $f\in \mathscr{F}_{|\bm{\sigma}|}$ and 
-$v\in\var(\bm{\sigma}) \defeq \bigcup_{k=1}^{|\bm{\sigma}|} \var(\sigma_k)$, then $v\in\var(\tau)$.
-\item Otherwise $v\not\in\var(\tau)$.
-\end{enumerate}
-
-\end{definition}
-
-\begin{definition}[\textbf{recursive: variable in a formula}]
-Let $\L = (\mathscr{P}, \mathscr{F}, \arity)$ be a signature of a language.
-We will define recursively a set $\var(\phi)$ of all variables in a formula $\phi$.\\
-
-Let $v\in \V$ and $\phi\in\F(\L)$.
-\begin{enumerate}
-\item If $\phi \sxeq p(\bm{\tau})$ where 
-$\bm{\tau}\in\T(\L)^*$ and $p\in\mathscr{P}_{|\bm{\tau}|}$ and $v\in\var(\bm{\tau})$, then $v\in\var(\phi)$.
-\item If $\phi \sxeq \alpha \to \beta$ where $\alpha, \beta\in\B(\L)$, and $v\in\var(\alpha)$ or $v\in\var(\beta)$, then $v\in\var(\phi)$.
-\item If $\phi \sxeq \forall x. \psi$ where $x\in \V$ and $\psi\in\B(\L)$, and either $v = x$ or $v\in\var(\psi)$, then $v\in\var(\phi)$.
-\item Otherwise $v\not\in\var(\phi)$.
-\end{enumerate}
-
-\end{definition}
-
-
-\begin{definition}[\textbf{recursive: free variable in a formula}]
-Let $\L = (\mathscr{P}, \mathscr{F}, \arity)$ be a signature of a language.
-We will define recursively a set $\free(\phi)$ of all free variables in a formula $\phi$.\\
-
-Let $v\in \V$ and $\phi\in\F(\L)$.
-\begin{enumerate}
-\item If $\phi\in\A(\L)$ and $v\in\var(\phi)$, then $v\in\free(\phi)$.
-\item If $\phi \sxeq \alpha \to \beta$ where $\alpha, \beta\in\B(\L)$, and $v\in\free(\alpha)$ or $v\in\free(\beta)$, then $v\in\free(\phi)$.
-\item If $\phi \sxeq \forall x. \psi$ where $x\in \V$ and $\psi\in\B(\L)$ and $v\not=x$ and $v\in\free(\psi)$, then $v\in\free(\phi)$.
-\item Otherwise $v\not\in\free(\phi)$.
-\end{enumerate}
-
-\end{definition}
 
 
 
@@ -559,13 +622,19 @@ Let $\bm{v}$ be $\bm{x}$ with $x_i$ removed when $x_i=u$ or $x_i\not\in\free(\ps
 Since $\phi(\bm{x}/\bm{\tau})$ is admissable, $\psi(\bm{v}/\bm{\sigma})$ is \textbf{admissible} and 
 $u\not\in\var(\bm{\sigma})$, and we have $\phi(\bm{x}/\bm{\tau}) \sxeq \forall u. \psi(\bm{v}/\bm{\sigma})$.
 Thus
-\begin{align*}
+\begin{equation}
 \phi^{\M, j\cfrac{\bm{\tau}^{\M, j}}{\bm{x}}} 
-&= \prod_{a\in A} \psi^{\M, j\cfrac{\bm{\tau}^{\M, j}}{\bm{x}}\cfrac{a}{u}} \\
-&= \prod_{a\in A} \psi^{\M, j\cfrac{\bm{\sigma}^{\M, j}}{\bm{v}}\cfrac{a}{u}}
-\quad 
-\big(\text{by choice of $\bm{v}$, $j\cfrac{\bm{\tau}^{\M, j}}{\bm{x}}\cfrac{a}{u}$ and 
-$j\cfrac{\bm{\sigma}^{\M, j}}{\bm{v}}\cfrac{a}{u}$ agrees on $\free(\psi)$}\big)\\
+= \prod_{a\in A} \psi^{\M, j\cfrac{\bm{\tau}^{\M, j}}{\bm{x}}\cfrac{a}{u}}
+\end{equation}
+
+By choice of $\bm{v}$, $j\cfrac{\bm{\tau}^{\M, j}}{\bm{x}}\cfrac{a}{u}$
+and 
+$j\cfrac{\bm{\sigma}^{\M, j}}{\bm{v}}\cfrac{a}{u}$ agrees on $\free(\psi)$ 
+therefore by Theorem \ref{signature-of-formula} we have  
+
+\begin{align*}
+\prod_{a\in A} \psi^{\M, j\cfrac{\bm{\tau}^{\M, j}}{\bm{x}}\cfrac{a}{u}}
+&= \prod_{a\in A} \psi^{\M, j\cfrac{\bm{\sigma}^{\M, j}}{\bm{v}}\cfrac{a}{u}}\\
 &= \prod_{a\in A} \psi^{\M, j\cfrac{a}{u}\cfrac{\bm{\sigma}^{\M, j}}{\bm{v}}}
 \quad 
 \big(

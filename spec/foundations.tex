@@ -519,8 +519,8 @@ let $\bm{x}\in \dis{\V}{k}$ and $\bm{\tau}\in\T(\L)^k$.\\
 
 Let $\phi\in\F(\L)$. Let's establish that $\phi(\emptyset/\emptyset) \defeq \phi$.
 \begin{enumerate}
-\item If $\phi \sxeq p(\bm{\eta})$ where $\bm{\eta}\in\T(\L)^*$ and $p\in \mathscr{P}_{|\bm{\eta}|}$, then $\phi(\bm{x}/\bm{\tau}) \defeq p(\bm{\eta}(\bm{x}/\bm{\tau}))$ and is \textbf{admissable}.
-\item If $\phi \sxeq \alpha \to \beta$ where $\alpha, \beta\in\B(\L)$ and $\alpha(\bm{x}/\bm{\tau}), \beta(\bm{x}/\bm{\tau})$ are \textbf{admissible}, then $\phi(\bm{x}/\bm{\tau}) \defeq \alpha(\bm{x}/\bm{\tau}) \to \beta(\bm{x}/\bm{\tau})$ and is \textbf{admissable}.
+\item If $\phi \sxeq p(\bm{\eta})$ where $\bm{\eta}\in\T(\L)^*$ and $p\in \mathscr{P}_{|\bm{\eta}|}$, then $\phi(\bm{x}/\bm{\tau}) \defeq p(\bm{\eta}(\bm{x}/\bm{\tau}))$ and is \textbf{admissible}.
+\item If $\phi \sxeq \alpha \to \beta$ where $\alpha, \beta\in\B(\L)$ and $\alpha(\bm{x}/\bm{\tau}), \beta(\bm{x}/\bm{\tau})$ are \textbf{admissible}, then $\phi(\bm{x}/\bm{\tau}) \defeq \alpha(\bm{x}/\bm{\tau}) \to \beta(\bm{x}/\bm{\tau})$ and is \textbf{admissible}.
 \item If $\phi \sxeq \forall u. \psi$ where $u\in \V$ and $\psi\in\B(\L)$:\\
 Let $\bm{v}$ be $\bm{x}$ with $x_i$ removed when $x_i=u$ or $x_i\not\in\free(\psi)$. And let $\bm{\sigma}$ be $\bm{\tau}$ with $\tau_i$ removed for which $x_i$ was removed from $\bm{x}$.
 
@@ -545,7 +545,7 @@ let $\bm{x}\in \dis{\V}{k}$ and $\bm{\tau}\in\T(\L)^k$.\\
 
 Then for any term $\sigma$, we have
 \begin{equation}
-\sigma^{\M, j\cfrac{\bm{\tau}^{(\M, j)}}{\bm{x}}} = \sigma(\bm{x}/\bm{\tau})^{\M, j}.
+\sigma^{\M, j\cfrac{\bm{\tau}^{\M, j}}{\bm{x}}} = \sigma(\bm{x}/\bm{\tau})^{\M, j}.
 \end{equation}
 \end{lemma}
 
@@ -556,21 +556,21 @@ We proceed by structural induction on the term $\sigma$.
 
 Then $\sigma(\bm{x}/\bm{\tau}) \sxeq \tau_i$ and
 \begin{equation*}
-\sigma^{\M, j\cfrac{\bm{\tau}^{(\M, j)}}{\bm{x}}} = (j\cfrac{\bm{\tau}^{(\M, j)}}{\bm{x}})(x_i) = \tau_i^{\M, j} = \sigma(\bm{x}/\bm{\tau})^{\M, j}.
+\sigma^{\M, j\cfrac{\bm{\tau}^{\M, j}}{\bm{x}}} = (j\cfrac{\bm{\tau}^{\M, j}}{\bm{x}})(x_i) = \tau_i^{\M, j} = \sigma(\bm{x}/\bm{\tau})^{\M, j}.
 \end{equation*}
 
 \textbf{Case 2:} $\sigma \sxeq v$ where $v\in\V$ and $v\neq x$.
 
 Then $\sigma(x/\tau) \sxeq v$ and
 \begin{equation*}
-\sigma^{\M, j\cfrac{\bm{\tau}^{(\M, j)}}{\bm{x}}} = (j\cfrac{\bm{\tau}^{(\M, j)}}{\bm{x}})(v) = j(v) = v^{\M, j} = (\bm{x}/\bm{\tau})^{\M, j}.
+\sigma^{\M, j\cfrac{\bm{\tau}^{\M, j}}{\bm{x}}} = (j\cfrac{\bm{\tau}^{\M, j}}{\bm{x}})(v) = j(v) = v^{\M, j} = (\bm{x}/\bm{\tau})^{\M, j}.
 \end{equation*}
 
 \textbf{Case 3:} $\sigma \sxeq f(\bm{\eta})$ where $\bm{\eta}\in\T(\L)^*$ and $f\in \mathscr{F}_{|\bm{\eta}|}$.
 
 Then $\sigma(\bm{x}/\bm{\tau}) \sxeq f(\bm{\eta}(\bm{x}/\bm{\tau}))$. By inductive hypothesis, $\bm{\eta}^{\M, j\cfrac{\bm{\tau}^{(\M, j)}}{\bm{x}}} = \bm{\eta}(\bm{x}/\bm{\tau})^{\M, j}$. Thus
 \begin{align*}
-\sigma^{\M, j\cfrac{\bm{\tau}^{(\M, j)}}{\bm{x}}} &= f^\M\bigg(\bm{\eta}^{\M, j\cfrac{\bm{\tau}^{(\M, j)}}{\bm{x}}}\bigg) = f^\M\bigg(\bm{\eta}(\bm{x}/\bm{\tau})^{\M, j}\bigg) \\
+\sigma^{\M, j\cfrac{\bm{\tau}^{\M, j}}{\bm{x}}} &= f^\M\bigg(\bm{\eta}^{\M, j\cfrac{\bm{\tau}^{\M, j}}{\bm{x}}}\bigg) = f^\M\bigg(\bm{\eta}(\bm{x}/\bm{\tau})^{\M, j}\bigg) \\
 &= f(\bm{\eta}(\bm{x}/\bm{\tau}))^{\M, j} = \sigma(\bm{x}/\bm{\tau})^{\M, j}.\\
 \end{align*}
 
@@ -584,7 +584,7 @@ Let $k$ be a positive integer and
 let $\bm{x}\in \dis{\V}{k}$ and $\bm{\tau}\in\T(\L)^k$.
 If $\phi(\bm{x}/\bm{\tau})$ is admissible, then for any $\L$-structure $\M$ with domain $A$ and for any assignment of variables $j:\V\to A$ we have
 \begin{equation}
-(\M, j\cfrac{\bm{\tau}^{(\M, j)}}{\bm{x}})\models \phi \iff (\M, j)\models \phi(\bm{x}/\bm{\tau}).
+(\M, j\cfrac{\bm{\tau}^{\M, j}}{\bm{x}})\models \phi \iff \M, j\models \phi(\bm{x}/\bm{\tau}).
 \end{equation}
 \end{theorem}
 
@@ -594,9 +594,9 @@ We proceed by structural induction on $\phi\in\F(\L)$.
 \textbf{Case 1:} $\phi \sxeq p(\bm{\eta})$ where $\bm{\eta}\in\T(\L)^*$ and $p\in \mathscr{P}_{|\bm{\eta}|}$.
 
 By the definition of substitution in well formed formula, $\phi(\bm{x}/\bm{\tau}) \sxeq p(\bm{\eta(\bm{x}/\bm{\tau}}))$. By Lemma \ref{term-substitution-lemma}, we have
-$\bm{\eta}^{\M, j\cfrac{\bm{\tau}^{(\M, j)}}{\bm{x}}} = \bm{\eta}(\bm{x}/\bm{\tau})^{\M, j}$. Therefore,
+$\bm{\eta}^{\M, j\cfrac{\bm{\tau}^{\M, j}}{\bm{x}}} = \bm{\eta}(\bm{x}/\bm{\tau})^{\M, j}$. Therefore,
 \begin{align*}
-\phi^{\M, j\cfrac{\tau^{(\M, j)}}{x}} = p^\M\bigg(\bm{\eta}^{\M, j\cfrac{\bm{\tau}^{(\M, j)}}{\bm{x}}}\bigg) = p^\M(\bm{\eta}(\bm{x}/\bm{\tau})^{\M, j}) 
+\phi^{\M, j\cfrac{\tau^{\M, j}}{x}} = p^\M\bigg(\bm{\eta}^{\M, j\cfrac{\bm{\tau}^{\M, j}}{\bm{x}}}\bigg) = p^\M(\bm{\eta}(\bm{x}/\bm{\tau})^{\M, j}) 
 = p(\bm{\eta}(\bm{x}/\bm{\tau}))^{\M, j} 
 = \phi(\bm{x}/\bm{\tau})^{\M, j}.
 \end{align*}
@@ -605,14 +605,14 @@ $\bm{\eta}^{\M, j\cfrac{\bm{\tau}^{(\M, j)}}{\bm{x}}} = \bm{\eta}(\bm{x}/\bm{\ta
 
 By the definition of substitution in well formed formula, $\phi(\bm{x}/\bm{\tau}) \sxeq \alpha(\bm{x}/\bm{\tau}) \to \beta(\bm{x}/\bm{\tau})$. By inductive hypothesis,
 \begin{align*}
-(\M, j\cfrac{\bm{\tau}^{(\M, j)}}{\bm{x}})\models \alpha &\iff (\M, j)\models \alpha(\bm{x}/\bm{\tau}), \\
-(\M, j\cfrac{\bm{\tau}^{(\M, j)}}{\bm{x}})\models \beta &\iff (\M, j)\models \beta(\bm{x}/\bm{\tau}).
+(\M, j\cfrac{\bm{\tau}^{\M, j}}{\bm{x}})\models \alpha &\iff \M, j\models \alpha(\bm{x}/\bm{\tau}), \\
+(\M, j\cfrac{\bm{\tau}^{\M, j}}{\bm{x}})\models \beta &\iff \M, j\models \beta(\bm{x}/\bm{\tau}).
 \end{align*}
 
 By the definition of formula evaluation,
 \begin{align*}
-\phi^{\M, j\cfrac{\bm{\tau}^{(\M, j)}}{\bm{x}}} 
-&= 1 - \alpha^{\M, j\cfrac{\bm{\tau}^{(\M, j)}}{\bm{x}}}\bigg(1 - \beta^{\M, j\cfrac{\bm{\tau}^{(\M, j)}}{\bm{x}}}\bigg) 
+\phi^{\M, j\cfrac{\bm{\tau}^{\M, j}}{\bm{x}}} 
+&= 1 - \alpha^{\M, j\cfrac{\bm{\tau}^{\M, j}}{\bm{x}}}\bigg(1 - \beta^{\M, j\cfrac{\bm{\tau}^{\M, j}}{\bm{x}}}\bigg) 
 = 1 - (\alpha(\bm{x}/\bm{\tau}))^{\M, j}(1 - (\beta(\bm{x}/\bm{\tau}))^{\M, j}) = 1 \\
 &= (\alpha(\bm{x}/\bm{\tau}) \to \beta(\bm{x}/\bm{\tau}))^{\M, j} = (\phi(\bm{x}/\bm{\tau}))^{\M, j}\\
 \end{align*}

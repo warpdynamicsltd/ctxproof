@@ -138,6 +138,8 @@ For a sequence $\bm{s}\in S^k$, we denote the $i$-th element of the sequence by 
 
 Note that according to the above convention $|\emptyset| = 0$.
 
+
+
 \begin{definition}
 \label{dis-set-of-sequences}
 Let $S$ be an arbitrary set.
@@ -534,7 +536,7 @@ $u\not\in\var(\bm{\sigma})$, then $\phi(\bm{x}/\bm{\tau}) \defeq \forall u. \psi
 \end{enumerate}
 \end{definition}
 
-\begin{definition}
+\begin{definition}[\textbf{recursive: admissible predicate substitution}]
 Let $\L = (\mathscr{P}, \mathscr{F}, \arity)$ be a signature of a language.
 Let $k$ be a non-negative integer and
 let $\bm{x}\in \dis{\V}{k}$.
@@ -650,7 +652,7 @@ By the definition of formula evaluation,
 \textbf{Case 3:} $\phi \sxeq \forall u. \psi$ where $u\in \V$ and $\psi\in\B(\L)$:\\
 Let $\bm{v}$ be $\bm{x}$ with $x_i$ removed when $x_i=u$ or $x_i\not\in\free(\psi)$. And let $\bm{\sigma}$ be $\bm{\tau}$ with $\tau_i$ removed for which $x_i$ was removed from $\bm{x}$.
 
-Since $\phi(\bm{x}/\bm{\tau})$ is admissable, $\psi(\bm{v}/\bm{\sigma})$ is \textbf{admissible} and 
+Since $\phi(\bm{x}/\bm{\tau})$ is admissible, $\psi(\bm{v}/\bm{\sigma})$ is \textbf{admissible} and 
 $u\not\in\var(\bm{\sigma})$, and we have $\phi(\bm{x}/\bm{\tau}) \sxeq \forall u. \psi(\bm{v}/\bm{\sigma})$.
 Thus
 \begin{equation}

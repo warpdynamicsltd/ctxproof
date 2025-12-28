@@ -492,9 +492,9 @@ This completes the proof by structural induction.
 \begin{definition}[\textbf{recursive: substitution in a term}]
 Let $\L = (\mathscr{P}, \mathscr{F}, \arity)$ be a signature of a language.
 Let $k$ be a positive integer and
-let $\bm{x}\in \dis{\V}{k}$ and $\bm{\tau}\in\T(\L)^k$.\\
- 
+let $\bm{x}\in \dis{\V}{k}$ and $\bm{\tau}\in\T(\L)^k$.\\  
 Let $\sigma\in\T(\L)$. 
+We will define recursively $\sigma(\bm{x}/\bm{\tau})$.
 Let's establish that $\sigma(\emptyset/\emptyset) \defeq \sigma$.
 \begin{enumerate}
 \item If $\sigma \sxeq x_i$ for some $i\in\{1, \dots, k\}$, then $\sigma(\bm{x}/\bm{\tau}) \defeq \tau_i$.
@@ -517,7 +517,9 @@ Let $\L = (\mathscr{P}, \mathscr{F}, \arity)$ be a signature of a language.
 Let $k$ be a positive integer and
 let $\bm{x}\in \dis{\V}{k}$ and $\bm{\tau}\in\T(\L)^k$.\\
 
-Let $\phi\in\F(\L)$. Let's establish that $\phi(\emptyset/\emptyset) \defeq \phi$.
+Let $\phi\in\F(\L)$. 
+We will define recursively $\sigma(\bm{x}/\bm{\tau})$.
+Let's establish that $\phi(\emptyset/\emptyset) \defeq \phi$ and is \textbf{admissible}.
 \begin{enumerate}
 \item If $\phi \sxeq p(\bm{\eta})$ where $\bm{\eta}\in\T(\L)^*$ and $p\in \mathscr{P}_{|\bm{\eta}|}$, then $\phi(\bm{x}/\bm{\tau}) \defeq p(\bm{\eta}(\bm{x}/\bm{\tau}))$ and is \textbf{admissible}.
 \item If $\phi \sxeq \alpha \to \beta$ where $\alpha, \beta\in\B(\L)$ and $\alpha(\bm{x}/\bm{\tau}), \beta(\bm{x}/\bm{\tau})$ are \textbf{admissible}, then $\phi(\bm{x}/\bm{\tau}) \defeq \alpha(\bm{x}/\bm{\tau}) \to \beta(\bm{x}/\bm{\tau})$ and is \textbf{admissible}.
@@ -532,12 +534,40 @@ $u\not\in\var(\bm{\sigma})$, then $\phi(\bm{x}/\bm{\tau}) \defeq \forall u. \psi
 \end{enumerate}
 \end{definition}
 
+\begin{definition}
+Let $\L = (\mathscr{P}, \mathscr{F}, \arity)$ be a signature of a language.
+Let $k$ be a non-negative integer and
+let $\bm{x}\in \dis{\V}{k}$.
+Let $q\in \mathscr{P}_k$ and $\phi \in\F(\L)$.\\
+
+Let $\psi\in\F(\L)$.
+We will define recursively $\psi(q(\bm{x})/\phi)$.
+
+\begin{enumerate}
+\item If $\psi \sxeq p(\bm{\eta})$ where $\bm{\eta}\in\T(\L)^*$ and $p\in \mathscr{P}_{|\bm{\eta}|}$.
+\begin{enumerate}
+\item If $p = q$ and $\phi(\bm{x}/\bm{\eta})$ is admissible, then $\psi(q(\bm{x})/\phi) \defeq \phi(\bm{x}/\bm{\eta})$ and is \textbf{admissible}.
+\item If $p \not= q$, then $\psi(q(\bm{x})/\phi) \defeq \psi$ and is \textbf{admissible}.
+\end{enumerate}
+\item If $\psi \sxeq \alpha \to \beta$ where $\alpha, \beta\in\B(\L)$
+and $\alpha(q(\bm{x})/\phi)$, $\beta(q(\bm{x})/\phi)$ are \textbf{admissible}, then
+$\psi(q(\bm{x})/\phi) \defeq \alpha(q(\bm{x})/\phi)\to\beta(q(\bm{x})/\phi)$ and is \textbf{admissible}.
+\item If $\psi \sxeq \forall u. \gamma$ where $u\in \V$ and $\gamma\in\B(\L)$:
+\begin{enumerate}
+\item If $q$ occurs in $\gamma$, $u\not\in \free(\phi)\setminus \bm{x}$, $\gamma(q(\bm{x})/\phi)$ is \textbf{admissible}, then 
+$\psi(q(\bm{x})/\phi) \defeq \forall u. \gamma(q(\bm{x})/\phi)$ and is \textbf{admissible}.
+\item If $q$ does not occur in $\gamma$, then $\psi(q(\bm{x})/\phi) \defeq \forall u. \gamma$ and is \textbf{admissible}.
+\item Otherwise $\psi(q(\bm{x})/\phi)$ is \textbf{not admissible}.
+\end{enumerate}
+\end{enumerate}
+\end{definition}
+
 
 \subsection{Semantics}
 
 \begin{lemma}
 \label{term-substitution-lemma}
-Let $\L$ be a signature of a language and $A$ be an arbitrary mathematical domain. Let $\M$ be an $\L$-structure with domain $A$ and $j:\V\to A$ be an assignment. 
+Let  $\L = (\mathscr{P}, \mathscr{F}, \arity)$ be a signature of a language and $A$ be an arbitrary mathematical domain. Let $\M$ be an $\L$-structure with domain $A$ and $j:\V\to A$ be an assignment. 
 
 Let $k$ be a positive integer and
 let $\bm{x}\in \dis{\V}{k}$ and $\bm{\tau}\in\T(\L)^k$.\\
@@ -579,7 +609,7 @@ This completes the proof by structural induction.
 
 \begin{theorem}
 \label{admissible-theorem}
-Let $\L$ be a signature of a language. Let $\phi\in\F(\L)$.
+Let  $\L = (\mathscr{P}, \mathscr{F}, \arity)$ be a signature of a language. Let $\phi\in\F(\L)$.
 Let $k$ be a positive integer and
 let $\bm{x}\in \dis{\V}{k}$ and $\bm{\tau}\in\T(\L)^k$.
 If $\phi(\bm{x}/\bm{\tau})$ is admissible, then for any $\L$-structure $\M$ with domain $A$ and for any assignment of variables $j:\V\to A$ we have

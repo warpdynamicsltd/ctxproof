@@ -537,6 +537,7 @@ $u\not\in\var(\bm{\sigma})$, then $\phi(\bm{x}/\bm{\tau}) \defeq \forall u. \psi
 \end{definition}
 
 \begin{definition}[\textbf{recursive: admissible predicate substitution}]
+\label{predicate-substitution-definition}
 Let $\L = (\mathscr{P}, \mathscr{F}, \arity)$ be a signature of a language.
 Let $k$ be a non-negative integer and
 let $\bm{x}\in \dis{\V}{k}$.
@@ -687,5 +688,86 @@ This completes the proof by structural induction.
 \end{proof}
 
 \end{definition}
+
+\begin{lemma}
+\label{predicate-substitution-lemma}
+Let $\L=(\mathscr{P}, \mathscr{F}, \arity)$ be a signature of a language and let $q\in \mathscr{P}$. Let $\phi\in\F(\L)$ and $\bm{x}\in \dis{\V}{k}$. Let $j_0: \free(\phi)\setminus \bm{x} \to A$, where $A$ is a domain of an $\L$-structure $M$ for which
+\begin{equation}
+\label{phi-q-equivalence}
+M, j \models q(\bm{x}) \text{ iff } M, j \models \phi
+\end{equation}
+for any $j$ that is an extention of $j_0$. If $\psi\in\F(\L)$ and $\psi(q(\bm{x})/\phi)$ is admissible, then
+\begin{equation}
+M, j \models \psi \text{ iff } M, j \models \psi(q(\bm{x})/\phi)
+\end{equation}
+for any $j$ that is an extention of $j_0$.
+\end{lemma}
+
+\begin{proof}
+We proceed by structural induction on $\psi\in\F(\L)$ following Definition~\ref{predicate-substitution-definition}.
+
+Take any $j: \V \to A$ which is an extension of $j_0$.
+
+\textbf{Case 1:} $\psi \sxeq p(\bm{\eta})$ where $\bm{\eta}\in\T(\L)^*$ and $p\in \mathscr{P}_{|\bm{\eta}|}$.
+
+\textbf{Subcase 1a:} $p = q$ and $\phi(\bm{x}/\bm{\eta})$ is admissible.
+
+Then by Definition~\ref{predicate-substitution-definition}, $\psi(q(\bm{x})/\phi) \sxeq \phi(\bm{x}/\bm{\eta})$.
+By the definition of formula evaluation,
+\begin{equation*}
+\psi^{M, j} = q^M(\bm{\eta}^{M, j}) = q(\bm{x})^{M, j\cfrac{\bm{\eta}^{M, j}}{\bm{x}}}.
+\end{equation*}
+
+Since $j\cfrac{\bm{\eta}^{M, j}}{\bm{x}}$ is an extension of $j_0$, by (\ref{phi-q-equivalence}), we have
+
+\begin{equation*}
+q(\bm{x})^{M, j\cfrac{\bm{\eta}^{M, j}}{\bm{x}}} = \phi^{M, j\cfrac{\bm{\eta}^{M, j}}{\bm{x}}}.
+\end{equation*}
+By Theorem~\ref{admissible-theorem}, since $\phi(\bm{x}/\bm{\eta})$ is admissible,
+\begin{equation*}
+\phi^{M, j\cfrac{\bm{\eta}^{M, j}}{\bm{x}}} = \phi(\bm{x}/\bm{\eta})^{M, j}.
+\end{equation*}
+Therefore, $\psi^{M, j} = \phi(\bm{x}/\bm{\eta})^{M, j} = \psi(q(\bm{x})/\phi)^{M, j}$.
+
+\textbf{Subcase 1b:} $p \neq q$.
+
+Then by Definition~\ref{predicate-substitution-definition}, $\psi(q(\bm{x})/\phi) \sxeq \psi$, so $\psi^{M, j} = \psi(q(\bm{x})/\phi)^{M, j}$ holds trivially.
+
+\textbf{Case 2:} $\psi \sxeq \alpha \to \beta$ where $\alpha, \beta\in\B(\L)$ and $\alpha(q(\bm{x})/\phi)$, $\beta(q(\bm{x})/\phi)$ are admissible.
+
+Then by Definition~\ref{predicate-substitution-definition}, $\psi(q(\bm{x})/\phi) \sxeq \alpha(q(\bm{x})/\phi)\to\beta(q(\bm{x})/\phi)$.
+By inductive hypothesis, $\alpha^{M, j} = \alpha(q(\bm{x})/\phi)^{M, j}$ and $\beta^{M, j} = \beta(q(\bm{x})/\phi)^{M, j}$.
+By the definition of formula evaluation,
+\begin{align*}
+\psi^{M, j} &= 1 - \alpha^{M, j}(1 - \beta^{M, j}) \\
+&= 1 - \alpha(q(\bm{x})/\phi)^{M, j}(1 - \beta(q(\bm{x})/\phi)^{M, j}) \\
+&= (\alpha(q(\bm{x})/\phi) \to \beta(q(\bm{x})/\phi))^{M, j} \\
+&= \psi(q(\bm{x})/\phi)^{M, j}.
+\end{align*}
+
+\textbf{Case 3:} $\psi \sxeq \forall u. \gamma$ where $u\in \V$ and $\gamma\in\B(\L)$.
+
+\textbf{Subcase 3a:} $q$ does not occur in $\gamma$.
+
+Then by Definition~\ref{predicate-substitution-definition}, $\psi(q(\bm{x})/\phi) \sxeq \forall u. \gamma = \psi$, so $\psi^{M, j} = \psi(q(\bm{x})/\phi)^{M, j}$ holds trivially.
+
+\textbf{Subcase 3b:} $q$ occurs in $\gamma$. Since $\psi(q(\bm{x})/\phi)$ is admissible, $u\not\in \free(\phi)\setminus \bm{x}$ and $\gamma(q(\bm{x})/\phi)$ is admissible.
+
+Then by Definition~\ref{predicate-substitution-definition}, $\psi(q(\bm{x})/\phi) \sxeq \forall u. \gamma(q(\bm{x})/\phi)$.
+
+For any $a\in A$, let $j' = j\cfrac{a}{u}$.
+Since $u\not\in \free(\phi)\setminus \bm{x}$, the assignment $j'$ is also an extension of $j_0$.
+By inductive hypothesis, $\gamma^{M, j'} = \gamma(q(\bm{x})/\phi)^{M, j'}$.
+
+This holds for all $a\in A$, therefore by the definition of formula evaluation,
+\begin{align*}
+\psi^{M, j} &= \prod_{a\in A} \gamma^{M, j\cfrac{a}{u}} \\
+&= \prod_{a\in A} \gamma(q(\bm{x})/\phi)^{M, j\cfrac{a}{u}} \\
+&= (\forall u. \gamma(q(\bm{x})/\phi))^{M, j} \\
+&= \psi(q(\bm{x})/\phi)^{M, j}.
+\end{align*}
+
+This completes the proof by structural induction.
+\end{proof}
 
 \end{document}

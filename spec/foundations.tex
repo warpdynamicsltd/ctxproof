@@ -42,6 +42,7 @@
 \newcommand{\sxeq}{\doteq}
 \newcommand{\elev}{\text{elev}}
 \newcommand{\free}{\text{free}}
+\newcommand{\rep}[4]{\text{rep}_{#1, #2}(#3, #4)}
 \newcommand{\liff}{\leftrightarrow}
 \newcommand{\var}{\text{var}}
 \newcommand{\bound}{\text{bound}}
@@ -988,11 +989,11 @@ M, j\models \psi(q(\bm{x})/\phi).
 Since $j_0:\free(\phi)\setminus \bm{x}\to A$ was arbitrarly chosen, (\ref{predicate-substitution-for-j}) holds for arbirary $j:\V\to A$. This completes the proof.
 \end{proof}
 
-\section{Rules Preliminaries}
+\section{Preliminaries for Rules}
 
 \begin{theorem}[\textbf{modus ponens}]
 \label{modus-ponens}
-Let  $\L = (\mathscr{P}, \mathscr{F}, \arity)$ be a signature of a language and $A$ be an arbitrary mathematical domain. Let $\M$ be an $\L$-structure with domain $A$ and $j:\V\to A$ be an assignment Let $\alpha, \beta\in\F(\L)$. If $\M, j\models \alpha$ and $\M, j\models \alpha \to \beta$, then $\M,j\models \beta$.
+Let  $\L = (\mathscr{P}, \mathscr{F}, \arity)$ be a signature of a language and $A$ be an arbitrary non-empty mathematical domain. Let $\M$ be an $\L$-structure with domain $A$ and $j:\V\to A$ be an assignment Let $\alpha, \beta\in\F(\L)$. If $\M, j\models \alpha$ and $\M, j\models \alpha \to \beta$, then $\M,j\models \beta$.
 \end{theorem}
 
 \begin{proof}
@@ -1039,7 +1040,7 @@ Hence $\M, j\models \forall v. \phi$. And since $j:\V\to A$ was arbitrary, then 
 
 \begin{theorem}
 \label{modus-ponens-from-def}
-Let $\L=(\mathscr{P}, \mathscr{F}, \arity)$ be a signature of a language and let $q\in \mathscr{P}$. Let $\phi, \psi\in\F(\L)$ and $\Gamma\subset\F(\L)$ such that there is no occurence of $q$ in set of formulas $\Gamma \cup \{\phi, \psi\}$. Let $\bm{x}\in \dis{\V}{k}$. Let $A$ be an non-empty mathematical domain and $j:\V\to A$. If for any $\L$-structre $\M$ with domain $A$ such that $\M, j\models \Gamma$, we have 
+Let $\L=(\mathscr{P}, \mathscr{F}, \arity)$ be a signature of a language and let $q\in \mathscr{P}$. Let $\phi, \psi\in\F(\L)$ and $\Gamma\subset\F(\L)$ such that there is no occurence of $q$ in a set of formulas $\Gamma \cup \{\phi, \psi\}$. Let $\bm{x}\in \dis{\V}{k}$. Let $A$ be an non-empty mathematical domain and $j:\V\to A$. If for any $\L$-structre $\M$ with domain $A$ such that $\M, j\models \Gamma$, we have 
 $\M, j\models (q(\bm{x}) \liff \phi) \to \psi$, then for any $\L$-structre $\M$ with domain $A$ such that $\M, j\models \Gamma$, we have $\M, j\models \psi$.
 \end{theorem}
 
@@ -1087,6 +1088,89 @@ But since $(q(\bm{x}) \liff \phi)^{\M', j} = 1$, we have
 1 - 1 \cdot (1 - \psi^{\M', j}) = 1,
 \end{equation}
 which implies $\psi^{\M', j} = 1$. And since $q$ does not occur in $\psi$, $\psi^{\M, j} = 1$, so $\M, j\models \psi$.
+\end{proof}
+
+Next, we will define a relation $\rep{\phi_1}{\phi_2}{\psi_1}{\psi_2}$. The intuition behind is that $\rep{\phi_1}{\phi_2}{\psi_1}{\psi_2}$ holds when $\psi_2$ is created from $\psi_1$ by replacing some or none $\phi_1$ which occurs in $\psi_1$ by $\phi_2$.
+
+\begin{definition}[\textbf{replace relation}]
+Let $\L = (\mathscr{P}, \mathscr{F}, \arity)$ be a signature of a language.
+Let $\phi_1, \phi_2 \in \F(\L)$.\\
+
+Let $\psi_1, \psi_2\in \F(\L)$. We will define recursively $\rep{\phi_1}{\phi_2}{\psi_1}{\psi_2}$.
+\begin{enumerate}
+\item If $\psi_1\sxeq \phi_1$ and $\psi_2\sxeq \phi_2$, then $\rep{\phi_1}{\phi_2}{\psi_1}{\psi_2}$ holds.
+
+\item If $\psi_1 \sxeq p(\bm{\eta})$ and $\psi_2 \sxeq p(\bm{\eta})$ where $\bm{\eta}\in\T(\L)^*$ and $p\in \mathscr{P}_{|\bm{\eta}|}$, then $\rep{\psi_1}{\phi_2}{\psi_1}{\phi_2}$ holds. 
+
+\item If $\psi_1 \sxeq \alpha_1 \to \beta_1$ and $\psi_2 \sxeq \alpha_2 \to \beta_2$
+where $\alpha_1, \alpha_2, \beta_1, \beta_2\in \B(\L)$, then 
+$\rep{\phi_1}{\phi_2}{\psi_1}{\psi_2}$ iff $\rep{\phi_1}{\phi_2}{\alpha_1}{\alpha_2}$
+and $\rep{\phi_1}{\phi_2}{\beta_1}{\beta_2}$.
+
+\item If $\psi_1 \sxeq \forall u. \gamma_1$ and $\psi_2 \sxeq \forall u. \gamma_2$
+where $\gamma_1, \gamma_2\in \B(\L)$, then $\rep{\phi_1}{\phi_2}{\psi_1}{\psi_2}$ iff 
+$\rep{\phi_1}{\phi_2}{\gamma_1}{\gamma_2}$. 
+
+\item Otherwise $\rep{\phi_1}{\phi_2}{\psi_1}{\psi_2}$ does not hold.
+\end{enumerate}
+\end{definition}
+
+\begin{theorem}
+\label{replace-theorem}
+Let  $\L = (\mathscr{P}, \mathscr{F}, \arity)$ be a signature of a language and $A$ be an arbitrary non-empty mathematical domain. Let $\phi_1, \phi_2, \psi_1, \psi_2\in \F(\L)$ such that $\rep{\phi_1}{\phi_2}{\psi_1}{\psi_2}$. Let $\M$ be an $\L$-structure with domain $A$. If $M, j\models \phi_1 \liff \phi_2$ for any $j:\V\to A$,
+then $M, j\models \psi_1 \liff \psi_2$ for any $j:\V\to A$.
+\end{theorem}
+
+\begin{proof}
+We proceed by structural induction on the relation $\rep{\phi_1}{\phi_2}{\psi_1}{\psi_2}$.
+
+Assume that $M, j\models \phi_1 \liff \phi_2$ for any $j:\V\to A$. By Theorem \ref{biconditional-evaluation}, this means $\phi_1^{\M, j} = \phi_2^{\M, j}$ for any $j:\V\to A$.
+
+Take an arbitrary $j:\V\to A$. We will show that $\psi_1^{\M, j} = \psi_2^{\M, j}$.
+
+\textbf{Case 1:} $\psi_1\sxeq \phi_1$ and $\psi_2\sxeq \phi_2$.
+
+Then $\psi_1^{\M, j} = \phi_1^{\M, j} = \phi_2^{\M, j} = \psi_2^{\M, j}$.
+
+By Theorem \ref{biconditional-evaluation}, $\psi_1^{\M, j} = \psi_2^{\M, j}$ implies $M, j\models \psi_1 \liff \psi_2$.
+
+\textbf{Case 2:} $\psi_1 \sxeq p(\bm{\eta})$ and $\psi_2 \sxeq p(\bm{\eta})$ where $\bm{\eta}\in\T(\L)^*$ and $p\in \mathscr{P}_{|\bm{\eta}|}$.
+
+Then $\psi_1 \sxeq \psi_2$, so trivially $\psi_1^{\M, j} = \psi_2^{\M, j}$ and $M, j\models \psi_1 \liff \psi_2$.
+
+\textbf{Case 3:} $\psi_1 \sxeq \alpha_1 \to \beta_1$ and $\psi_2 \sxeq \alpha_2 \to \beta_2$ where $\alpha_1, \alpha_2, \beta_1, \beta_2\in \B(\L)$, and $\rep{\phi_1}{\phi_2}{\alpha_1}{\alpha_2}$ and $\rep{\phi_1}{\phi_2}{\beta_1}{\beta_2}$.
+
+By the inductive hypothesis, since $M, j\models \phi_1 \liff \phi_2$ for any $j:\V\to A$, we have:
+\begin{itemize}
+\item $M, j\models \alpha_1 \liff \alpha_2$ for any $j:\V\to A$, which means $\alpha_1^{\M, j} = \alpha_2^{\M, j}$ for any $j:\V\to A$.
+\item $M, j\models \beta_1 \liff \beta_2$ for any $j:\V\to A$, which means $\beta_1^{\M, j} = \beta_2^{\M, j}$ for any $j:\V\to A$.
+\end{itemize}
+
+By the definition of formula evaluation for implication:
+\begin{align*}
+\psi_1^{\M, j} &= (\alpha_1 \to \beta_1)^{\M, j} = 1 - \alpha_1^{\M, j}(1 - \beta_1^{\M, j}) \\
+&= 1 - \alpha_2^{\M, j}(1 - \beta_2^{\M, j}) = (\alpha_2 \to \beta_2)^{\M, j} = \psi_2^{\M, j}.
+\end{align*}
+
+Therefore, $M, j\models \psi_1 \liff \psi_2$.
+
+\textbf{Case 4:} $\psi_1 \sxeq \forall u. \gamma_1$ and $\psi_2 \sxeq \forall u. \gamma_2$ where $\gamma_1, \gamma_2\in \B(\L)$, and $\rep{\phi_1}{\phi_2}{\gamma_1}{\gamma_2}$.
+
+By the inductive hypothesis, since $M, j'\models \phi_1 \liff \phi_2$ for any $j':\V\to A$, we have $M, j'\models \gamma_1 \liff \gamma_2$ for any $j':\V\to A$.
+
+In particular, for any $a\in A$, taking $j' = j\cfrac{a}{u}$, we have $M, j\cfrac{a}{u}\models \gamma_1 \liff \gamma_2$, which means $\gamma_1^{\M, j\cfrac{a}{u}} = \gamma_2^{\M, j\cfrac{a}{u}}$.
+
+By the definition of formula evaluation for universal quantification:
+\begin{align*}
+\psi_1^{\M, j} &= (\forall u. \gamma_1)^{\M, j} = \prod_{a\in A} \gamma_1^{\M, j\cfrac{a}{u}} \\
+&= \prod_{a\in A} \gamma_2^{\M, j\cfrac{a}{u}} = (\forall u. \gamma_2)^{\M, j} = \psi_2^{\M, j}.
+\end{align*}
+
+Therefore, $M, j\models \psi_1 \liff \psi_2$.
+
+Since this holds for arbitrary $j:\V\to A$, we conclude that $M, j\models \psi_1 \liff \psi_2$ for any $j:\V\to A$.
+
+This completes the proof by structural induction.
 \end{proof}
 
 \end{document}

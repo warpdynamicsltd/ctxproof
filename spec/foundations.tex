@@ -300,7 +300,7 @@ Let $v\in \V$ and $\phi\in\F(\L)$.
 \subsection{Semantics}
 
 \begin{definition} [\textbf{$\L$-structure}]
-Let $\L = (\mathscr{P}, \mathscr{F}, \arity)$ be a signature of a language and $A$ be an arbitrary mathematical domain, then a mapping $\M$ such that 
+Let $\L = (\mathscr{P}, \mathscr{F}, \arity)$ be a signature of a language and $A\not=\emptyset$ be an arbitrary mathematical domain, then a mapping $\M$ such that 
 \begin{equation}
 \M: \mathscr{P} \cup \mathscr{F} \to \bigcup_{k=0}^\infty \{0, 1\}^{(A^k)} \cup \bigcup_{k=0}^\infty A^{(A^k)},
 \end{equation}
@@ -414,6 +414,12 @@ Let $\L = (\mathscr{P}, \mathscr{F}, \arity)$ be a signature of a language and $
 \begin{equation}
 \M, j\models \phi \defiff \phi^{\M, j} = 1.
 \end{equation}
+
+\end{definition}
+
+\begin{definition}[\textbf{tautology}]
+Let $\L = (\mathscr{P}, \mathscr{F}, \arity)$ be a signature of a language and let $\phi\in\F(\L)$.We define that $\models \phi$ iff for any non-empty domain $A$ and any $\L$-structure $\M$ with domain $A$, and any $j:\V\to A$ we have $\M, j\models \phi$.
+\end{definition}
 
 \begin{lemma}
 \label{term-evaluation-independence}
@@ -687,8 +693,6 @@ therefore by Theorem \ref{signature-of-formula} we have
 This completes the proof by structural induction.
 \end{proof}
 
-\end{definition}
-
 \begin{lemma}
 \label{predicate-substitution-lemma}
 Let $\L=(\mathscr{P}, \mathscr{F}, \arity)$ be a signature of a language and let $q\in \mathscr{P}$. Let $\phi\in\F(\L)$ and $\bm{x}\in \dis{\V}{k}$. Let $j_0: \free(\phi)\setminus \bm{x} \to A$, where $A$ is a domain of an $\L$-structure $M$ for which
@@ -768,6 +772,57 @@ This holds for all $a\in A$, therefore by the definition of formula evaluation,
 \end{align*}
 
 This completes the proof by structural induction.
+\end{proof}
+
+\begin{theorem}
+\label{predicate-substitution-theorem}
+Let $\L=(\mathscr{P}, \mathscr{F}, \arity)$ be a signature of a language and let $q\in \mathscr{P}$. Let $\phi\in\F(\L)$ and $\bm{x}\in \dis{\V}{k}$. 
+If $\models \psi$ and $\psi(q(\bm{x})/\phi)$ is admissible, then
+$\models \psi(q(\bm{x})/\phi)$.
+\end{theorem}
+\begin{proof}
+Let's introduce a new predicate symbol $q'$ such that $q'\not\in \mathscr{P}$.
+Let $\L'=(\mathscr{P}\cup\{q'\}, \mathscr{F}, \arity')$ such that $\arity'$ is an extension of $\arity$ such that $\arity'(q') = \arity(q)$. Let $k = \arity(q)$. Let $\psi'$ be $\psi$ with each $q$ symbol replaced by $q'$. Since $\models \psi$, also $\models \psi'$.
+Take any non-empty domain $A$.
+Take any $\L$-structure with domain $A$.
+Take any $j_0:\free(\phi)\setminus \bm{x}\to A$.
+We will define an $\L'$ structure.
+\begin{equation}
+\M'_{j_0}(s) =
+\begin{cases}
+\M'_{}(s) \text{ for } s\in \mathscr{P}\cup \mathscr{F},\\
+\big(A^k\ni\bm{a}\mapsto\phi^{M, l\cfrac{\bm{a}}{\bm{x}}}\big) \text{ for } s = q'.
+\end{cases}
+\end{equation}
+Where $l: \V\to A$ is some fixed extension of $j_0$ (note that choice of $l$ does not matter for the above definition).
+Take any $j:\V\to A$ which is an extension of $j_0$. Since $\models\psi'$, we have 
+$M'_{j_0}, j\models\psi'$.
+Note that
+\begin{equation}
+q'(\bm{x})^{M'_{j_0}, j} = (q')^{M'_{j_0}}(\bm{x}^{M'_{j_0}, j})
+= \phi^{M'_{j_0}, l\cfrac{\bm{x}^{M'_{j_0}, j}}{\bm{x}}}.
+\end{equation}
+
+Since $l\cfrac{\bm{x}^{M'_{j_0}, j}}{\bm{x}}$ 
+and $j\cfrac{\bm{x}^{M'_{j_0}, j}}{\bm{x}}$ 
+agrees on $\free(\phi)$, by Theorem \ref{signature-of-formula} we have
+
+\begin{equation}
+\phi^{M'_{j_0}, l\cfrac{\bm{x}^{M'_{j_0}, j}}{\bm{x}}} = \phi^{M'_{j_0}, j\cfrac{\bm{x}^{M'_{j_0}, j}}{\bm{x}}} = \phi^{M'_{j_0}, j}.
+\end{equation}
+
+We have shown that 
+\begin{equation}
+q'(\bm{x})^{M'_{j_0}, j} = \phi^{M'_{j_0}, j}.
+\end{equation}
+
+Thus by Theorem \ref{predicate-substitution-theorem}, we have 
+$M'_{j_0}, j\models \psi'(q(\bm{x})/\phi)$. Note that $\psi'(q'(\bm{x})/\phi) \sxeq \psi(q(\bm{x})/\phi)$ and therefore $\psi'(q'(\bm{x})/\phi)\in\F(\L)$. Then by construction of $M'_{j_0}$, we have $M, j\models \psi'(q'(\bm{x})/\phi)$, and consequently
+\begin{equation}
+\label{predicate-substitution-for-j}
+M, j\models \psi(q(\bm{x})/\phi).
+\end{equation}  
+Since $j_0:\free(\phi)\setminus \bm{x}\to A$ was arbitrarly chosen, (\ref{predicate-substitution-for-j}) holds for arbirary $j:\V\to A$. This completes the proof.
 \end{proof}
 
 \end{document}

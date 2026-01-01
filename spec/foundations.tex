@@ -978,9 +978,68 @@ Since $j_0:\free(\phi)\setminus \bm{x}\to A$ was arbitrarly chosen, (\ref{predic
 
 \section{Rules Preliminaries}
 
+\begin{theorem}[\textbf{modus ponens}]
+\label{modus-ponens}
+Let $\L = (\mathscr{P}, \mathscr{F}, \arity)$ be a signature of a language and let $\Gamma \subseteq \F(\L)$. Let $\alpha, \beta\in\F(\L)$. If $\Gamma\models \alpha$ and $\Gamma\models \alpha \to \beta$, then $\Gamma\models \beta$.
+\end{theorem}
+
+\begin{proof}
+Assume $\Gamma\models \alpha$ and $\Gamma\models \alpha \to \beta$.
+
+Take any non-empty domain $A$ and any $\L$-structure $\M$ with domain $A$, and any $j:\V\to A$ such that $\M, j\models \gamma$ for all $\gamma\in\Gamma$. We need to show that $\M, j\models \beta$.
+
+Since $\Gamma\models \alpha$ and $\M, j\models \gamma$ for all $\gamma\in\Gamma$, we have $\M, j\models \alpha$, which means $\alpha^{\M, j} = 1$.
+
+Since $\Gamma\models \alpha \to \beta$ and $\M, j\models \gamma$ for all $\gamma\in\Gamma$, we have $\M, j\models \alpha \to \beta$, which means $(\alpha \to \beta)^{\M, j} = 1$.
+
+By the definition of formula evaluation for implication,
+\begin{equation}
+(\alpha \to \beta)^{\M, j} = 1 - \alpha^{\M, j}(1 - \beta^{\M, j}) = 1.
+\end{equation}
+
+Since $\alpha^{\M, j} = 1$, we have
+\begin{equation}
+1 - 1 \cdot (1 - \beta^{\M, j}) = 1,
+\end{equation}
+which simplifies to $1 - (1 - \beta^{\M, j}) = 1$, hence $\beta^{\M, j} = 1$.
+
+Therefore, $\M, j\models \beta$. Since this holds for any non-empty domain $A$, any $\L$-structure $\M$ with domain $A$, and any $j:\V\to A$ such that $\M, j\models \gamma$ for all $\gamma\in\Gamma$, we conclude that $\Gamma\models \beta$.
+\end{proof}
+
+\begin{theorem}[\textbf{generalization}]
+\label{generalization}
+Let $\L = (\mathscr{P}, \mathscr{F}, \arity)$ be a signature of a language and let $\Gamma \subseteq \F(\L)$. Let $v\in\V$ and $\phi\in\B(\L)$. If $v\not\in\free(\gamma)$ for all $\gamma\in\Gamma$ and $\Gamma\models \phi$, then $\Gamma\models \forall v. \phi$.
+\end{theorem}
+
+\begin{proof}
+Assume $v\not\in\free(\gamma)$ for all $\gamma\in\Gamma$ and $\Gamma\models \phi$.
+
+Take any non-empty domain $A$ and any $\L$-structure $\M$ with domain $A$, and any $j:\V\to A$ such that $\M, j\models \gamma$ for all $\gamma\in\Gamma$. We need to show that $\M, j\models \forall v. \phi$.
+
+By the definition of formula evaluation for universal quantification,
+\begin{equation}
+(\forall v. \phi)^{\M, j} = \prod_{a\in A} \phi^{\M, j\cfrac{a}{v}}.
+\end{equation}
+
+We need to show that $\phi^{\M, j\cfrac{a}{v}} = 1$ for all $a\in A$.
+
+Take any $a\in A$. Since $v\not\in\free(\gamma)$ for all $\gamma\in\Gamma$, by Theorem \ref{signature-of-formula}, we have $\gamma^{\M, j} = \gamma^{\M, j\cfrac{a}{v}}$ for all $\gamma\in\Gamma$.
+
+Therefore, $\M, j\cfrac{a}{v}\models \gamma$ for all $\gamma\in\Gamma$.
+
+Since $\Gamma\models \phi$ and $\M, j\cfrac{a}{v}\models \gamma$ for all $\gamma\in\Gamma$, we have $\M, j\cfrac{a}{v}\models \phi$, which means $\phi^{\M, j\cfrac{a}{v}} = 1$.
+
+This holds for all $a\in A$, therefore
+\begin{equation}
+(\forall v. \phi)^{\M, j} = \prod_{a\in A} \phi^{\M, j\cfrac{a}{v}} = \prod_{a\in A} 1 = 1.
+\end{equation}
+
+Hence $\M, j\models \forall v. \phi$. Since this holds for any non-empty domain $A$, any $\L$-structure $\M$ with domain $A$, and any $j:\V\to A$ such that $\M, j\models \gamma$ for all $\gamma\in\Gamma$, we conclude that $\Gamma\models \forall v. \phi$.
+\end{proof}
+
 \begin{theorem}
 \label{modus-ponens-from-def}
-Let $\L=(\mathscr{P}, \mathscr{F}, \arity)$ be a signature of a language and let $q\in \mathscr{P}$. Let $\bm{x}\in \dis{\V}{k}$. Let $\Gamma\subset \F(\L)$ and $\psi, \phi\in \F(\L)$, such that $q$ does not occure in any formula from the set $\Gamma \cup \{\psi, \phi\}$. Then
+Let $\L=(\mathscr{P}, \mathscr{F}, \arity)$ be a signature of a language and let $q\in \mathscr{P}$. Let $\bm{x}\in \dis{\V}{k}$. Let $\Gamma\subset \F(\L)$ and $\psi, \phi\in \F(\L)$, such that $q$ does not occur in any formula from the set $\Gamma \cup \{\psi, \phi\}$. Then
 \begin{equation}
 \Gamma\models (q(\bm{x}) \liff \phi) \to \psi \implies \Gamma\models \psi.
 \end{equation}

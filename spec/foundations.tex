@@ -1039,18 +1039,18 @@ Hence $\M, j\models \forall v. \phi$. And since $j:\V\to A$ was arbitrary, then 
 
 \begin{theorem}
 \label{modus-ponens-from-def}
-Let $\L=(\mathscr{P}, \mathscr{F}, \arity)$ be a signature of a language and let $q\in \mathscr{P}$. Let $\phi, \psi\in\F(\L)$ and $q$ occurse in neither $\phi$ nor $\psi$. Let $\bm{x}\in \dis{\V}{k}$. Let $A$ be any non-empty mathematical domain and $j:\V\to A$. If for any $\L$-structre $\M$ with domain $A$, we have 
-$\M, j\models (q(\bm{x}) \liff \phi) \to \psi$, then for any $\L$-structre $\M$ with domain $A$, we have $\M, j\models \psi$.
+Let $\L=(\mathscr{P}, \mathscr{F}, \arity)$ be a signature of a language and let $q\in \mathscr{P}$. Let $\phi, \psi\in\F(\L)$ and $\Gamma\subset\F(\L)$ such that there is no occurence of $q$ in set of formulas $\Gamma \cup \{\phi, \psi\}$. Let $\bm{x}\in \dis{\V}{k}$. Let $A$ be an non-empty mathematical domain and $j:\V\to A$. If for any $\L$-structre $\M$ with domain $A$ such that $\M, j\models \Gamma$, we have 
+$\M, j\models (q(\bm{x}) \liff \phi) \to \psi$, then for any $\L$-structre $\M$ with domain $A$ such that $\M, j\models \Gamma$, we have $\M, j\models \psi$.
 \end{theorem}
 
 \begin{proof}
-Assume that for any $\L$-structre $\M$ with domain $A$, we have
+Assume that for any $\L$-structre $\M$ with domain $A$ such that $\M, j\models \Gamma$, we have
 \begin{equation}
 \label{modus-ponens-from-def-assumption}
 \M, j\models (q(\bm{x}) \liff \phi) \to \psi.
 \end{equation}
 
-Take an arbitrary $\L$-structre $\M$ with domain $A$. We will modify the structure $\M$ to create a new structure $\M'$ that differs only in the interpretation of $q$. Namely, 
+Take an arbitrary $\L$-structre $\M$ with domain $A$ such that $\M, j\models \Gamma$. We will modify the structure $\M$ to create a new structure $\M'$ that differs only in the interpretation of $q$. Namely, 
 \begin{equation}
 (q)^{\M'}(\bm{a}) = \phi^{\M, j\cfrac{\bm{a}}{\bm{x}}}.
 \end{equation}
@@ -1068,11 +1068,11 @@ Since by Definition \ref{term-eval-def} (term evaluation), we have $\bm{x}^{\M',
 = \phi^{M, j}.
 \end{equation}
 
-Hence $q(\bm{x})^{\M', j} = \phi^{M, j}$. Since $q$ does not occur in $\phi$, 
-we have $\phi^{M, j} = \phi^{M, j}$ and consequently $q(\bm{x})^{\M', j} = \phi^{M', j}$. By Theorem \ref{biconditional-evaluation} this is the same as $(q(\bm{x}) \liff \phi)^{\M', j} = 1$.
+Hence $q(\bm{x})^{\M', j} = \phi^{\M, j}$. Since $q$ does not occur in $\phi$, 
+we have $\phi^{\M, j} = \phi^{\M', j}$ and consequently $q(\bm{x})^{\M', j} = \phi^{\M', j}$. By Theorem \ref{biconditional-evaluation} this is the same as $(q(\bm{x}) \liff \phi)^{\M', j} = 1$.
 
 
-Now, by assumption (\ref{modus-ponens-from-def-assumption}), we have $\M', j\models (q(\bm{x}) \liff \phi) \to \psi$, which is the same as
+Since there is no occurence of $q$ in any formula from $\Gamma$, we have $\M', j\models \Gamma$ and thus by assumption (\ref{modus-ponens-from-def-assumption}), we have $\M', j\models (q(\bm{x}) \liff \phi) \to \psi$, which is the same as
 \begin{equation}
 ((q(\bm{x}) \liff \phi) \to \psi)^{\M', j} = 1.
 \end{equation}
@@ -1082,7 +1082,7 @@ This means
 1 - (q(\bm{x}) \liff \phi)^{\M', j}(1 - \psi^{\M', j}) = 1.
 \end{equation}
 
-Since $(q(\bm{x}) \liff \phi)^{\M', j} = 1$, we have
+But since $(q(\bm{x}) \liff \phi)^{\M', j} = 1$, we have
 \begin{equation}
 1 - 1 \cdot (1 - \psi^{\M', j}) = 1,
 \end{equation}

@@ -410,7 +410,7 @@ Let $\L = (\mathscr{P}, \mathscr{F}, \arity)$ be a signature of a language and $
 \end{equation}
 \end{corollary}
 
-\begin{definition} [\textbf{model}]
+\begin{definition} [\textbf{interpretation}]
 Let $\L = (\mathscr{P}, \mathscr{F}, \arity)$ be a signature of a language and $A$ be an arbitrary mathematical domain, let $\M$ be an $\L$-structure with domain $A$ and $j:\V\to A$. Let $\phi\in\F(\L)$, then
 
 \begin{equation}
@@ -419,8 +419,20 @@ Let $\L = (\mathscr{P}, \mathscr{F}, \arity)$ be a signature of a language and $
 
 \end{definition}
 
+\begin{definition} [\textbf{model}]
+Let $\L = (\mathscr{P}, \mathscr{F}, \arity)$ and let $\M$ be an $\L$-structure. Let $\phi\in\F(\L)$.
+We define
+
+\begin{equation}
+\M \models \phi
+\end{equation}
+
+iff for any assignment $j:\V\to A$, we have $M, j\models \phi$.
+
+\end{definition}
+
 \begin{definition}[\textbf{semantic consequence}]
-Let $\L = (\mathscr{P}, \mathscr{F}, \arity)$ be a signature of a language and let $\Gamma \subseteq \F(\L)$ and $\phi\in\F(\L)$. We define that $\Gamma \models \phi$ iff for any non-empty domain $A$ and any $\L$-structure $\M$ with domain $A$, and any $j:\V\to A$, if $\M, j\models \psi$ for all $\psi\in\Gamma$, then $\M, j\models \phi$.
+Let $\L = (\mathscr{P}, \mathscr{F}, \arity)$ be a signature of a language and let $\Gamma \subset \F(\L)$ and $\phi\in\F(\L)$. We define that $\Gamma \models \phi$ iff for any $\L$-structure $\M$, if $\M\models \psi$ for all $\psi\in\Gamma$, then $\M\models \phi$.
 \end{definition}
 
 \begin{definition}[\textbf{tautology}]
@@ -935,7 +947,7 @@ $\models \psi(q(\bm{x})/\phi)$.
 Let's introduce a new predicate symbol $q'$ such that $q'\not\in \mathscr{P}$.
 Let $\L'=(\mathscr{P}\cup\{q'\}, \mathscr{F}, \arity')$ such that $\arity'$ is an extension of $\arity$ such that $\arity'(q') = \arity(q)$. Let $k = \arity(q)$. Let $\psi'$ be $\psi$ with each $q$ symbol replaced by $q'$. Since $\models \psi$, also $\models \psi'$.
 Take any non-empty domain $A$.
-Take any $\L$-structure with domain $A$.
+Take any $\L$-structure $\M$ with domain $A$.
 Take any $j_0:\free(\phi)\setminus \bm{x}\to A$.
 We will define an $\L'$ structure.
 \begin{equation}
@@ -980,17 +992,13 @@ Since $j_0:\free(\phi)\setminus \bm{x}\to A$ was arbitrarly chosen, (\ref{predic
 
 \begin{theorem}[\textbf{modus ponens}]
 \label{modus-ponens}
-Let $\L = (\mathscr{P}, \mathscr{F}, \arity)$ be a signature of a language and let $\Gamma \subseteq \F(\L)$. Let $\alpha, \beta\in\F(\L)$. If $\Gamma\models \alpha$ and $\Gamma\models \alpha \to \beta$, then $\Gamma\models \beta$.
+Let  $\L = (\mathscr{P}, \mathscr{F}, \arity)$ be a signature of a language and $A$ be an arbitrary mathematical domain. Let $\M$ be an $\L$-structure with domain $A$ and $j:\V\to A$ be an assignment Let $\alpha, \beta\in\F(\L)$. If $\M, j\models \alpha$ and $\M, j\models \alpha \to \beta$, then $\M,j\models \beta$.
 \end{theorem}
 
 \begin{proof}
-Assume $\Gamma\models \alpha$ and $\Gamma\models \alpha \to \beta$.
+We have $\M, j\models \alpha$, which means $\alpha^{\M, j} = 1$.
 
-Take any non-empty domain $A$ and any $\L$-structure $\M$ with domain $A$, and any $j:\V\to A$ such that $\M, j\models \gamma$ for all $\gamma\in\Gamma$. We need to show that $\M, j\models \beta$.
-
-Since $\Gamma\models \alpha$ and $\M, j\models \gamma$ for all $\gamma\in\Gamma$, we have $\M, j\models \alpha$, which means $\alpha^{\M, j} = 1$.
-
-Since $\Gamma\models \alpha \to \beta$ and $\M, j\models \gamma$ for all $\gamma\in\Gamma$, we have $\M, j\models \alpha \to \beta$, which means $(\alpha \to \beta)^{\M, j} = 1$.
+Since $\Gamma\models \alpha \to \beta$, we have $\M, j\models \alpha \to \beta$, which means $(\alpha \to \beta)^{\M, j} = 1$.
 
 By the definition of formula evaluation for implication,
 \begin{equation}
@@ -1003,87 +1011,68 @@ Since $\alpha^{\M, j} = 1$, we have
 \end{equation}
 which simplifies to $1 - (1 - \beta^{\M, j}) = 1$, hence $\beta^{\M, j} = 1$.
 
-Therefore, $\M, j\models \beta$. Since this holds for any non-empty domain $A$, any $\L$-structure $\M$ with domain $A$, and any $j:\V\to A$ such that $\M, j\models \gamma$ for all $\gamma\in\Gamma$, we conclude that $\Gamma\models \beta$.
+Therefore, $\M, j\models \beta$.
 \end{proof}
 
 \begin{theorem}[\textbf{generalization}]
 \label{generalization}
-Let $\L = (\mathscr{P}, \mathscr{F}, \arity)$ be a signature of a language and let $\Gamma \subseteq \F(\L)$. Let $v\in\V$ and $\phi\in\B(\L)$. If $v\not\in\free(\gamma)$ for all $\gamma\in\Gamma$ and $\Gamma\models \phi$, then $\Gamma\models \forall v. \phi$.
+Let $\L = (\mathscr{P}, \mathscr{F}, \arity)$ be a signature of a language and let $\M$ be an $\L$-structure. Let $v\in\V$ and $\phi\in\B(\L)$. If $\M\models \phi$, then $\M\models \forall v. \phi$.
 \end{theorem}
 
 \begin{proof}
-Assume $v\not\in\free(\gamma)$ for all $\gamma\in\Gamma$ and $\Gamma\models \phi$.
-
-Take any non-empty domain $A$ and any $\L$-structure $\M$ with domain $A$, and any $j:\V\to A$ such that $\M, j\models \gamma$ for all $\gamma\in\Gamma$. We need to show that $\M, j\models \forall v. \phi$.
+Take any non-empty domain $A$ and any $\L$-structure $\M$ with domain $A$, such that $\M\models \phi$. Take any $j:\V\to A$. We need to show that $\M, j\models \forall v. \phi$.
 
 By the definition of formula evaluation for universal quantification,
 \begin{equation}
 (\forall v. \phi)^{\M, j} = \prod_{a\in A} \phi^{\M, j\cfrac{a}{v}}.
 \end{equation}
 
-We need to show that $\phi^{\M, j\cfrac{a}{v}} = 1$ for all $a\in A$.
-
-Take any $a\in A$. Since $v\not\in\free(\gamma)$ for all $\gamma\in\Gamma$, by Theorem \ref{signature-of-formula}, we have $\gamma^{\M, j} = \gamma^{\M, j\cfrac{a}{v}}$ for all $\gamma\in\Gamma$.
-
-Therefore, $\M, j\cfrac{a}{v}\models \gamma$ for all $\gamma\in\Gamma$.
-
-Since $\Gamma\models \phi$ and $\M, j\cfrac{a}{v}\models \gamma$ for all $\gamma\in\Gamma$, we have $\M, j\cfrac{a}{v}\models \phi$, which means $\phi^{\M, j\cfrac{a}{v}} = 1$.
+Since $\M\models \phi$, we have $\M, j\cfrac{a}{v}\models \phi$, which means $\phi^{\M, j\cfrac{a}{v}} = 1$.
 
 This holds for all $a\in A$, therefore
 \begin{equation}
 (\forall v. \phi)^{\M, j} = \prod_{a\in A} \phi^{\M, j\cfrac{a}{v}} = \prod_{a\in A} 1 = 1.
 \end{equation}
 
-Hence $\M, j\models \forall v. \phi$. Since this holds for any non-empty domain $A$, any $\L$-structure $\M$ with domain $A$, and any $j:\V\to A$ such that $\M, j\models \gamma$ for all $\gamma\in\Gamma$, we conclude that $\Gamma\models \forall v. \phi$.
+Hence $\M, j\models \forall v. \phi$. And since $j:\V\to A$ was arbitrary, then $\M\models\forall v. \phi$.
 \end{proof}
 
 \begin{theorem}
 \label{modus-ponens-from-def}
-Let $\L=(\mathscr{P}, \mathscr{F}, \arity)$ be a signature of a language and let $q\in \mathscr{P}$. Let $\bm{x}\in \dis{\V}{k}$. Let $\Gamma\subset \F(\L)$ and $\psi, \phi\in \F(\L)$, such that $q$ does not occur in any formula from the set $\Gamma \cup \{\psi, \phi\}$. Then
-\begin{equation}
-\Gamma\models (q(\bm{x}) \liff \phi) \to \psi \implies \Gamma\models \psi.
-\end{equation}
+Let $\L=(\mathscr{P}, \mathscr{F}, \arity)$ be a signature of a language and let $q\in \mathscr{P}$. Let $\phi, \psi\in\F(\L)$ and $q$ occurse in neither $\phi$ nor $\psi$. Let $\bm{x}\in \dis{\V}{k}$. Let $A$ be any non-empty mathematical domain and $j:\V\to A$. If for any $\L$-structre $\M$ with domain $A$, we have 
+$\M, j\models (q(\bm{x}) \liff \phi) \to \psi$, then for any $\L$-structre $\M$ with domain $A$, we have $\M, j\models \psi$.
 \end{theorem}
 
 \begin{proof}
-Assume $\Gamma\models (q(\bm{x}) \liff \phi) \to \psi$.
-
-Take any non-empty domain $A$ and any $\L$-structure $\M$ with domain $A$, and any $j:\V\to A$ such that $\M, j\models \gamma$ for all $\gamma\in\Gamma$. We need to show that $\M, j\models \psi$.
-
-Since $\Gamma\models (q(\bm{x}) \liff \phi) \to \psi$ and $\M, j\models \gamma$ for all $\gamma\in\Gamma$, we have
+Assume that for any $\L$-structre $\M$ with domain $A$, we have
 \begin{equation}
+\label{modus-ponens-from-def-assumption}
 \M, j\models (q(\bm{x}) \liff \phi) \to \psi.
 \end{equation}
 
-By the definition of formula evaluation for implication,
-\begin{equation}
-((q(\bm{x}) \liff \phi) \to \psi)^{\M, j} = 1 - (q(\bm{x}) \liff \phi)^{\M, j}(1 - \psi^{\M, j}) = 1.
-\end{equation}
-
-Now we will modify the structure $\M$ to create a new structure $\M'$ that differs only in the interpretation of $q$. Since $q$ does not occur in any formula from $\Gamma \cup \{\psi, \phi\}$, we can define $\M'$ such that for any $\bm{a}\in A^k$:
+Take an arbitrary $\L$-structre $\M$ with domain $A$. We will modify the structure $\M$ to create a new structure $\M'$ that differs only in the interpretation of $q$. Namely, 
 \begin{equation}
 (q)^{\M'}(\bm{a}) = \phi^{\M, j\cfrac{\bm{a}}{\bm{x}}}.
 \end{equation}
 
 For all other predicates and functions, $\M'$ agrees with $\M$.
 
-Since $q$ does not occur in any formula from $\Gamma$, for any $\gamma\in\Gamma$ we have $\gamma^{\M, j} = \gamma^{\M', j}$. Therefore, $\M', j\models \gamma$ for all $\gamma\in\Gamma$.
-
 With the structure $\M'$, we have
 \begin{equation}
 q(\bm{x})^{\M', j} = (q)^{\M'}(\bm{x}^{\M', j}) = \phi^{\M, j\cfrac{\bm{x}^{\M', j}}{\bm{x}}}.
 \end{equation}
-Since by Definition \ref{term-eval-def}, we have $\bm{x}^{\M', j} = \bm{x}^{\M, j}$, thereforre
+Since by Definition \ref{term-eval-def} (term evaluation), we have $\bm{x}^{\M', j} = \bm{x}^{\M, j}$, thereforre
 
 \begin{equation}
 \phi^{\M, j\cfrac{\bm{x}^{\M', j}}{\bm{x}}} = \phi^{\M, j\cfrac{\bm{x}^{\M, j}}{\bm{x}}}
 = \phi^{M, j}.
 \end{equation}
 
-Hence $q(\bm{x})^{\M', j} = \phi^{M, j}$ and this by Theorem \ref{biconditional-evaluation} means that $(q(\bm{x}) \liff \phi)^{\M', j} = 1$.
+Hence $q(\bm{x})^{\M', j} = \phi^{M, j}$. Since $q$ does not occur in $\phi$, 
+we have $\phi^{M, j} = \phi^{M, j}$ and consequently $q(\bm{x})^{\M', j} = \phi^{M', j}$. By Theorem \ref{biconditional-evaluation} this is the same as $(q(\bm{x}) \liff \phi)^{\M', j} = 1$.
 
 
-Now, since $\Gamma\models (q(\bm{x}) \liff \phi) \to \psi$ and $\M', j\models \gamma$ for all $\gamma\in\Gamma$, we have
+Now, by assumption (\ref{modus-ponens-from-def-assumption}), we have $\M', j\models (q(\bm{x}) \liff \phi) \to \psi$, which is the same as
 \begin{equation}
 ((q(\bm{x}) \liff \phi) \to \psi)^{\M', j} = 1.
 \end{equation}
@@ -1098,8 +1087,6 @@ Since $(q(\bm{x}) \liff \phi)^{\M', j} = 1$, we have
 1 - 1 \cdot (1 - \psi^{\M', j}) = 1,
 \end{equation}
 which implies $\psi^{\M', j} = 1$. And since $q$ does not occur in $\psi$, $\psi^{\M, j} = 1$, so $\M, j\models \psi$.
-
-Since this holds for any non-empty domain $A$, any $\L$-structure $\M$ with domain $A$, and any $j:\V\to A$ such that $\M, j\models \gamma$ for all $\gamma\in\Gamma$, we conclude that $\Gamma\models \psi$.
 \end{proof}
 
 \end{document}

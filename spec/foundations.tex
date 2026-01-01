@@ -42,6 +42,7 @@
 \newcommand{\sxeq}{\doteq}
 \newcommand{\elev}{\text{elev}}
 \newcommand{\free}{\text{free}}
+\newcommand{\liff}{\leftrightarrow}
 \newcommand{\var}{\text{var}}
 \newcommand{\bound}{\text{bound}}
 \renewcommand{\axiom}{\text{Axiom}}
@@ -322,6 +323,7 @@ Let $A$ be an arbitrary mathematical domain. Then $j: \V \to A$ is called a vari
 \end{definition}
 
 \begin{definition}[\textbf{recursive: term evaluation}]
+\label{term-eval-def}
 Let $\L = (\mathscr{P}, \mathscr{F}, \arity)$ be a signature of a language and $A$ be an arbitrary mathematical domain, let $\M$ be an $\L$-structure and $j:\V\to A$.\\ 
 
 Let $\tau\in\T(\L)$.
@@ -417,8 +419,12 @@ Let $\L = (\mathscr{P}, \mathscr{F}, \arity)$ be a signature of a language and $
 
 \end{definition}
 
+\begin{definition}[\textbf{semantic consequence}]
+Let $\L = (\mathscr{P}, \mathscr{F}, \arity)$ be a signature of a language and let $\Gamma \subseteq \F(\L)$ and $\phi\in\F(\L)$. We define that $\Gamma \models \phi$ iff for any non-empty domain $A$ and any $\L$-structure $\M$ with domain $A$, and any $j:\V\to A$, if $\M, j\models \psi$ for all $\psi\in\Gamma$, then $\M, j\models \phi$.
+\end{definition}
+
 \begin{definition}[\textbf{tautology}]
-Let $\L = (\mathscr{P}, \mathscr{F}, \arity)$ be a signature of a language and let $\phi\in\F(\L)$.We define that $\models \phi$ iff for any non-empty domain $A$ and any $\L$-structure $\M$ with domain $A$, and any $j:\V\to A$ we have $\M, j\models \phi$.
+Let $\L = (\mathscr{P}, \mathscr{F}, \arity)$ be a signature of a language and let $\phi\in\F(\L)$. We define that $\models \phi$ iff $\emptyset \models \phi$.
 \end{definition}
 
 \begin{lemma}
@@ -490,6 +496,151 @@ Thus $j_1\cfrac{a}{x}(\free(\psi)) = j_2\cfrac{a}{x}(\free(\psi))$. By inductive
 \end{equation*}
 
 This completes the proof by structural induction.
+\end{proof}
+
+\section{Syntactic Sugar}
+
+In this section, we introduce common logical connectives as syntactic abbreviations of formulas using implication and the false predicate $\false$.
+
+\begin{definition}[\textbf{logical connectives as syntactic sugar}]
+Let $\L = (\mathscr{P}, \mathscr{F}, \arity)$ be a signature of a language and let $\alpha, \beta\in\B(\L)$. We define the following syntactic abbreviations:
+\begin{align}
+\sim\alpha &\defeq \alpha \to \false, \\
+\alpha \land \beta &\defeq (\alpha \to (\beta \to \false)) \to \false, \\
+\alpha \lor \beta &\defeq (\alpha \to \false) \to \beta, \\
+\alpha \liff \beta &\defeq (\alpha \to \beta) \land (\beta \to \alpha).
+\end{align}
+
+For any $v\in\V$ and $\psi\in\B(\L)$, we also define:
+\begin{equation}
+\exists v. \psi \defeq \sim(\forall v. \sim\psi).
+\end{equation}
+\end{definition}
+
+The following theorems characterize the semantic behavior of these connectives.
+
+\begin{theorem}[\textbf{negation evaluation}]
+\label{negation-evaluation}
+Let $\L = (\mathscr{P}, \mathscr{F}, \arity)$ be a signature of a language and $A$ be an arbitrary mathematical domain, let $\M$ be an $\L$-structure with domain $A$ and $j:\V\to A$. Let $\alpha\in\B(\L)$, then
+\begin{equation}
+(\sim\alpha)^{\M, j} = 1 - \alpha^{\M, j}.
+\end{equation}
+\end{theorem}
+
+\begin{proof}
+By definition, $\sim\alpha \sxeq \alpha \to \false$. By the definition of formula evaluation for implication and the fact that $\false^{\M, j} = 0$,
+\begin{equation}
+(\sim\alpha)^{\M, j} = (\alpha \to \false)^{\M, j} = 1 - \alpha^{\M, j}(1 - \false^{\M, j}) = 1 - \alpha^{\M, j}(1 - 0) = 1 - \alpha^{\M, j}.
+\end{equation}
+\end{proof}
+
+\begin{theorem}[\textbf{conjunction evaluation}]
+\label{conjunction-evaluation}
+Let $\L = (\mathscr{P}, \mathscr{F}, \arity)$ be a signature of a language and $A$ be an arbitrary mathematical domain, let $\M$ be an $\L$-structure with domain $A$ and $j:\V\to A$. Let $\alpha, \beta\in\B(\L)$, then
+\begin{equation}
+(\alpha \land \beta)^{\M, j} = \alpha^{\M, j} \cdot \beta^{\M, j}.
+\end{equation}
+\end{theorem}
+
+\begin{proof}
+By definition, $\alpha \land \beta \sxeq (\alpha \to (\beta \to \false)) \to \false$. By the definition of formula evaluation for implication and the fact that $\false^{\M, j} = 0$,
+\begin{align*}
+(\alpha \land \beta)^{\M, j}
+&= ((\alpha \to (\beta \to \false)) \to \false)^{\M, j} \\
+&= 1 - (\alpha \to (\beta \to \false))^{\M, j}(1 - 0) \\
+&= 1 - (\alpha \to (\beta \to \false))^{\M, j}.
+\end{align*}
+
+Now, expanding the inner implication:
+\begin{align*}
+(\alpha \to (\beta \to \false))^{\M, j}
+&= 1 - \alpha^{\M, j}(1 - (\beta \to \false)^{\M, j}) \\
+&= 1 - \alpha^{\M, j}(1 - (1 - \beta^{\M, j}(1 - 0))) \\
+&= 1 - \alpha^{\M, j}(1 - (1 - \beta^{\M, j})) \\
+&= 1 - \alpha^{\M, j} \cdot \beta^{\M, j}.
+\end{align*}
+
+Therefore,
+\begin{equation}
+(\alpha \land \beta)^{\M, j} = 1 - (1 - \alpha^{\M, j} \cdot \beta^{\M, j}) = \alpha^{\M, j} \cdot \beta^{\M, j}.
+\end{equation}
+\end{proof}
+
+\begin{theorem}[\textbf{disjunction evaluation}]
+\label{disjunction-evaluation}
+Let $\L = (\mathscr{P}, \mathscr{F}, \arity)$ be a signature of a language and $A$ be an arbitrary mathematical domain, let $\M$ be an $\L$-structure with domain $A$ and $j:\V\to A$. Let $\alpha, \beta\in\B(\L)$, then
+\begin{equation}
+(\alpha \lor \beta)^{\M, j} = 1 - (1 - \alpha^{\M, j})(1 - \beta^{\M, j}).
+\end{equation}
+\end{theorem}
+
+\begin{proof}
+By definition, $\alpha \lor \beta \sxeq (\alpha \to \false) \to \beta$. By the definition of formula evaluation for implication:
+\begin{align*}
+(\alpha \lor \beta)^{\M, j}
+&= ((\alpha \to \false) \to \beta)^{\M, j} \\
+&= 1 - (\alpha \to \false)^{\M, j}(1 - \beta^{\M, j}) \\
+&= 1 - (1 - \alpha^{\M, j})(1 - \beta^{\M, j}).
+\end{align*}
+\end{proof}
+
+\begin{theorem}[\textbf{biconditional evaluation}]
+\label{biconditional-evaluation}
+Let $\L = (\mathscr{P}, \mathscr{F}, \arity)$ be a signature of a language and $A$ be an arbitrary mathematical domain, let $\M$ be an $\L$-structure with domain $A$ and $j:\V\to A$. Let $\alpha, \beta\in\B(\L)$, then
+\begin{equation}
+(\alpha \liff \beta)^{\M, j} = 1 \text{ if and only if } \alpha^{\M, j} = \beta^{\M, j}.
+\end{equation}
+\end{theorem}
+
+\begin{proof}
+By definition, $\alpha \liff \beta \sxeq (\alpha \to \beta) \land (\beta \to \alpha)$. By Theorem \ref{conjunction-evaluation},
+\begin{equation}
+(\alpha \liff \beta)^{\M, j} = (\alpha \to \beta)^{\M, j} \cdot (\beta \to \alpha)^{\M, j}.
+\end{equation}
+
+Expanding using the definition of implication:
+\begin{align*}
+(\alpha \liff \beta)^{\M, j}
+&= (1 - \alpha^{\M, j}(1 - \beta^{\M, j}))(1 - \beta^{\M, j}(1 - \alpha^{\M, j})).
+\end{align*}
+
+This product equals 1 if and only if both factors equal 1, which happens if and only if:
+\begin{itemize}
+\item $\alpha^{\M, j}(1 - \beta^{\M, j}) = 0$, and
+\item $\beta^{\M, j}(1 - \alpha^{\M, j}) = 0$.
+\end{itemize}
+
+These conditions hold if and only if $\alpha^{\M, j} = \beta^{\M, j}$.
+\end{proof}
+
+\begin{theorem}[\textbf{existential quantifier evaluation}]
+\label{existential-evaluation}
+Let $\L = (\mathscr{P}, \mathscr{F}, \arity)$ be a signature of a language and $A$ be an arbitrary mathematical domain, let $\M$ be an $\L$-structure with domain $A$ and $j:\V\to A$. Let $v\in\V$ and $\psi\in\B(\L)$, then
+\begin{equation}
+(\exists v. \psi)^{\M, j} = 1 - \prod_{a\in A} (1 - \psi^{\M, j\cfrac{a}{v}}).
+\end{equation}
+\end{theorem}
+
+\begin{proof}
+By definition, $\exists v. \psi \sxeq \sim(\forall v. \sim\psi)$. By Theorem \ref{negation-evaluation},
+\begin{equation}
+(\exists v. \psi)^{\M, j} = 1 - (\forall v. \sim\psi)^{\M, j}.
+\end{equation}
+
+By the definition of formula evaluation for universal quantification,
+\begin{equation}
+(\forall v. \sim\psi)^{\M, j} = \prod_{a\in A} (\sim\psi)^{\M, j\cfrac{a}{v}}.
+\end{equation}
+
+By Theorem \ref{negation-evaluation}, for each $a\in A$,
+\begin{equation}
+(\sim\psi)^{\M, j\cfrac{a}{v}} = 1 - \psi^{\M, j\cfrac{a}{v}}.
+\end{equation}
+
+Therefore,
+\begin{equation}
+(\exists v. \psi)^{\M, j} = 1 - \prod_{a\in A} (1 - \psi^{\M, j\cfrac{a}{v}}).
+\end{equation}
 \end{proof}
 
 \section{Substitutions}
@@ -823,6 +974,73 @@ $M'_{j_0}, j\models \psi'(q(\bm{x})/\phi)$. Note that $\psi'(q'(\bm{x})/\phi) \s
 M, j\models \psi(q(\bm{x})/\phi).
 \end{equation}  
 Since $j_0:\free(\phi)\setminus \bm{x}\to A$ was arbitrarly chosen, (\ref{predicate-substitution-for-j}) holds for arbirary $j:\V\to A$. This completes the proof.
+\end{proof}
+
+\section{Rules Preliminaries}
+
+\begin{theorem}
+\label{modus-ponens-from-def}
+Let $\L=(\mathscr{P}, \mathscr{F}, \arity)$ be a signature of a language and let $q\in \mathscr{P}$. Let $\bm{x}\in \dis{\V}{k}$. Let $\Gamma\subset \F(\L)$ and $\psi, \phi\in \F(\L)$, such that $q$ does not occure in any formula from the set $\Gamma \cup \{\psi, \phi\}$. Then
+\begin{equation}
+\Gamma\models (q(\bm{x}) \liff \phi) \to \psi \implies \Gamma\models \psi.
+\end{equation}
+\end{theorem}
+
+\begin{proof}
+Assume $\Gamma\models (q(\bm{x}) \liff \phi) \to \psi$.
+
+Take any non-empty domain $A$ and any $\L$-structure $\M$ with domain $A$, and any $j:\V\to A$ such that $\M, j\models \gamma$ for all $\gamma\in\Gamma$. We need to show that $\M, j\models \psi$.
+
+Since $\Gamma\models (q(\bm{x}) \liff \phi) \to \psi$ and $\M, j\models \gamma$ for all $\gamma\in\Gamma$, we have
+\begin{equation}
+\M, j\models (q(\bm{x}) \liff \phi) \to \psi.
+\end{equation}
+
+By the definition of formula evaluation for implication,
+\begin{equation}
+((q(\bm{x}) \liff \phi) \to \psi)^{\M, j} = 1 - (q(\bm{x}) \liff \phi)^{\M, j}(1 - \psi^{\M, j}) = 1.
+\end{equation}
+
+Now we will modify the structure $\M$ to create a new structure $\M'$ that differs only in the interpretation of $q$. Since $q$ does not occur in any formula from $\Gamma \cup \{\psi, \phi\}$, we can define $\M'$ such that for any $\bm{a}\in A^k$:
+\begin{equation}
+(q)^{\M'}(\bm{a}) = \phi^{\M, j\cfrac{\bm{a}}{\bm{x}}}.
+\end{equation}
+
+For all other predicates and functions, $\M'$ agrees with $\M$.
+
+Since $q$ does not occur in any formula from $\Gamma$, for any $\gamma\in\Gamma$ we have $\gamma^{\M, j} = \gamma^{\M', j}$. Therefore, $\M', j\models \gamma$ for all $\gamma\in\Gamma$.
+
+With the structure $\M'$, we have
+\begin{equation}
+q(\bm{x})^{\M', j} = (q)^{\M'}(\bm{x}^{\M', j}) = \phi^{\M, j\cfrac{\bm{x}^{\M', j}}{\bm{x}}}.
+\end{equation}
+Since by Definition \ref{term-eval-def}, we have $\bm{x}^{\M', j} = \bm{x}^{\M, j}$, thereforre
+
+\begin{equation}
+\phi^{\M, j\cfrac{\bm{x}^{\M', j}}{\bm{x}}} = \phi^{\M, j\cfrac{\bm{x}^{\M, j}}{\bm{x}}}
+= \phi^{M, j}.
+\end{equation}
+
+Hence $q(\bm{x})^{\M', j} = \phi^{M, j}$ and this by Theorem \ref{biconditional-evaluation} means that $(q(\bm{x}) \liff \phi)^{\M', j} = 1$.
+
+
+Now, since $\Gamma\models (q(\bm{x}) \liff \phi) \to \psi$ and $\M', j\models \gamma$ for all $\gamma\in\Gamma$, we have
+\begin{equation}
+((q(\bm{x}) \liff \phi) \to \psi)^{\M', j} = 1.
+\end{equation}
+
+This means
+\begin{equation}
+1 - (q(\bm{x}) \liff \phi)^{\M', j}(1 - \psi^{\M', j}) = 1.
+\end{equation}
+
+Since $(q(\bm{x}) \liff \phi)^{\M', j} = 1$, we have
+\begin{equation}
+1 - 1 \cdot (1 - \psi^{\M', j}) = 1,
+\end{equation}
+which implies $\psi^{\M', j} = 1$. And since $q$ does not occur in $\psi$, $\psi^{\M, j} = 1$, so $\M, j\models \psi$.
+
+Since this holds for any non-empty domain $A$, any $\L$-structure $\M$ with domain $A$, and any $j:\V\to A$ such that $\M, j\models \gamma$ for all $\gamma\in\Gamma$, we conclude that $\Gamma\models \psi$.
 \end{proof}
 
 \end{document}

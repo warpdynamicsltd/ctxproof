@@ -59,6 +59,7 @@
 \newcommand{\A}{\mathcal{A}}
 \newcommand{\B}{\mathcal{B}}
 \newcommand{\C}{\mathcal{C}}
+\newcommand{\MM}{\mathscr{M}}
 \renewcommand{\S}{\mathcal{S}}
 \newcommand{\T}{\mathcal{T}}
 \renewcommand{\root}{\text{root}}
@@ -71,6 +72,7 @@
 \newcommand{\V}{\mathscr{V}}
 \newcommand{\prove}{\vdash}
 \newcommand{\M}{\mathbf{M}}
+\newcommand{\K}{\mathbf{K}}
 \renewcommand{\succ}{\text{S}}
 \newcommand{\shift}{\text{shift}}
 \newcommand{\fixed}{\text{fixed}}
@@ -1038,9 +1040,33 @@ This holds for all $a\in A$, therefore
 Hence $\M, j\models \forall v. \phi$. And since $j:\V\to A$ was arbitrary, then $\M\models\forall v. \phi$.
 \end{proof}
 
+\begin{definition}
+Let $\L = (\mathscr{P}, \mathscr{F}, \arity)$ be a signature of a language and let $\M$ be an $\L$-structure with domain $A$.
+For any $z\in \mathscr{P}\cup\mathscr{F}$,
+\begin{equation}
+\begin{aligned}
+\MM_z(\M) \defeq \{\M': \M' 
+\text{is $\L$-structure with domain $A$} \\
+\text{and $\M'(s) = \M(s)$ for all $s\in(\mathscr{P}\cup \mathscr{F})\setminus \{z\}$ }\}. 
+\end{aligned}
+\end{equation}
+
+
+\end{definition}
+
 \begin{theorem}
 \label{modus-ponens-from-def}
-Let $\L=(\mathscr{P}, \mathscr{F}, \arity)$ be a signature of a language and let $q\in \mathscr{P}$. Let $\phi, \psi\in\F(\L)$ and $\Gamma\subset\F(\L)$ such that there is no occurence of $q$ in a set of formulas $\Gamma \cup \{\phi, \psi\}$. Let $\bm{x}\in \dis{\V}{k}$. Let $A$ be an non-empty mathematical domain and $j:\V\to A$. If for any $\L$-structre $\M$ with domain $A$ such that $\M, j\models \Gamma$, we have 
+Let $\L=(\mathscr{P}, \mathscr{F}, \arity)$ be a signature of a language. Let $k$ be a non-negative integer, let $q\in \mathscr{P}_k$ and $\bm{x}\in \dis{\V}{k}$. Let $\phi, \psi\in\F(\L)$ such that $q$ does not occure in both $\phi$ and $\psi$.
+
+Let $A$ be an non-empty mathematical domain and $j:\V\to A$.
+
+Let $\Gamma\subset\F(\L)$ such that for any $\gamma\in \Gamma$ and for any $\L$-structure $\K$ with domain $A$
+\begin{equation}
+\label{modus-ponens-from-def-q-arbitrary}
+\K,j\models \gamma \implies \K',j\models\gamma \text{ for all $\K'\in \MM_q(\K)$}.
+\end{equation}
+
+If for any $\L$-structre $\M$ with domain $A$ such that $\M, j\models \Gamma$, we have 
 $\M, j\models (q(\bm{x}) \liff \phi) \to \psi$, then for any $\L$-structre $\M$ with domain $A$ such that $\M, j\models \Gamma$, we have $\M, j\models \psi$.
 \end{theorem}
 
@@ -1056,7 +1082,7 @@ Take an arbitrary $\L$-structre $\M$ with domain $A$ such that $\M, j\models \Ga
 (q)^{\M'}(\bm{a}) = \phi^{\M, j\cfrac{\bm{a}}{\bm{x}}}.
 \end{equation}
 
-For all other predicates and functions, $\M'$ agrees with $\M$.
+For all other predicates and functions, $\M'$ agrees with $\M$. Note that $\M'\in\MM_q(M)$. 
 
 With the structure $\M'$, we have
 \begin{equation}
@@ -1073,7 +1099,7 @@ Hence $q(\bm{x})^{\M', j} = \phi^{\M, j}$. Since $q$ does not occur in $\phi$,
 we have $\phi^{\M, j} = \phi^{\M', j}$ and consequently $q(\bm{x})^{\M', j} = \phi^{\M', j}$. By Theorem \ref{biconditional-evaluation} this is the same as $(q(\bm{x}) \liff \phi)^{\M', j} = 1$.
 
 
-Since there is no occurence of $q$ in any formula from $\Gamma$, we have $\M', j\models \Gamma$ and thus by assumption (\ref{modus-ponens-from-def-assumption}), we have $\M', j\models (q(\bm{x}) \liff \phi) \to \psi$, which is the same as
+Since $\M'\in\MM_q(M)$ and by (\ref{modus-ponens-from-def-q-arbitrary}), we have $\M', j\models \Gamma$ and thus by assumption (\ref{modus-ponens-from-def-assumption}), we have $\M', j\models (q(\bm{x}) \liff \phi) \to \psi$, which is the same as
 \begin{equation}
 ((q(\bm{x}) \liff \phi) \to \psi)^{\M', j} = 1.
 \end{equation}

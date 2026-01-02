@@ -154,6 +154,8 @@ Let $S$ be an arbitrary set.
 \item $\dis{S}{} \defeq \bigcup_{k=0}^\infty \dis{S}{k}$.
 \end{enumerate}
 
+Sometimes if not disambiguous, we will treat $s\in \dis{S}{}$ notationally as set, so we will write $s_i\in s$, or for a set $a$, $a \setminus s$, $a\subset s$ etc.
+
 \end{definition}
 
 
@@ -414,6 +416,7 @@ Let $\L = (\mathscr{P}, \mathscr{F}, \arity)$ be a signature of a language and $
 \end{corollary}
 
 \begin{definition} [\textbf{interpretation}]
+\label{interpretation-def}
 Let $\L = (\mathscr{P}, \mathscr{F}, \arity)$ be a signature of a language and $A$ be an arbitrary mathematical domain, let $\M$ be an $\L$-structure with domain $A$ and $j:\V\to A$. Let $\phi\in\F(\L)$, then
 
 \begin{equation}
@@ -1054,7 +1057,7 @@ For any $z\in \mathscr{P}\cup\mathscr{F}$,
 
 \end{definition}
 
-\begin{theorem}
+\begin{lemma}
 \label{modus-ponens-from-def}
 Let $\L=(\mathscr{P}, \mathscr{F}, \arity)$ be a signature of a language. Let $k$ be a non-negative integer, let $q\in \mathscr{P}_k$ and $\bm{x}\in \dis{\V}{k}$. Let $\phi, \psi\in\F(\L)$ such that $q$ does not occure in both $\phi$ and $\psi$.
 
@@ -1068,7 +1071,7 @@ Let $\Gamma\subset\F(\L)$ such that for any $\gamma\in \Gamma$ and for any $\L$-
 
 If for any $\L$-structre $\M$ with domain $A$ such that $\M, j\models \Gamma$, we have 
 $\M, j\models (q(\bm{x}) \liff \phi) \to \psi$, then for any $\L$-structre $\M$ with domain $A$ such that $\M, j\models \Gamma$, we have $\M, j\models \psi$.
-\end{theorem}
+\end{lemma}
 
 \begin{proof}
 Assume that for any $\L$-structre $\M$ with domain $A$ such that $\M, j\models \Gamma$, we have
@@ -1096,24 +1099,86 @@ Since by Definition \ref{term-eval-def} (term evaluation), we have $\bm{x}^{\M',
 \end{equation}
 
 Hence $q(\bm{x})^{\M', j} = \phi^{\M, j}$. Since $q$ does not occur in $\phi$, 
-we have $\phi^{\M, j} = \phi^{\M', j}$ and consequently $q(\bm{x})^{\M', j} = \phi^{\M', j}$. By Theorem \ref{biconditional-evaluation} this is the same as $(q(\bm{x}) \liff \phi)^{\M', j} = 1$.
+we have $\phi^{\M, j} = \phi^{\M', j}$ and consequently $q(\bm{x})^{\M', j} = \phi^{\M', j}$. By Theorem \ref{biconditional-evaluation} this is the same as $(q(\bm{x}) \liff \phi)^{\M', j} = 1$, and by Definition \ref{interpretation-def}, we have $\M', j\models q(\bm{x}) \liff \phi$.
 
 
-Since $\M'\in\MM_q(M)$ and by (\ref{modus-ponens-from-def-q-arbitrary}), we have $\M', j\models \Gamma$ and thus by assumption (\ref{modus-ponens-from-def-assumption}), we have $\M', j\models (q(\bm{x}) \liff \phi) \to \psi$, which is the same as
+Since $\M'\in\MM_q(M)$ and by (\ref{modus-ponens-from-def-q-arbitrary}), we have $\M', j\models \Gamma$ and thus by assumption (\ref{modus-ponens-from-def-assumption}), we have $\M', j\models (q(\bm{x}) \liff \phi) \to \psi$.
+Since $\M', j\models (q(\bm{x}) \liff \phi) \to \psi$ and $\M', j\models q(\bm{x}) \liff \phi$, by Theorem \ref{modus-ponens} we have $\M', j\models \psi$.
+
+And since $q$ does not occur in $\psi$, we have $\psi^{\M', j} = \psi^{\M, j}$, therefore $\M, j\models \psi$.
+\end{proof}
+
+Lemma \ref{modus-ponens-from-def} can be re-formulated in a way which binds it more precisely with semantic consequence, but this is at expense of additional assumption that $\free(\phi)\subset \bm{x}$.
+
+\begin{lemma}
+\label{modus-ponens-from-def-v2}
+Let $\L=(\mathscr{P}, \mathscr{F}, \arity)$ be a signature of a language. Let $k$ be a non-negative integer, let $q\in \mathscr{P}_k$ and $\bm{x}\in \dis{\V}{k}$. Let $\phi, \psi\in\F(\L)$ such that $q$ does not occure in both $\phi$ and $\psi$, and $\free(\phi)\subset \bm{x}$.
+
+Let $\Gamma\subset\F(\L)$ such that for any $\gamma\in \Gamma$ and for any $\L$-structure $\K$
 \begin{equation}
-((q(\bm{x}) \liff \phi) \to \psi)^{\M', j} = 1.
+\label{modus-ponens-from-def-q-arbitrary-v2}
+\K \models \gamma \implies \K'\models\gamma \text{ for all $\K'\in \MM_q(\K)$}.
 \end{equation}
 
-This means
+Then
 \begin{equation}
-1 - (q(\bm{x}) \liff \phi)^{\M', j}(1 - \psi^{\M', j}) = 1.
+\Gamma\models (q(\bm{x}) \liff \phi) \to \psi \implies \Gamma\models \psi.
 \end{equation}
 
-But since $(q(\bm{x}) \liff \phi)^{\M', j} = 1$, we have
+\end{lemma}
+
+\begin{proof}
+Assume $\Gamma\models (q(\bm{x}) \liff \phi) \to \psi$.
+
+Take any $\L$-structure $\M$ with domain $A$ such that $\M\models \Gamma$. We need to show that $\M\models \psi$.
+
+We will construct a new structure $\M'$ that differs from $\M$ only in the interpretation of $q$.
+Fix some $j_0:\V\to A$. 
+Define $\M'$ such that for any $\bm{a}\in A^k$:
 \begin{equation}
-1 - 1 \cdot (1 - \psi^{\M', j}) = 1,
+(q)^{\M'}(\bm{a}) = \phi^{\M, j_0\cfrac{\bm{a}}{\bm{x}}}.
 \end{equation}
-which implies $\psi^{\M', j} = 1$. And since $q$ does not occur in $\psi$, $\psi^{\M, j} = 1$, so $\M, j\models \psi$.
+
+For all other predicates and functions, $\M'$ agrees with $\M$. Note that $\M'\in\MM_q(\M)$.
+
+By condition (\ref{modus-ponens-from-def-q-arbitrary-v2}), since $\M\models \gamma$ for all $\gamma\in\Gamma$ and $\M'\in\MM_q(\M)$, we have $\M'\models \gamma$ for all $\gamma\in\Gamma$. Therefore, $\M'\models \Gamma$.
+
+Since $\Gamma\models (q(\bm{x}) \liff \phi) \to \psi$ and $\M'\models \Gamma$, we have $\M'\models (q(\bm{x}) \liff \phi) \to \psi$.
+
+Take any assignment $j:\V\to A$. We need to show that $\M, j\models \psi$.
+
+In particular, $\M', j\models (q(\bm{x}) \liff \phi) \to \psi$.
+
+Now we show that $\M', j\models q(\bm{x}) \liff \phi$.
+
+By the construction of $\M'$, we have
+\begin{equation}
+q(\bm{x})^{\M', j} = (q)^{\M'}(\bm{x}^{\M', j}) = \phi^{\M, j_0\cfrac{\bm{x}^{\M', j}}{\bm{x}}}.
+\end{equation}
+
+Since by Definition \ref{term-eval-def}, $\bm{x}^{\M', j} = \bm{x}^{\M, j} = j(\bm{x})$, we have
+\begin{equation}
+q(\bm{x})^{\M', j} = \phi^{\M, j_0\cfrac{j(\bm{x})}{\bm{x}}}.
+\end{equation}
+
+Since $\free(\phi)\subset \bm{x}$, by Theorem \ref{signature-of-formula}, the assignment $j_0\cfrac{j(\bm{x})}{\bm{x}}$ and $j$ agree on $\free(\phi)$, so
+\begin{equation}
+\phi^{\M, j_0\cfrac{j(\bm{x})}{\bm{x}}} = \phi^{\M, j}.
+\end{equation}
+
+Since $q$ does not occur in $\phi$, we have $\phi^{\M, j} = \phi^{\M', j}$.
+
+Therefore, $q(\bm{x})^{\M', j} = \phi^{\M', j}$, which by Theorem \ref{biconditional-evaluation} means $(q(\bm{x}) \liff \phi)^{\M', j} = 1$.
+
+Hence $\M', j\models q(\bm{x}) \liff \phi$.
+
+Since $\M', j\models (q(\bm{x}) \liff \phi) \to \psi$ and $\M', j\models q(\bm{x}) \liff \phi$, by Theorem \ref{modus-ponens} we have $\M', j\models \psi$.
+
+Since $q$ does not occur in $\psi$, we have $\psi^{\M', j} = \psi^{\M, j}$, therefore $\M, j\models \psi$.
+
+Since this holds for any assignment $j:\V\to A$, we have $\M\models \psi$.
+
+Since this holds for any $\L$-structure $\M$ such that $\M\models \Gamma$, we conclude that $\Gamma\models \psi$.
 \end{proof}
 
 Next, we will define a relation $\rep{\phi_1}{\phi_2}{\psi_1}{\psi_2}$. The intuition behind is that $\rep{\phi_1}{\phi_2}{\psi_1}{\psi_2}$ holds when $\psi_2$ is created from $\psi_1$ by replacing some or none $\phi_1$ which occurs in $\psi_1$ by $\phi_2$.
@@ -1143,8 +1208,10 @@ $\rep{\phi_1}{\phi_2}{\gamma_1}{\gamma_2}$.
 
 \begin{theorem}
 \label{replace-theorem}
-Let  $\L = (\mathscr{P}, \mathscr{F}, \arity)$ be a signature of a language and $A$ be an arbitrary non-empty mathematical domain. Let $\phi_1, \phi_2, \psi_1, \psi_2\in \F(\L)$ such that $\rep{\phi_1}{\phi_2}{\psi_1}{\psi_2}$. Let $\M$ be an $\L$-structure with domain $A$. If $M, j\models \phi_1 \liff \phi_2$ for any $j:\V\to A$,
-then $M, j\models \psi_1 \liff \psi_2$ for any $j:\V\to A$.
+Let  $\L = (\mathscr{P}, \mathscr{F}, \arity)$ be a signature of a language and $A$ be an arbitrary non-empty mathematical domain. Let $\phi_1, \phi_2, \psi_1, \psi_2\in \F(\L)$ such that $\rep{\phi_1}{\phi_2}{\psi_1}{\psi_2}$. For any $\L$-structure $\M$,
+\begin{equation}
+\M\models \phi_1\liff\phi_2 \implies \M\models \psi_1\liff\psi_2. 
+\end{equation} 
 \end{theorem}
 
 \begin{proof}

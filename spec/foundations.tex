@@ -60,6 +60,8 @@
 \newcommand{\B}{\mathcal{B}}
 \newcommand{\C}{\mathcal{C}}
 \newcommand{\MM}{\mathscr{M}}
+\newcommand{\PP}{\mathscr{P}}
+\newcommand{\FF}{\mathscr{F}}
 \renewcommand{\S}{\mathcal{S}}
 \newcommand{\T}{\mathcal{T}}
 \renewcommand{\root}{\text{root}}
@@ -523,6 +525,7 @@ In this section, we introduce common logical connectives as syntactic abbreviati
 \begin{definition}[\textbf{logical connectives as syntactic sugar}]
 Let $\L = (\mathscr{P}, \mathscr{F}, \arity)$ be a signature of a language and let $\alpha, \beta\in\B(\L)$. We define the following syntactic abbreviations:
 \begin{align}
+\truth &\defeq \false \to \false \\
 \sim\alpha &\defeq \alpha \to \false, \\
 \alpha \land \beta &\defeq (\alpha \to (\beta \to \false)) \to \false, \\
 \alpha \lor \beta &\defeq (\alpha \to \false) \to \beta, \\
@@ -1062,30 +1065,23 @@ For any $z\in \mathscr{P}\cup\mathscr{F}$,
 Let $\L=(\mathscr{P}, \mathscr{F}, \arity)$ be a signature of a language. Let $k$ be a non-negative integer, let $q\in \mathscr{P}_k$ and $\bm{x}\in \dis{\V}{k}$. Let $\phi, \psi\in\F(\L)$ such that $q$ does not occure in both $\phi$ and $\psi$.
 
 Let $A$ be an non-empty mathematical domain and $j:\V\to A$.
+Let $\M$ be $\L$-structure with domain $A$. Then
 
-Let $\Gamma\subset\F(\L)$ such that for any $\gamma\in \Gamma$ and for any $\L$-structure $\K$ with domain $A$
 \begin{equation}
-\label{modus-ponens-from-def-q-arbitrary}
-\K,j\models \gamma \implies \K',j\models\gamma \text{ for all $\K'\in \MM_q(\K)$}.
+\label{modus-ponens-from-def-implication}
+\M',j\models (q(\bm{x}) \liff \phi) \to \psi \text{ for any } \M'\in\MM_q(\M) \implies \M,j\models \psi.
 \end{equation}
 
-If for any $\L$-structre $\M$ with domain $A$ such that $\M, j\models \Gamma$, we have 
-$\M, j\models (q(\bm{x}) \liff \phi) \to \psi$, then for any $\L$-structre $\M$ with domain $A$ such that $\M, j\models \Gamma$, we have $\M, j\models \psi$.
 \end{lemma}
 
 \begin{proof}
-Assume that for any $\L$-structre $\M$ with domain $A$ such that $\M, j\models \Gamma$, we have
-\begin{equation}
-\label{modus-ponens-from-def-assumption}
-\M, j\models (q(\bm{x}) \liff \phi) \to \psi.
-\end{equation}
-
-Take an arbitrary $\L$-structre $\M$ with domain $A$ such that $\M, j\models \Gamma$. We will modify the structure $\M$ to create a new structure $\M'$ that differs only in the interpretation of $q$. Namely, 
+Assume that assumption of implication (\ref{modus-ponens-from-def-implication}) holds. 
+We will construct a new structure $\M'$ that differs from $\M$ only in the interpretation of $q$. Namely, 
 \begin{equation}
 (q)^{\M'}(\bm{a}) = \phi^{\M, j\cfrac{\bm{a}}{\bm{x}}}.
 \end{equation}
 
-For all other predicates and functions, $\M'$ agrees with $\M$. Note that $\M'\in\MM_q(M)$. 
+For all other predicates and functions, $\M'$ agrees with $\M$. Note that $\M'\in\MM_q(\M)$. 
 
 With the structure $\M'$, we have
 \begin{equation}
@@ -1102,7 +1098,7 @@ Hence $q(\bm{x})^{\M', j} = \phi^{\M, j}$. Since $q$ does not occur in $\phi$,
 we have $\phi^{\M, j} = \phi^{\M', j}$ and consequently $q(\bm{x})^{\M', j} = \phi^{\M', j}$. By Theorem \ref{biconditional-evaluation} this is the same as $(q(\bm{x}) \liff \phi)^{\M', j} = 1$, and by Definition \ref{interpretation-def}, we have $\M', j\models q(\bm{x}) \liff \phi$.
 
 
-Since $\M'\in\MM_q(M)$ and by (\ref{modus-ponens-from-def-q-arbitrary}), we have $\M', j\models \Gamma$ and thus by assumption (\ref{modus-ponens-from-def-assumption}), we have $\M', j\models (q(\bm{x}) \liff \phi) \to \psi$.
+Since $\M'\in\MM_q(M)$, we have $\M', j\models (q(\bm{x}) \liff \phi) \to \psi$.
 Since $\M', j\models (q(\bm{x}) \liff \phi) \to \psi$ and $\M', j\models q(\bm{x}) \liff \phi$, by Theorem \ref{modus-ponens} we have $\M', j\models \psi$.
 
 And since $q$ does not occur in $\psi$, we have $\psi^{\M', j} = \psi^{\M, j}$, therefore $\M, j\models \psi$.
@@ -1114,23 +1110,17 @@ Lemma \ref{modus-ponens-from-def} can be re-formulated in a way which binds it m
 \label{modus-ponens-from-def-v2}
 Let $\L=(\mathscr{P}, \mathscr{F}, \arity)$ be a signature of a language. Let $k$ be a non-negative integer, let $q\in \mathscr{P}_k$ and $\bm{x}\in \dis{\V}{k}$. Let $\phi, \psi\in\F(\L)$ such that $q$ does not occure in both $\phi$ and $\psi$, and $\free(\phi)\subset \bm{x}$.
 
-Let $\Gamma\subset\F(\L)$ such that for any $\gamma\in \Gamma$ and for any $\L$-structure $\K$
-\begin{equation}
-\label{modus-ponens-from-def-q-arbitrary-v2}
-\K \models \gamma \implies \K'\models\gamma \text{ for all $\K'\in \MM_q(\K)$}.
-\end{equation}
+Let $\M$ be $\L$-structure. Then
 
-Then
 \begin{equation}
-\Gamma\models (q(\bm{x}) \liff \phi) \to \psi \implies \Gamma\models \psi.
+\label{modus-ponens-from-def-v2-implication}
+\M'\models (q(\bm{x}) \liff \phi) \to \psi \text{ for any } \M'\in\MM_q(\M) \implies \M\models \psi.
 \end{equation}
 
 \end{lemma}
 
 \begin{proof}
-Assume $\Gamma\models (q(\bm{x}) \liff \phi) \to \psi$.
-
-Take any $\L$-structure $\M$ with domain $A$ such that $\M\models \Gamma$. We need to show that $\M\models \psi$.
+Assume that assumption of implication (\ref{modus-ponens-from-def-v2-implication}) holds. 
 
 We will construct a new structure $\M'$ that differs from $\M$ only in the interpretation of $q$.
 Fix some $j_0:\V\to A$. 
@@ -1141,9 +1131,7 @@ Define $\M'$ such that for any $\bm{a}\in A^k$:
 
 For all other predicates and functions, $\M'$ agrees with $\M$. Note that $\M'\in\MM_q(\M)$.
 
-By condition (\ref{modus-ponens-from-def-q-arbitrary-v2}), since $\M\models \gamma$ for all $\gamma\in\Gamma$ and $\M'\in\MM_q(\M)$, we have $\M'\models \gamma$ for all $\gamma\in\Gamma$. Therefore, $\M'\models \Gamma$.
-
-Since $\Gamma\models (q(\bm{x}) \liff \phi) \to \psi$ and $\M'\models \Gamma$, we have $\M'\models (q(\bm{x}) \liff \phi) \to \psi$.
+By assumption we have $\M'\models (q(\bm{x}) \liff \phi) \to \psi$.
 
 Take any assignment $j:\V\to A$. We need to show that $\M, j\models \psi$.
 
@@ -1177,8 +1165,6 @@ Since $\M', j\models (q(\bm{x}) \liff \phi) \to \psi$ and $\M', j\models q(\bm{x
 Since $q$ does not occur in $\psi$, we have $\psi^{\M', j} = \psi^{\M, j}$, therefore $\M, j\models \psi$.
 
 Since this holds for any assignment $j:\V\to A$, we have $\M\models \psi$.
-
-Since this holds for any $\L$-structure $\M$ such that $\M\models \Gamma$, we conclude that $\Gamma\models \psi$.
 \end{proof}
 
 Next, we will define a relation $\rep{\phi_1}{\phi_2}{\psi_1}{\psi_2}$. The intuition behind is that $\rep{\phi_1}{\phi_2}{\psi_1}{\psi_2}$ holds when $\psi_2$ is created from $\psi_1$ by replacing some or none $\phi_1$ which occurs in $\psi_1$ by $\phi_2$.
@@ -1323,5 +1309,92 @@ Since this holds for any assignment $j:\V\to A$, we have $\M\models \psi$.
 
 Since this holds for any $\L$-structure $\M$ such that $\M\models \Gamma$, we conclude that $\Gamma\models \psi$.
 \end{proof}
+
+\chapter{Inference Rules}
+
+Let $\FF^{g}_k$ be an ininite and countable set of special function symbols of arity $k$ for $k=0, \dots$.
+
+Let $\PP^{g}_k$ be an ininite and countable set of special predicate symbols of arity $k$ for $k=0, \dots$.
+
+\begin{equation}
+\FF^g \defeq \bigcup_{k=0}^\infty \FF^{g}_k
+\end{equation}
+
+\begin{equation}
+\PP^g \defeq \bigcup_{k=0}^\infty \PP^{g}_k
+\end{equation}
+
+\begin{definition}
+\begin{equation}
+\L^g \defeq (\FF^g, \PP^g, \arity^g), 
+\end{equation}
+where 
+$\arity^g(p) = k$ for any $p\in \PP^g_k$ and $\arity^g(f) = k$ for any $f\in \FF^g_k$ for any integer $k \geq 0$.
+\end{definition}
+
+\begin{definition}
+Let $\L = (\FF, \PP, \arity)$ be signature of a language and $\FF^g \cap \FF = \emptyset$ and $\PP^g \cap \PP = \emptyset$. We will call such $\L$ a sub-signature and consider extention of the language with signature
+\begin{equation}
+\L^G \defeq (\FF^g \cup \FF, \PP^g \cup \PP, \arity \cup \arity^g). 
+\end{equation}
+\end{definition}
+
+
+\begin{definition}[\textbf{modus ponens}]
+Let $\L = (\FF, \PP, \arity)$ be a signature of a language.
+We will define a function
+$\text{Mod}_\L: \F(\L) \times \F(\L) \to \F(\L)$.
+
+\begin{equation}
+\text{Mod}_\L(\psi, \alpha) \defeq 
+\begin{cases}
+\beta \text{ for } \psi \sxeq \alpha \to \beta \text{ and } \alpha,\beta\in \B(\L),\\
+\truth \text{ otherwise.}
+\end{cases}
+\end{equation}
+\end{definition}
+
+\begin{definition}[\textbf{generalisation}]
+Let $\L = (\FF, \PP, \arity)$ be a signature of a language.
+We will define a family of functions
+$\text{Gen}_\L^x: \F(\L) \to \F(\L)$ for $x\in \V$.
+\begin{equation}
+\text{Gen}_\L^x(\psi) \defeq 
+\begin{cases}
+\forall x. \psi \text{ for } \psi\in \B(\L),\\
+\truth \text{ otherwise.}
+\end{cases}
+\end{equation}
+\end{definition}
+
+\begin{definition}[\textbf{replacement}]
+Let $\L = (\FF, \PP, \arity)$ be a signature of a language.
+We will define a family of functions
+$\text{Rep}_\L^{\psi_1, \psi_2}: \F(\L) \to \F(\L)$ for $\psi_1, \psi_2\in \B(\L)$.
+\begin{equation}
+\text{Rep}^{\psi_1, \psi_2}_{\L}(\phi) \defeq 
+\begin{cases}
+\psi_1 \liff \psi_2 \text{ for } \phi \sxeq \phi_1 \liff \phi_1 \text{ where }
+\phi_1, \phi_2\in\B(\F) \text{ and }
+\rep{\phi_1}{\phi_2}{\psi_1}{\psi_2},\\
+\truth \text{ otherwise.}
+\end{cases}
+\end{equation}
+\end{definition}
+
+\begin{definition}[\textbf{definition reduction}]
+Let $\L=(\mathscr{P}, \mathscr{F}, \arity)$ be a sub-signature. Let $k$ be a non-negative integer.
+
+We will define a family of functions 
+$\text{Red}_\L^{q(\bm{x})}: \F(\L^G)\to \F(\L)$ for $q\in \mathscr{P}^g_k$ and $\bm{x}\in \dis{\V}{k}$.
+
+\begin{equation}
+\text{Red}_\L^{q(\bm{x})}(\gamma) \defeq 
+\begin{cases}
+\psi \text{ for } \gamma \sxeq (q(\bm{x}) \liff \phi) \to \psi \text{ where } \psi, \phi\in \B(\L) \text{ and } \free(\phi)\subset \bm{x},\\
+\truth \text{ otherwise.}
+\end{cases}
+\end{equation}
+\end{definition}
 
 \end{document}

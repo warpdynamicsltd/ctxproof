@@ -1098,8 +1098,8 @@ Hence $q(\bm{x})^{\M', j} = \phi^{\M, j}$. Since $q$ does not occur in $\phi$,
 we have $\phi^{\M, j} = \phi^{\M', j}$ and consequently $q(\bm{x})^{\M', j} = \phi^{\M', j}$. By Theorem \ref{biconditional-evaluation} this is the same as $(q(\bm{x}) \liff \phi)^{\M', j} = 1$, and by Definition \ref{interpretation-def}, we have $\M', j\models q(\bm{x}) \liff \phi$.
 
 
-Since $\M'\in\MM_q(M)$, we have $\M', j\models (q(\bm{x}) \liff \phi) \to \psi$.
-Since $\M', j\models (q(\bm{x}) \liff \phi) \to \psi$ and $\M', j\models q(\bm{x}) \liff \phi$, by Theorem \ref{modus-ponens} we have $\M', j\models \psi$.
+By assumption of implication (\ref{modus-ponens-from-def-implication}), since $\M'\in\MM_q(\M)$, we have $\M', j\models (q(\bm{x}) \liff \phi) \to \psi$.
+And then, since $\M', j\models q(\bm{x}) \liff \phi$, by Theorem \ref{modus-ponens} we have $\M', j\models \psi$.
 
 And since $q$ does not occur in $\psi$, we have $\psi^{\M', j} = \psi^{\M, j}$, therefore $\M, j\models \psi$.
 \end{proof}
@@ -1213,37 +1213,27 @@ This completes the proof by structural induction.
 \begin{lemma}
 \label{general-constant-def}
 Let $\L=(\mathscr{P}, \mathscr{F}, \arity)$ be a signature of a language. Let $c\in \mathscr{F}_0$, and $x\in\V$. Let $\psi\in\F(\L)$ such that $c$ does not occur in $\psi$.
-
-Let $\Gamma\subset\F(\L)$ such that for any $\gamma\in \Gamma$ and for any $\L$-structure $\K$
+Let $\M$ be $\L$-structure. Then
 \begin{equation}
-\label{modus-ponens-from-def-c-arbitrary}
-\K \models \gamma \implies \K'\models\gamma \text{ for all $\K'\in \MM_c(\K)$}.
-\end{equation}
-
-Then
-\begin{equation}
-\Gamma\models \psi(x/c) \implies \Gamma\models \psi.
+\label{general-constant-def-implication}
+\M'\models \psi(x/c) \text{ for any }  \M'\in\MM_q(\M) \implies \M\models \psi.
 \end{equation}
 
 \end{lemma}
 
 \begin{proof}
-Assume $\Gamma\models \psi(x/c)$ where $\psi(x/c)$ is an admissible substitution.
+Since $c\in\F_0$,  $\psi(x/c)$ is always an admissible substitution.
 
-Take any $\L$-structure $\M$ with domain $A$ such that $\M\models \Gamma$. We need to show that $\M\models \psi$.
-
-Take any assignment $j:\V\to A$. We need to show that $\M, j\models \psi$.
+Take any $\L$-structure $\M$ with domain $A$. 
+Assume that assumption of implication (\ref{general-constant-def-implication}) holds.
+We need to show that $\M\models \psi$. Take any assignment $j:\V\to A$. We need to show that $\M, j\models \psi$.
 
 We construct $\M'$ such that:
 \begin{equation}
 c^{\M'} = j(x),
 \end{equation}
 and for all other predicates and functions, $\M'$ agrees with $\M$. Note that $\M'\in\MM_c(\M)$.
-
-By condition (\ref{modus-ponens-from-def-c-arbitrary}), since $\M\models \gamma$ for all $\gamma\in\Gamma$ and $\M'\in\MM_c(\M)$, we have $\M'\models \gamma$ for all $\gamma\in\Gamma$. Therefore, $\M'\models \Gamma$.
-
-Since $\Gamma\models \psi(x/c)$ and $\M'\models \Gamma$, we have $\M'\models \psi(x/c)$.
-
+By assumption of implication (\ref{general-constant-def-implication}), we have $\M'\models \psi(x/c)$.
 In particular, $\M', j\models \psi(x/c)$.
 
 By Theorem \ref{admissible-theorem}, since $\psi(x/c)$ is an admissible substitution, we have
@@ -1257,14 +1247,9 @@ j\cfrac{j(x)}{x} = j.
 \end{equation}
 
 Therefore, $\M', j\models \psi$.
-
 Since $c$ does not occur in $\psi$, and $\M'$ differs from $\M$ only in the interpretation of $c$, we have $\psi^{\M', j} = \psi^{\M, j}$.
-
 Therefore, $\M, j\models \psi$.
-
 Since this holds for any assignment $j:\V\to A$, we have $\M\models \psi$.
-
-Since this holds for any $\L$-structure $\M$ such that $\M\models \Gamma$, we conclude that $\Gamma\models \psi$.
 \end{proof}
 
 \chapter{Inference Rules}
@@ -1340,15 +1325,18 @@ $\text{Rep}_\L^{\psi_1, \psi_2}: \F(\L) \to \F(\L)$ for $\psi_1, \psi_2\in \B(\L
 \end{definition}
 
 \begin{definition}[\textbf{definition reduction}]
-Let $\L=(\mathscr{P}, \mathscr{F}, \arity)$ be a sub-signature. Let $k$ be a non-negative integer.
+Let $\L=(\mathscr{P}, \mathscr{F}, \arity)$ be a signature of a language. Let $k$ be a non-negative integer.
 
 We will define a family of functions 
-$\text{Red}_\L^{q(\bm{x})}: \F(\L^G)\to \F(\L)$ for $q\in \mathscr{P}^g_k$ and $\bm{x}\in \dis{\V}{k}$.
+$\text{Red\,}_\L^{q(\bm{x})}: \F(\L)\to \F(\L)$ for $q\in \mathscr{P}_k$ and $\bm{x}\in \dis{\V}{k}$.
 
 \begin{equation}
-\text{Red}_\L^{q(\bm{x})}(\gamma) \defeq 
+\text{Red\,}_\L^{q(\bm{x})}(\gamma) \defeq 
 \begin{cases}
-\psi \text{ for } \gamma \sxeq (q(\bm{x}) \liff \phi) \to \psi \text{ where } \psi, \phi\in \B(\L) \text{ and } \free(\phi)\subset \bm{x},\\
+\begin{aligned}
+\psi \text{ for } \gamma \sxeq (q(\bm{x}) \liff \phi) \to \psi &\text{ where } \psi, \phi\in \B(\L) \\ 
+&\text{ and $q$ does not occur in $\psi$ and $\phi$,} 
+\end{aligned}\\
 \truth \text{ otherwise.}
 \end{cases}
 \end{equation}

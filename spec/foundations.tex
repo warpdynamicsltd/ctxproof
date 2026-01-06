@@ -59,9 +59,12 @@
 \newcommand{\A}{\mathcal{A}}
 \newcommand{\B}{\mathcal{B}}
 \newcommand{\C}{\mathcal{C}}
+\newcommand{\R}{\mathcal{R}}
+\newcommand{\G}{\mathcal{G}}
 \newcommand{\MM}{\mathscr{M}}
 \newcommand{\PP}{\mathscr{P}}
 \newcommand{\FF}{\mathscr{F}}
+
 \renewcommand{\S}{\mathcal{S}}
 \newcommand{\T}{\mathcal{T}}
 \renewcommand{\root}{\text{root}}
@@ -69,6 +72,7 @@
 \newcommand{\truth}{\mathfrak{t}}
 \newcommand{\false}{\mathfrak{f}}
 \newcommand{\context}{\text{Ctx}}
+\newcommand{\Cn}{\text{Cn}}
 \newcommand{\Cnr}{\text{Cn}_\text{R}}
 \renewcommand{\L}{\mathscr{L}}
 \newcommand{\V}{\mathscr{V}}
@@ -174,6 +178,8 @@ Let $\V$ be an infinite countable set of variable symbols. And $\false$ be a spe
 Let $\mathscr{P}$ be a set of predicate symbols for which $\false\in \mathscr{P}$ and $\mathscr{F}$ be a set of function symbols. Let $\arity : \mathscr{P} \cup \mathscr{F} \to \N$ be an arity function. 
 then $\L \defeq (\mathscr{P}, \mathscr{F}, \arity)$ is a signature of a language.
 \end{definition}
+
+If $\L'=(\PP', \FF', \arity')$ is a language signature and $\PP\subset \PP'$ and $\FF\subset \FF'$ and $\arity\subset \arity'$, we will slightly abuse notation by writing $\L\subset \L'$ meaning that $\L'$ is an extention of $\L$ or $\L$ is a restriction of $\L'$.
 
 To write first order logic formulas for a given language signature $\L$, we will use symbols from
 \begin{equation}
@@ -324,6 +330,8 @@ is called an $\L$-structure with domain $A$.\\
 For convenience we will denote values of $\M$ as $p^\M \defeq \M(p)$ for $p\in\mathscr{P}$ and $f^\M \defeq \M(f)$ for $f\in\mathscr{F}$.
 Note that $p^\M:A^k\to\{0, 1\}$ and $f^\M:A^k\to A$.
 \end{definition}
+
+For a $\L$-structure $\M$, we will use a standard notation of restriction of a function $\M|_{S}$, where $S\subset \PP \cup \FF$. Also if we have a signatures of language $\L, \L'$ for which $\L\subset \L'$ (i.e. $\L'$ is an extenion of $\L$), for a $\L'$-signature $\M'$, $\M'|_{\L} \defeq \M'|_{\PP \cup \FF}$. Note that $\M'|_{\L}$ is an $\L$-structure.   
 
 \begin{definition}[\textbf{assignment}]
 Let $A$ be an arbitrary mathematical domain. Then $j: \V \to A$ is called a variables assignment in $A$.
@@ -1282,7 +1290,7 @@ Let $\L = (\FF, \PP, \arity)$ be signature of a language and $\FF^g \cap \FF = \
 \end{definition}
 
 When we consider $\L^G$-structures $\M_1, \M_2$ and $\L^G$-structure $M'$, we say that they agree 
-on $\L$ iff $\M_1(\MM \cup \FF) = \M_2(\MM \cup \FF)$. We will denote it by $M'|_\L = M|_\L$.
+on $\L$ iff $\M_1(\MM \cup \FF) = \M_2(\MM \cup \FF)$ (i.e. $M'|_\L = M|_\L$).
 
 \begin{definition}[\textbf{modus ponens}]
 Let $\L = (\FF, \PP, \arity)$ be a signature of a language.
@@ -1345,6 +1353,10 @@ $\text{Red\,}_\L^{q(\bm{x})}: \F(\L)\to \F(\L)$ for $q\in \mathscr{P}_k$ and $\b
 \end{definition}
 
 \chapter{Abstract Rules Theory}
+\begin{definition}
+Let $\L=(\mathscr{P}, \mathscr{F}, \arity)$ be a signature of a language. Let $k_1, k_2$ be non-negative integer. We will say that $r$ is an inference rule iff $r: \F(\L)^{k_1} \to\F(\L)^{k_2}$.
+\end{definition}
+
 \begin{definition}
 Let $\L=(\mathscr{P}, \mathscr{F}, \arity)$ be a signature of a language. Let $k_1, k_2$ be non-negative integers and let $r: \F(\L)^{k_1} \to\F(\L)^{k_2}$, we will say that $r$ is \textbf{strictly truth-preserving}
 iff for any $\L$-structure $\M$ and any $\bm{\phi}\in \F(\L)^{k_1}$
@@ -1426,6 +1438,8 @@ Since $\M\models \phi_1 \liff \phi_2$, by Theorem \ref{replace-theorem}, we have
 Then $\text{Rep}_\L^{\psi_1, \psi_2}(\phi) = \truth$, which is trivially satisfied by any structure.
 \end{proof}
 
+
+
 \begin{definition}
 Let $\L=(\mathscr{P}, \mathscr{F}, \arity)$ be a sub-signature of a language. Let $k_1, k_2$ be non-negative integers and let $r: \F(\L)^{k_1} \to\F(\L)^{k_2}$, we will say that $r$ is \textbf{weakly truth-preserving}
 iff for any $\L^G$-structure $\M$ and any $\bm{\phi}\in \F(\L^G)^{k_1}$
@@ -1453,13 +1467,13 @@ Therefore, $r$ is weakly truth-preserving.
 
 \begin{theorem}
 \label{definition-reduction-weakly-truth-preserving}
-Let $\L=(\mathscr{P}, \mathscr{F}, \arity)$ be a sub-signature of a language. Let $k$ be a non-negative integer, let $q\in \mathscr{P}^g_k$ and $\bm{x}\in \dis{\V}{k}$. Then $\text{Red\,}_\L^{q(\bm{x})}$ is weakly truth-preserving.
+Let $\L=(\mathscr{P}, \mathscr{F}, \arity)$ be a sub-signature of a language. Let $k$ be a non-negative integer, let $q\in \mathscr{P}^g_k$ and $\bm{x}\in \dis{\V}{k}$. Then $\text{Red\,}_{\L^G}^{q(\bm{x})}$ is weakly truth-preserving.
 \end{theorem}
 
 \begin{proof}
 Take any $\L^G$-structure $\M$ and any $\gamma\in \F(\L^G)$ such that $\M'\models \gamma$ for all $\L^G$-structure $\M'$ for which $\M|_\L = \M'|_\L$.
 
-We need to show that $\M\models \text{Red\,}_\L^{q(\bm{x})}(\gamma)$.
+We need to show that $\M\models \text{Red\,}_{\L^G}^{q(\bm{x})}(\gamma)$.
 
 \textbf{Case 1:} $\gamma \sxeq (q(\bm{x}) \liff \phi) \to \psi$ where $\psi, \phi\in \B(\L)$ and $q$ does not occur in $\psi$ and $\phi$.
 
@@ -1471,13 +1485,70 @@ Since $q\in\mathscr{P}^g_k$ and $q\not\in\mathscr{P}$, for any $\M'\in\MM_q(\M)$
 
 By Lemma \ref{modus-ponens-from-def-v2}, since $\M'\models (q(\bm{x}) \liff \phi) \to \psi$ for any $\M'\in\MM_q(\M)$, we have $\M\models \psi$.
 
-Therefore, $\M\models \text{Red\,}_\L^{q(\bm{x})}(\gamma)$.
+Therefore, $\M\models \text{Red\,}_{\L^G}^{q(\bm{x})}(\gamma)$.
 
 \textbf{Case 2:} Otherwise.
 
 Then $\text{Red\,}_\L^{q(\bm{x})}(\gamma) = \truth$, which is trivially satisfied by any structure.
 
-Therefore, $\text{Red\,}_\L^{q(\bm{x})}$ is weakly truth-preserving.
+Therefore, $\text{Red\,}_{\L^G}^{q(\bm{x})}$ is weakly truth-preserving.
 \end{proof}
 
+\begin{definition}
+Let $\L=(\mathscr{P}, \mathscr{F}, \arity)$ be a sub-signature of a language. Let $\R$ be a family of inference rules. Let $\Gamma\subset \F(\L)$. We will say that $\Gamma$ is closed with respect to $\R$ iff for any $r\in \R$ with $\dim r = (k_1, k_2)$, we have $r(\Gamma^{k_1}) \subset \Gamma^{k_2}$. 
+\end{definition}
+
+\begin{definition}
+Let $\L=(\mathscr{P}, \mathscr{F}, \arity)$ be a sub-signature of a language. Let $\R$ be a family of inference rules. Let $T \subset \F(\L^G)$.
+\begin{equation}
+\Cn(T, \R) \defeq \bigcap \{\Gamma: T\subset \Gamma\ \text{and $\Gamma$ is closed with respect to $\R$}\}.
+\end{equation}
+\end{definition}
+
+\begin{definition}
+Let $\L=(\mathscr{P}, \mathscr{F}, \arity)$ be a sub-signature of a language.
+\end{definition}
+\begin{equation}
+\G(\L^G) \defeq \{\phi\in\F(\L^G): 
+\begin{aligned}
+&\M\models \phi \implies \M'\models \phi 
+\text{ for any $\M'$ for which $\M|_\L = \M'|_\L$}, \\
+&\text{ for any $\L^G$-structure $\M$. }
+\end{aligned}
+\}
+\end{equation}
+
+\begin{theorem}
+\label{preservation-of-generality}
+Let $\L=(\mathscr{P}, \mathscr{F}, \arity)$ be a sub-signature of a language.
+Let $\R$ be a family of weakly truth-preserving inference rules. If $T\subset \G(\L^G)$, then $\Cn(T, \R)\subset \G(\L^G)$.
+\end{theorem}
+
+\begin{proof}
+We will show that $\G(\L^G)$ is closed with respect to $\R$ and $T\subset \G(\L^G)$. Then by definition of $\Cn(T, \R)$, we have $\Cn(T, \R)\subset \G(\L^G)$.
+
+Since $T\subset \G(\L^G)$ by assumption, it remains to show that $\G(\L^G)$ is closed with respect to $\R$.
+
+Take any $r\in \R$ with $\dim r = (k_1, k_2)$. We need to show that $r(\G(\L^G)^{k_1}) \subset \G(\L^G)^{k_2}$.
+
+Take any $\bm{\phi}\in \G(\L^G)^{k_1}$ and any $\L^G$-structure $\M$ such that $\M\models r(\bm{\phi})$.
+
+We need to show that $r(\bm{\phi})\in \G(\L^G)^{k_2}$, which means for each component $\psi$ of $r(\bm{\phi})$, we need to show: if $\M\models \psi$ then $\M'\models \psi$ for any $\M'$ with $\M|_\L = \M'|_\L$.
+
+Take any component $\psi$ of $r(\bm{\phi})$ and suppose $\M\models \psi$ for some $\L^G$-structure $\M$.
+
+Take any $\L^G$-structure $\M'$ with $\M|_\L = \M'|_\L$.
+
+Since $\bm{\phi}\in \G(\L^G)^{k_1}$, each component of $\bm{\phi}$ is in $\G(\L^G)$.
+
+Therefore, for any $\L^G$-structure $\M''$ with $\M|_\L = \M''|_\L$, we have $\M''\models \bm{\phi}$.
+
+Since $r$ is weakly truth-preserving and $\M''\models \bm{\phi}$ for all $\M''$ with $\M|_\L = \M''|_\L$, we have $\M\models r(\bm{\phi})$.
+
+In particular, $\M\models \psi$ where $\psi$ is a component of $r(\bm{\phi})$.
+
+By the same argument applied to $\M'$ (since $\M'|_\L = \M|_\L$), we have $\M'\models r(\bm{\phi})$, hence $\M'\models \psi$.
+
+Therefore $\psi\in \G(\L^G)$, and thus $r(\bm{\phi})\in \G(\L^G)^{k_2}$.
+\end{proof}
 \end{document}

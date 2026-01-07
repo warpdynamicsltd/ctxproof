@@ -1224,7 +1224,7 @@ Let $\L=(\mathscr{P}, \mathscr{F}, \arity)$ be a signature of a language. Let $c
 Let $\M$ be $\L$-structure. Then
 \begin{equation}
 \label{general-constant-def-implication}
-\M'\models \psi(x/c) \text{ for any }  \M'\in\MM_q(\M) \implies \M\models \psi.
+\M'\models \psi(x/c) \text{ for any }  \M'\in\MM_c(\M) \implies \M\models \psi.
 \end{equation}
 
 \end{lemma}
@@ -1283,13 +1283,15 @@ $\arity^g(p) = k$ for any $p\in \PP^g_k$ and $\arity^g(f) = k$ for any $f\in \FF
 \end{definition}
 
 \begin{definition}
-Let $\L = (\FF, \PP, \arity)$ be signature of a language and $\FF^g \cap \FF = \emptyset$ and $\PP^g \cap \PP = \emptyset$. We will call such $\L$ a sub-signature and consider extention of the language with signature
+Let $\L = (\FF, \PP, \arity)$ be signature of a language and $\FF^g \cap \FF = \emptyset$ and $\PP^g \cap \PP = \emptyset$. We will consider extention of the language with signature
 \begin{equation}
 \L^G \defeq (\FF^g \cup \FF, \PP^g \cup \PP, \arity \cup \arity^g). 
 \end{equation}
 \end{definition}
 
-When we consider $\L^G$-structures $\M_1, \M_2$ and $\L^G$-structure $M'$, we say that they agree 
+Note that $\L^G$ is also a signature of a language and $\L\subset \L^G$.
+
+When we consider $\L^G$-structures $\M_1, \M_2$, we say that they agree 
 on $\L$ iff $\M_1(\MM \cup \FF) = \M_2(\MM \cup \FF)$ (i.e. $M'|_\L = M|_\L$).
 
 \begin{definition}[\textbf{modus ponens}]
@@ -1354,7 +1356,7 @@ $\text{Red\,}_\L^{q(\bm{x})}: \F(\L)\to \F(\L)$ for $q\in \mathscr{P}_k$ and $\b
 
 \chapter{Abstract Rules Theory}
 \begin{definition}
-Let $\L=(\mathscr{P}, \mathscr{F}, \arity)$ be a signature of a language. Let $k_1, k_2$ be non-negative integer. We will say that $r$ is an inference rule iff $r: \F(\L)^{k_1} \to\F(\L)^{k_2}$.
+Let $\L=(\mathscr{P}, \mathscr{F}, \arity)$ be a signature of a language. Let $k_1, k_2$ be non-negative integer. We will say that $r$ is an inference rule on $\F(\L)$ iff $r: \F(\L)^{k_1} \to\F(\L)^{k_2}$. Moreover, we will define $\dim r \defeq (k_1, k_2)$.
 \end{definition}
 
 \begin{definition}
@@ -1441,7 +1443,7 @@ Then $\text{Rep}_\L^{\psi_1, \psi_2}(\phi) = \truth$, which is trivially satisfi
 
 
 \begin{definition}
-Let $\L=(\mathscr{P}, \mathscr{F}, \arity)$ be a sub-signature of a language. Let $k_1, k_2$ be non-negative integers and let $r: \F(\L)^{k_1} \to\F(\L)^{k_2}$, we will say that $r$ is \textbf{weakly truth-preserving}
+Let $\L=(\mathscr{P}, \mathscr{F}, \arity)$ be a signature of a language. Let $k_1, k_2$ be non-negative integers and let $r: \F(\L^G)^{k_1} \to\F(\L^G)^{k_2}$, we will say that $r$ is \textbf{weakly truth-preserving}
 iff for any $\L^G$-structure $\M$ and any $\bm{\phi}\in \F(\L^G)^{k_1}$
 \begin{equation}
 \M'\models \bm{\phi} \text{ for any $\L^G$-structure } \M' \text{ for which } \M|_\L = \M'|_\L  \implies \M\models r(\bm{\phi}).
@@ -1450,7 +1452,7 @@ iff for any $\L^G$-structure $\M$ and any $\bm{\phi}\in \F(\L^G)^{k_1}$
 
 \begin{corollary}
 \label{strictly-implies-weakly}
-Let $\L=(\mathscr{P}, \mathscr{F}, \arity)$ be a sub-signature of a language. Let $k_1, k_2$ be non-negative integers and let $r: \F(\L)^{k_1} \to\F(\L)^{k_2}$. If $r$ is strictly truth-preserving, then $r$ is weakly truth-preserving.
+Let $\L=(\mathscr{P}, \mathscr{F}, \arity)$ be a signature of a language. Let $k_1, k_2$ be non-negative integers and let $r: \F(\L)^{k_1} \to\F(\L)^{k_2}$. If $r$ is strictly truth-preserving, then $r$ is weakly truth-preserving.
 \end{corollary}
 
 \begin{proof}
@@ -1467,7 +1469,7 @@ Therefore, $r$ is weakly truth-preserving.
 
 \begin{theorem}
 \label{definition-reduction-weakly-truth-preserving}
-Let $\L=(\mathscr{P}, \mathscr{F}, \arity)$ be a sub-signature of a language. Let $k$ be a non-negative integer, let $q\in \mathscr{P}^g_k$ and $\bm{x}\in \dis{\V}{k}$. Then $\text{Red\,}_{\L^G}^{q(\bm{x})}$ is weakly truth-preserving.
+Let $\L=(\mathscr{P}, \mathscr{F}, \arity)$ be a signature of a language. Let $k$ be a non-negative integer, let $q\in \mathscr{P}^g_k$ and $\bm{x}\in \dis{\V}{k}$. Then $\text{Red\,}_{\L^G}^{q(\bm{x})}$ is weakly truth-preserving.
 \end{theorem}
 
 \begin{proof}
@@ -1495,60 +1497,61 @@ Therefore, $\text{Red\,}_{\L^G}^{q(\bm{x})}$ is weakly truth-preserving.
 \end{proof}
 
 \begin{definition}
-Let $\L=(\mathscr{P}, \mathscr{F}, \arity)$ be a sub-signature of a language. Let $\R$ be a family of inference rules. Let $\Gamma\subset \F(\L)$. We will say that $\Gamma$ is closed with respect to $\R$ iff for any $r\in \R$ with $\dim r = (k_1, k_2)$, we have $r(\Gamma^{k_1}) \subset \Gamma^{k_2}$. 
+Let $\L=(\mathscr{P}, \mathscr{F}, \arity)$ be a signature of a language. Let $\R$ be a family of inference rules on $\F(\L)$. Let $\Gamma\subset \F(\L)$. We will say that $\Gamma$ is closed with respect to $\R$ iff for any $r\in \R$ with $\dim r = (k_1, k_2)$, we have $r(\Gamma^{k_1}) \subset \Gamma^{k_2}$. 
 \end{definition}
 
 \begin{definition}
-Let $\L=(\mathscr{P}, \mathscr{F}, \arity)$ be a sub-signature of a language. Let $\R$ be a family of inference rules. Let $T \subset \F(\L^G)$.
+Let $\L=(\mathscr{P}, \mathscr{F}, \arity)$ be a signature of a language. Let $\R$ be a family of inference rules on $\F(\L)$. Let $T \subset \F(\L)$.
 \begin{equation}
 \Cn(T, \R) \defeq \bigcap \{\Gamma: T\subset \Gamma\ \text{and $\Gamma$ is closed with respect to $\R$}\}.
 \end{equation}
 \end{definition}
 
 \begin{definition}
-Let $\L=(\mathscr{P}, \mathscr{F}, \arity)$ be a sub-signature of a language.
+\label{truth-and-generals}
+Let $\L=(\mathscr{P}, \mathscr{F}, \arity)$ be a signature of a language. Let $\M$ be an $\L^G$-structure.
 \end{definition}
 \begin{equation}
-\G(\L^G) \defeq \{\phi\in\F(\L^G): 
+\G(\L^G, \M) \defeq \{\phi\in\F(\L^G): 
 \begin{aligned}
-&\M\models \phi \implies \M'\models \phi 
-\text{ for any $\M'$ for which $\M|_\L = \M'|_\L$}, \\
-&\text{ for any $\L^G$-structure $\M$. }
+&\M\models \phi, \text{ and } (\M|_\L = \M'|_\L) \implies \M'\models \phi 
+ \\
+&\text{ for any $\L^G$-structures $\M'$. }
 \end{aligned}
 \}
 \end{equation}
 
 \begin{theorem}
 \label{preservation-of-generality}
-Let $\L=(\mathscr{P}, \mathscr{F}, \arity)$ be a sub-signature of a language.
-Let $\R$ be a family of weakly truth-preserving inference rules. If $T\subset \G(\L^G)$, then $\Cn(T, \R)\subset \G(\L^G)$.
+Let $\L=(\mathscr{P}, \mathscr{F}, \arity)$ be a signature of a language and $\M$ be an $\L^G$-structure.
+Let $\R$ be a family of weakly truth-preserving inference rules on $\F(\L^G)$. If $T\subset \G(\L^G, \M)$, then $\Cn(T, \R)\subset \G(\L^G, \M)$.
 \end{theorem}
 
 \begin{proof}
-We will show that $\G(\L^G)$ is closed with respect to $\R$ and $T\subset \G(\L^G)$. Then by definition of $\Cn(T, \R)$, we have $\Cn(T, \R)\subset \G(\L^G)$.
+We will show that $\G(\L^G, \M)$ is closed with respect to $\R$ and $T\subset \G(\L^G, \M)$. Then by definition of $\Cn(T, \R)$, we have $\Cn(T, \R)\subset \G(\L^G, \M)$.
 
-Since $T\subset \G(\L^G)$ by assumption, it remains to show that $\G(\L^G)$ is closed with respect to $\R$.
+Since $T\subset \G(\L^G, \M)$ by assumption, it remains to show that $\G(\L^G, \M)$ is closed with respect to $\R$.
 
-Take any $r\in \R$ with $\dim r = (k_1, k_2)$. We need to show that $r(\G(\L^G)^{k_1}) \subset \G(\L^G)^{k_2}$.
+Take any $r\in \R$. Let $\dim r = (k_1, k_2)$. We need to show that $r(\G(\L^G, \M)^{k_1}) \subset \G(\L^G, \M)^{k_2}$.
 
-Take any $\bm{\phi}\in \G(\L^G)^{k_1}$ and any $\L^G$-structure $\M$ such that $\M\models r(\bm{\phi})$.
+Take an arbitrary $\bm{\phi}\in \G(\L^G, \M)^{k_1}$. By Definition \ref{truth-and-generals}, we have $\M\models \bm{\phi}$.
 
-We need to show that $r(\bm{\phi})\in \G(\L^G)^{k_2}$, which means for each component $\psi$ of $r(\bm{\phi})$, we need to show: if $\M\models \psi$ then $\M'\models \psi$ for any $\M'$ with $\M|_\L = \M'|_\L$.
 
-Take any component $\psi$ of $r(\bm{\phi})$ and suppose $\M\models \psi$ for some $\L^G$-structure $\M$.
 
 Take any $\L^G$-structure $\M'$ with $\M|_\L = \M'|_\L$.
+Again by Definition \ref{truth-and-generals}, we have $\M'\models \bm{\phi}$.
 
-Since $\bm{\phi}\in \G(\L^G)^{k_1}$, each component of $\bm{\phi}$ is in $\G(\L^G)$.
+And since $r$ is weakly truth preserving, we have $\M\models r(\bm{\phi})$.
 
-Therefore, for any $\L^G$-structure $\M''$ with $\M|_\L = \M''|_\L$, we have $\M''\models \bm{\phi}$.
+Take an arbitrary $\L^G$-structure $\M''$ with $\M'|_\L = \M''|_\L$.
 
-Since $r$ is weakly truth-preserving and $\M''\models \bm{\phi}$ for all $\M''$ with $\M|_\L = \M''|_\L$, we have $\M\models r(\bm{\phi})$.
+Since $\M|_\L = \M'|_\L$, $\M|_\L = \M''|_\L$ and by Definition \ref{truth-and-generals} we have $\M''\models \bm{\phi}$.
 
-In particular, $\M\models \psi$ where $\psi$ is a component of $r(\bm{\phi})$.
 
-By the same argument applied to $\M'$ (since $\M'|_\L = \M|_\L$), we have $\M'\models r(\bm{\phi})$, hence $\M'\models \psi$.
-
-Therefore $\psi\in \G(\L^G)$, and thus $r(\bm{\phi})\in \G(\L^G)^{k_2}$.
+Since $r$ is weakly truth-preserving and $\M''\models \bm{\phi}$ for all $\M''$ with $\M'|_\L = \M''|_\L$, we have $\M'\models r(\bm{\phi})$.
+We have shown that $\M\models r(\bm{\phi})$ and that for any $\L^G$-structure $\M'$ with
+$\M|_\L = \M'|_\L$, we have $\M'\models r(\bm{\phi})$. 
+Thus $r(\bm{\phi})\in\G(\L^G, \M)^{k_2}$, which completes the proof.
 \end{proof}
+
 \end{document}

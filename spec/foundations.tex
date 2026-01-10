@@ -1056,65 +1056,114 @@ Hence $\M, j\models \forall v. \phi$. And since $j:\V\to A$ was arbitrary, then 
 
 \begin{definition}
 Let $\L = (\mathscr{P}, \mathscr{F}, \arity)$ be a signature of a language and let $\M$ be an $\L$-structure with domain $A$.
-For any $z\in \mathscr{P}\cup\mathscr{F}$,
+For any $S\subset \mathscr{P}\cup\mathscr{F}$,
 \begin{equation}
 \begin{aligned}
-\MM_z(\M) \defeq \{\M': \M' 
+\MM_S(\M) \defeq \{\M': \M' 
 \text{is $\L$-structure with domain $A$} \\
-\text{and $\M'(s) = \M(s)$ for all $s\in(\mathscr{P}\cup \mathscr{F})\setminus \{z\}$ }\}. 
+\text{and $\M'(s) = \M(s)$ for all $s\in(\mathscr{P}\cup \mathscr{F})\setminus S$ }\}. 
 \end{aligned}
 \end{equation}
+\end{definition}
 
+For $S = \{s\}$, we will write $\MM_s$ instead of $\MM_{\{s\}}$ as long as not ambiguous.
 
+\begin{definition}
+Let $\L = (\mathscr{P}, \mathscr{F}, \arity)$ and $S\subset \mathscr{P}\cup \mathscr{F}$. Let $\phi\in\F(\L)$. We define that 
+$\phi$ is \textbf{assignment-satisfable with respect to} $S$ iff
+for any  $\L$-structure $\M$ with domain $A$ and any assignment $j:\V\to \A$, there exists $\M'\in\MM_S(\M)$ such that $\M', j\models \phi$. 
 \end{definition}
 
 \begin{lemma}
-\label{modus-ponens-from-def}
-Let $\L=(\mathscr{P}, \mathscr{F}, \arity)$ be a signature of a language. Let $k$ be a non-negative integer, let $q\in \mathscr{P}_k$ and $\bm{x}\in \dis{\V}{k}$. Let $\phi, \psi\in\F(\L)$ such that $q$ does not occure in both $\phi$ and $\psi$.
-
-Let $A$ be an non-empty mathematical domain and $j:\V\to A$.
-Let $\M$ be $\L$-structure with domain $A$. Then
-
+\label{assignment-satisfable-modus-ponens}
+Let $\L=(\mathscr{P}, \mathscr{F}, \arity)$ be a signature of a language and let $S\subset \PP\cup\FF$. Let $\phi, \psi\in \B(\L)$ be such that $\phi$ is assignment-satisfable with respect to $S$ and no symbol from $S$ occurs in $\psi$.
+Let $\M$ be an $\L$-structure with domain $A$ and let $j:\V\to A$.
+Then
 \begin{equation}
-\label{modus-ponens-from-def-implication}
-\M',j\models (q(\bm{x}) \liff \phi) \to \psi \text{ for any } \M'\in\MM_q(\M) \implies \M,j\models \psi.
+\M',j\models \phi\to\psi \text{ for any } \M'\in\MM_S(\M) \implies \M,j\models \psi.
+\end{equation}
+\end{lemma}
+
+\begin{proof}
+Assume $\M',j\models \phi\to\psi$ for any $\M'\in\MM_S(\M)$.
+
+Since $\phi$ is assignment-satisfable with respect to $S$, for the given structure $\M$ with domain $A$ and assignment $j:\V\to A$, there exists $\M''\in\MM_S(\M)$ such that $\M'', j\models \phi$.
+
+By assumption, since $\M''\in\MM_S(\M)$, we have $\M'', j\models \phi\to\psi$.
+
+Since $\M'', j\models \phi$ and $\M'', j\models \phi\to\psi$, by Theorem \ref{modus-ponens}, we have $\M'', j\models \psi$.
+
+Since no symbol from $S$ occurs in $\psi$, and $\M''\in\MM_S(\M)$ means $\M''$ agrees with $\M$ on all symbols outside $S$, we have $\psi^{\M'', j} = \psi^{\M, j}$.
+
+Therefore $\M, j\models \psi$.
+\end{proof}
+
+\begin{lemma}
+\label{assignment-satisfable-modus-ponens-rule}
+Let $\L=(\mathscr{P}, \mathscr{F}, \arity)$ be a signature of a language and let $S\subset \PP\cup\FF$. Let $\phi, \psi\in \B(\L)$ be such that $\phi$ is assignment-satisfable and no symbol from $S$ occurs in $\psi$. Let $\M$ be an $\L$-structure.
+Then
+\begin{equation}
+\M'\models \phi\to\psi \text{ for any } \M'\in\MM_S(\M) \implies \M\models \psi.
 \end{equation}
 
 \end{lemma}
 
 \begin{proof}
-Assume that assumption of implication (\ref{modus-ponens-from-def-implication}) holds. 
-We will construct a new structure $\M'$ that differs from $\M$ only in the interpretation of $q$. Namely, 
+Assume $\M'\models \phi\to\psi$ for any $\M'\in\MM_S(\M)$.
+
+Let $A$ be the domain of $\M$. Take an arbitrary assignment $j:\V\to A$.
+
+By assumption, for any $\M'\in\MM_S(\M)$, we have $\M'\models \phi\to\psi$. In particular, $\M',j\models \phi\to\psi$ for any $\M'\in\MM_S(\M)$.
+
+By Lemma \ref{assignment-satisfable-modus-ponens}, since $\phi$ is assignment-satisfable, no symbol from $S$ occurs in $\psi$, and $\M',j\models \phi\to\psi$ for any $\M'\in\MM_S(\M)$, we have $\M,j\models \psi$.
+
+Since $j$ was arbitrary, we conclude $\M\models \psi$.
+\end{proof}
+
+
+\begin{lemma}
+\label{biconditional-assignment-satisfable}
+Let $\L=(\mathscr{P}, \mathscr{F}, \arity)$ be a signature of a language. Let $k$ be a non-negative integer, let $q\in \mathscr{P}_k$ and $\bm{x}\in \dis{\V}{k}$. Let $\phi\in\B(\L)$ such that $q$ does not occur in $\phi$.
+Then $q(\bm{x}) \liff \phi$ is assignment-satisfable with respect to $\{q\}$.
+\end{lemma}
+
+\begin{proof}
+Take any $\L$-structure $\M$ with domain $A$ and any assignment $j:\V\to A$.
+
+We construct a new structure $\M'\in\MM_q(\M)$ as follows: for the predicate $q$, we define
 \begin{equation}
-(q)^{\M'}(\bm{a}) = \phi^{\M, j\cfrac{\bm{a}}{\bm{x}}}.
+q^{\M'}(\bm{a}) = \phi^{\M, j\cfrac{\bm{a}}{\bm{x}}}
+\end{equation}
+for any $\bm{a}\in A^k$.
+
+For all other symbols $s\in (\PP\cup\FF) \setminus \{q\}$, we have $s^{\M'} = s^{\M}$.
+
+Note that $\M'\in\MM_q(\M)$ by construction.
+
+We need to show that $\M', j\models q(\bm{x}) \liff \phi$.
+
+We have
+\begin{equation}
+q(\bm{x})^{\M', j} = q^{\M'}(\bm{x}^{\M', j}) = \phi^{\M, j\cfrac{\bm{x}^{\M', j}}{\bm{x}}}.
 \end{equation}
 
-For all other predicates and functions, $\M'$ agrees with $\M$. Note that $\M'\in\MM_q(\M)$. 
-
-With the structure $\M'$, we have
+Since $\bm{x}$ are distinct variables, we have $j\cfrac{\bm{x}^{\M', j}}{\bm{x}} = j$, thus
 \begin{equation}
-q(\bm{x})^{\M', j} = (q)^{\M'}(\bm{x}^{\M', j}) = \phi^{\M, j\cfrac{\bm{x}^{\M', j}}{\bm{x}}}.
-\end{equation}
-Since by Definition \ref{term-eval-def} (term evaluation), we have $\bm{x}^{\M', j} = \bm{x}^{\M, j}$, thereforre
-
-\begin{equation}
-\phi^{\M, j\cfrac{\bm{x}^{\M', j}}{\bm{x}}} = \phi^{\M, j\cfrac{\bm{x}^{\M, j}}{\bm{x}}}
-= \phi^{M, j}.
+q(\bm{x})^{\M', j} = \phi^{\M, j}.
 \end{equation}
 
-Hence $q(\bm{x})^{\M', j} = \phi^{\M, j}$. Since $q$ does not occur in $\phi$, 
-we have $\phi^{\M, j} = \phi^{\M', j}$ and consequently $q(\bm{x})^{\M', j} = \phi^{\M', j}$. By Theorem \ref{biconditional-evaluation} this is the same as $(q(\bm{x}) \liff \phi)^{\M', j} = 1$, and by Definition \ref{interpretation-def}, we have $\M', j\models q(\bm{x}) \liff \phi$.
+Since $q$ does not occur in $\phi$, and $\M'$ agrees with $\M$ on all symbols except $q$, we have $\phi^{\M, j} = \phi^{\M', j}$.
 
+Therefore $q(\bm{x})^{\M', j} = \phi^{\M', j}$.
 
-By assumption of implication (\ref{modus-ponens-from-def-implication}), since $\M'\in\MM_q(\M)$, we have $\M', j\models (q(\bm{x}) \liff \phi) \to \psi$.
-And then, since $\M', j\models q(\bm{x}) \liff \phi$, by Theorem \ref{modus-ponens} we have $\M', j\models \psi$.
+By Theorem \ref{biconditional-evaluation}, this means $\M', j\models q(\bm{x}) \liff \phi$.
 
-And since $q$ does not occur in $\psi$, we have $\psi^{\M', j} = \psi^{\M, j}$, therefore $\M, j\models \psi$.
+Therefore, $q(\bm{x}) \liff \phi$ is assignment-satisfable with respect to $\{q\}$.
 \end{proof}
 
 \begin{lemma}
 \label{modus-ponens-from-def-v2}
-Let $\L=(\mathscr{P}, \mathscr{F}, \arity)$ be a signature of a language. Let $k$ be a non-negative integer, let $q\in \mathscr{P}_k$ and $\bm{x}\in \dis{\V}{k}$. Let $\phi, \psi\in\F(\L)$ such that $q$ does not occur in both $\phi$ and $\psi$.
+Let $\L=(\mathscr{P}, \mathscr{F}, \arity)$ be a signature of a language. Let $k$ be a non-negative integer, let $q\in \mathscr{P}_k$ and $\bm{x}\in \dis{\V}{k}$. Let $\phi, \psi\in\B(\L)$ such that $q$ does not occur in both $\phi$ and $\psi$.
 
 Let $\M$ be $\L$-structure. Then
 
@@ -1125,11 +1174,81 @@ Let $\M$ be $\L$-structure. Then
 
 \end{lemma}
 
+\begin{lemma}
+\label{skolemisation-schema-lemma}
+Let $\L=(\mathscr{P}, \mathscr{F}, \arity)$ be a signature of a language. Let $k$ be a non-negative integer, let $f\in \FF_k$, $x\in\V$ and $\bm{u}\in \dis{\V}{k}$. Let $\phi\in\B(\L)$ such that $f$ does not occur in $\phi$ and $\phi(x/f(\bm{u}))$ is admissible.
+Then $(\exists x.\phi) \to \phi(x/f(\bm{u}))$ is assignment-satisfable with respect to $\{f\}$.
+\end{lemma}
+
 \begin{proof}
-Assume that assumption of implication (\ref{modus-ponens-from-def-v2-implication}) holds. Take an arbitrary $\L$-structure $\M$ with domain $A$.
-Take an arbitrary assignment $j:\V\to A$. Take an arbitrary $\M'\in\MM_q(\M)$.
-By assumption from implication (\ref{modus-ponens-from-def-v2-implication}), we have $\M'\models (q(\bm{x}) \liff \phi) \to \psi$. Thus in particular $\M', j\models (q(\bm{x}) \liff \phi) \to \psi$, but since $\M'$ is arbitrary chosen, by Theorem \ref{modus-ponens-from-def}, we have 
-$\M, j\models \psi$. And since $j$ was arbitrary chosen, we have $\M\models\psi$.
+Take any $\L$-structure $\M$ with domain $A$ and any assignment $j:\V\to A$.
+Let's fix some $a^*\in A$.
+We construct a new structure $\M'\in\MM_f(\M)$ as follows: for the function $f$, we define
+\begin{equation}
+f^{\M'}(\bm{a}) =
+\begin{cases}
+\text{chosen } a_0 & \text{if } \phi^{\M, j\cfrac{\bm{a}}{\bm{u}}\cfrac{a_0}{x}} = 1 \text{ for some } a_0\in A,\\
+a^* & \text{otherwise}.
+\end{cases}
+\end{equation}
+for any $\bm{a}\in A^k$.
+
+For all other symbols $s\in (\PP\cup\FF) \setminus \{f\}$, we have $s^{\M'} = s^{\M}$.
+
+Note that $\M'\in\MM_f(\M)$ by construction.
+
+We need to show that $\M', j\models (\exists x.\phi) \to \phi(x/f(\bm{u}))$.
+
+\textbf{Case 1:} $(\exists x.\phi)^{\M', j} = 0$.
+
+Then trivially $\M', j\models (\exists x.\phi) \to \phi(x/f(\bm{u}))$.
+
+\textbf{Case 2:} $(\exists x.\phi)^{\M', j} = 1$.
+
+Since $f$ does not occur in $\phi$, and $\M'$ agrees with $\M$ on all symbols except $f$, we have $\phi^{\M', j\cfrac{a}{x}} = \phi^{\M, j\cfrac{a}{x}}$ for any $a\in A$.
+
+By Theorem \ref{existential-evaluation}, there exists some $a_0\in A$ such that $\phi^{\M', j\cfrac{a_0}{x}} = 1$, which means $\phi^{\M, j\cfrac{\bm{u}^{\M,j}}{\bm{u}}\cfrac{a_0}{x}} = \phi^{\M, j\cfrac{a_0}{x}} = 1$.
+
+Now, we have $f^{\M'}(\bm{u}^{\M', j}) = a_0$ by construction (choosing the witness $a_0$).
+
+We have $\phi^{\M, j\cfrac{\bm{u}^{\M,j}}{\bm{u}}\cfrac{a_0}{x}} = \phi^{\M, j\cfrac{a_0}{x}}$.
+
+By Theorem \ref{admissible-theorem}, since $\phi(x/f(\bm{u}))$ is admissible,
+\begin{equation}
+\phi(x/f(\bm{u}))^{\M', j} = \phi^{\M', j\cfrac{f(\bm{u})^{\M', j}}{x}}.
+\end{equation}
+
+Since $f(\bm{u})^{\M', j} = f^{\M'}(\bm{u}^{\M', j}) = a_0$, we have
+\begin{equation}
+\phi(x/f(\bm{u}))^{\M', j} = \phi^{\M', j\cfrac{a_0}{x}} = \phi^{\M, j\cfrac{a_0}{x}} = 1.
+\end{equation}
+
+Therefore $\M', j\models (\exists x.\phi) \to \phi(x/f(\bm{u}))$.
+
+Thus $(\exists x.\phi) \to \phi(x/f(\bm{u}))$ is assignment-satisfable with respect to $\{f\}$.
+\end{proof}
+
+\begin{lemma}
+\label{skolemisation-schema-rule}
+Let $\L=(\mathscr{P}, \mathscr{F}, \arity)$ be a signature of a language. Let $k$ be a non-negative integer, let $f\in \FF_k$, $x\in\V$ and $\bm{u}\in \dis{\V}{k}$. Let $\phi, \psi\in\B(\L)$ such that $f$ does not occur in both $\phi$ and $\psi$, and $\phi(x/f(\bm{u}))$ is admissible. Let $\M$ be an $\L$-structure.
+Then
+\begin{equation}
+\M'\models ((\exists x.\phi) \to \phi(x/f(\bm{u}))) \to \psi \text{ for any } \M'\in\MM_f(\M) \implies \M\models \psi.
+\end{equation}
+\end{lemma}
+
+\begin{proof}
+By Lemma \ref{skolemisation-schema-lemma}, $(\exists x.\phi) \to \phi(x/f(\bm{u}))$ is assignment-satisfable with respect to $\{f\}$.
+
+Since $f$ does not occur in $\psi$, by Lemma \ref{assignment-satisfable-modus-ponens-rule} with $S = \{f\}$ and $\phi$ replaced by $(\exists x.\phi) \to \phi(x/f(\bm{u}))$, we have: if $\M'\models ((\exists x.\phi) \to \phi(x/f(\bm{u}))) \to \psi$ for any $\M'\in\MM_f(\M)$, then $\M\models \psi$.
+\end{proof}
+
+
+
+\begin{proof}
+By Lemma \ref{biconditional-assignment-satisfable}, $q(\bm{x}) \liff \phi$ is assignment-satisfable.
+
+Since $q$ does not occur in $\psi$, by Lemma \ref{assignment-satisfable-modus-ponens-rule} with $S = \{q\}$ and $\phi$ replaced by $q(\bm{x}) \liff \phi$, we have: if $\M'\models (q(\bm{x}) \liff \phi) \to \psi$ for any $\M'\in\MM_q(\M)$, then $\M\models \psi$.
 \end{proof}
 
 Next, we will define a relation $\rep{\phi_1}{\phi_2}{\psi_1}{\psi_2}$. The intuition behind is that $\rep{\phi_1}{\phi_2}{\psi_1}{\psi_2}$ holds when $\psi_2$ is created from $\psi_1$ by replacing some or none $\phi_1$ which occurs in $\psi_1$ by $\phi_2$.
@@ -1142,7 +1261,7 @@ Let $\psi_1, \psi_2\in \F(\L)$. We will define recursively $\rep{\phi_1}{\phi_2}
 \begin{enumerate}
 \item If $\psi_1\sxeq \phi_1$ and $\psi_2\sxeq \phi_2$, then $\rep{\phi_1}{\phi_2}{\psi_1}{\psi_2}$ holds.
 
-\item If $\psi_1 \sxeq p(\bm{\eta})$ and $\psi_2 \sxeq p(\bm{\eta})$ where $\bm{\eta}\in\T(\L)^*$ and $p\in \mathscr{P}_{|\bm{\eta}|}$, then $\rep{\psi_1}{\phi_2}{\psi_1}{\phi_2}$ holds. 
+\item If $\psi_1 \sxeq p(\bm{\eta})$ and $\psi_2 \sxeq p(\bm{\eta})$ where $\bm{\eta}\in\T(\L)^*$ and $p\in \mathscr{P}_{|\bm{\eta}|}$, then $\rep{\phi_1}{\phi_2}{\psi_1}{\psi_2}$ holds. 
 
 \item If $\psi_1 \sxeq \alpha_1 \to \beta_1$ and $\psi_2 \sxeq \alpha_2 \to \beta_2$
 where $\alpha_1, \alpha_2, \beta_1, \beta_2\in \B(\L)$, then 
@@ -1159,7 +1278,7 @@ $\rep{\phi_1}{\phi_2}{\gamma_1}{\gamma_2}$.
 
 \begin{theorem}
 \label{replace-theorem}
-Let  $\L = (\mathscr{P}, \mathscr{F}, \arity)$ be a signature of a language and $A$ be an arbitrary non-empty mathematical domain. Let $\phi_1, \phi_2, \psi_1, \psi_2\in \F(\L)$ such that $\rep{\phi_1}{\phi_2}{\psi_1}{\psi_2}$. For any $\L$-structure $\M$,
+Let  $\L = (\mathscr{P}, \mathscr{F}, \arity)$ be a signature of a language and $A$ be an arbitrary non-empty mathematical domain. Let $\phi_1, \phi_2, \psi_1, \psi_2\in \B(\L)$ such that $\rep{\phi_1}{\phi_2}{\psi_1}{\psi_2}$. For any $\L$-structure $\M$,
 \begin{equation}
 \M\models \phi_1\liff\phi_2 \implies \M\models \psi_1\liff\psi_2. 
 \end{equation} 
@@ -1339,15 +1458,34 @@ $\text{Rep}_\L^{\psi_1, \psi_2}: \F(\L) \to \F(\L)$ for $\psi_1, \psi_2\in \B(\L
 \begin{definition}[\textbf{definition reduction}]
 Let $\L=(\mathscr{P}, \mathscr{F}, \arity)$ be a signature of a language. Let $k$ be a non-negative integer.
 
-We will define a family of functions 
+We will define a family of functions
 $\text{Red\,}_\L^{q(\bm{x})}: \F(\L)\to \F(\L)$ for $q\in \mathscr{P}_k$ and $\bm{x}\in \dis{\V}{k}$.
 
 \begin{equation}
-\text{Red\,}_\L^{q(\bm{x})}(\gamma) \defeq 
+\text{Red\,}_\L^{q(\bm{x})}(\gamma) \defeq
 \begin{cases}
 \begin{aligned}
-\psi \text{ for } \gamma \sxeq (q(\bm{x}) \liff \phi) \to \psi &\text{ where } \psi, \phi\in \B(\L) \\ 
-&\text{ and $q$ does not occur in $\psi$ and $\phi$,} 
+\psi \text{ for } \gamma \sxeq (q(\bm{x}) \liff \phi) \to \psi &\text{ where } \psi, \phi\in \B(\L) \\
+&\text{ and $q$ does not occur in $\psi$ and $\phi$,}
+\end{aligned}\\
+\truth \text{ otherwise.}
+\end{cases}
+\end{equation}
+\end{definition}
+
+\begin{definition}[\textbf{Skolemization schema}]
+Let $\L=(\mathscr{P}, \mathscr{F}, \arity)$ be a signature of a language. Let $k$ be a non-negative integer.
+
+We will define a family of functions
+$\text{Sko}_\L^{f(\bm{u}), x}: \F(\L)\to \F(\L)$ for $f\in \mathscr{F}_k$, $\bm{u}\in \dis{\V}{k}$, and $x\in\V$.
+
+\begin{equation}
+\text{Sko}_\L^{f(\bm{u}), x}(\gamma) \defeq
+\begin{cases}
+\begin{aligned}
+\psi \text{ for } \gamma \sxeq ((\exists x.\phi) \to \phi(x/f(\bm{u}))) \to \psi &\text{ where } \psi, \phi\in \B(\L), \\
+&\text{ $f$ does not occur in $\psi$ and $\phi$,} \\
+&\text{ and $\phi(x/f(\bm{u}))$ is admissible,}
 \end{aligned}\\
 \truth \text{ otherwise.}
 \end{cases}
@@ -1496,8 +1634,37 @@ Then $\text{Red\,}_\L^{q(\bm{x})}(\gamma) = \truth$, which is trivially satisfie
 Therefore, $\text{Red\,}_{\L^G}^{q(\bm{x})}$ is weakly truth-preserving.
 \end{proof}
 
+\begin{theorem}
+\label{skolemization-weakly-truth-preserving}
+Let $\L=(\mathscr{P}, \mathscr{F}, \arity)$ be a signature of a language. Let $k$ be a non-negative integer, let $f\in \mathscr{F}^g_k$, $\bm{u}\in \dis{\V}{k}$, and $x\in\V$. Then $\text{Sko}_{\L^G}^{f(\bm{u}), x}$ is weakly truth-preserving.
+\end{theorem}
+
+\begin{proof}
+Take any $\L^G$-structure $\M$ and any $\gamma\in \F(\L^G)$ such that $\M'\models \gamma$ for all $\L^G$-structure $\M'$ for which $\M|_\L = \M'|_\L$.
+
+We need to show that $\M\models \text{Sko}_{\L^G}^{f(\bm{u}), x}(\gamma)$.
+
+\textbf{Case 1:} $\gamma \sxeq ((\exists x.\phi) \to \phi(x/f(\bm{u}))) \to \psi$ where $\psi, \phi\in \B(\L^G)$, $f$ does not occur in $\psi$ and $\phi$, and $\phi(x/f(\bm{u}))$ is admissible.
+
+Then $\text{Sko}_{\L^G}^{f(\bm{u}), x}(\gamma) = \psi$.
+
+We need to show that $\M\models \psi$.
+
+Since $f\in\mathscr{F}^g_k$ and $f\not\in\mathscr{F}$, for any $\M'\in\MM_f(\M)$ (where $\M'$ is an $\L^G$-structure), we have $\M|_\L = \M'|_\L$, so by assumption $\M'\models \gamma$, which means $\M'\models ((\exists x.\phi) \to \phi(x/f(\bm{u}))) \to \psi$.
+
+By Lemma \ref{skolemisation-schema-rule}, since $\M'\models ((\exists x.\phi) \to \phi(x/f(\bm{u}))) \to \psi$ for any $\M'\in\MM_f(\M)$, we have $\M\models \psi$.
+
+Therefore, $\M\models \text{Sko}_{\L^G}^{f(\bm{u}), x}(\gamma)$.
+
+\textbf{Case 2:} Otherwise.
+
+Then $\text{Sko}_{\L^G}^{f(\bm{u}), x}(\gamma) = \truth$, which is trivially satisfied by any structure.
+
+Therefore, $\text{Sko}_{\L^G}^{f(\bm{u}), x}$ is weakly truth-preserving.
+\end{proof}
+
 \begin{definition}
-Let $\L=(\mathscr{P}, \mathscr{F}, \arity)$ be a signature of a language. Let $\R$ be a family of inference rules on $\F(\L)$. Let $\Gamma\subset \F(\L)$. We will say that $\Gamma$ is closed with respect to $\R$ iff for any $r\in \R$ with $\dim r = (k_1, k_2)$, we have $r(\Gamma^{k_1}) \subset \Gamma^{k_2}$. 
+Let $\L=(\mathscr{P}, \mathscr{F}, \arity)$ be a signature of a language. Let $\R$ be a family of inference rules on $\F(\L)$. Let $\Gamma\subset \F(\L)$. We will say that $\Gamma$ is closed with respect to $\R$ iff for any $r\in \R$ with $\dim r = (k_1, k_2)$, we have $r(\Gamma^{k_1}) \subset \Gamma^{k_2}$.
 \end{definition}
 
 \begin{definition}

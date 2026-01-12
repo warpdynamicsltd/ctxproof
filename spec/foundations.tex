@@ -172,11 +172,22 @@ Sometimes if not disambiguous, we will treat $s\in \dis{S}{}$ notationally as se
 
 
 Let $\mathfrak{L}$ denote a set of all logical symbols `` $($ ", `` $)$ ", `` $\to$ ", `` $.$ ", ``$,$ ", `` $\forall$ ".
-Let $\V$ be an infinite countable set of variable symbols. And $\false$ be a special predicate symbol.
+Let $\V$ be an infinite countable set of variable symbols such that $\V\cap\mathfrak{L}=\emptyset$. And let $\false$ be a special predicate symbol.
 
 \begin{definition}
-Let $\mathscr{P}$ be a set of predicate symbols for which $\false\in \mathscr{P}$ and $\mathscr{F}$ be a set of function symbols. Let $\arity : \mathscr{P} \cup \mathscr{F} \to \N$ be an arity function. 
+Let $\PP, \FF$ be a arbitrary sets of symbols such that
+\begin{align}
+&\false\in\PP,\\
+&\PP\cap\FF=\emptyset,\\
+&\PP\cap\V=\emptyset,\\
+&\FF\cap\V=\emptyset,\\
+&\PP\cap\mathfrak{L}=\emptyset,\\
+&\FF\cap\mathfrak{L}=\emptyset,
+\end{align}
+and let $\arity : \mathscr{P} \cup \mathscr{F} \to \N$ be an arity function such that $\arity(\false)=0$ 
 then $\L \defeq (\mathscr{P}, \mathscr{F}, \arity)$ is a signature of a language.
+
+Moreover, we call $\PP$ a set of predicate symbols and $\FF$ a set of function symbols, and we call $\false$ a false predicate.
 \end{definition}
 
 If $\L'=(\PP', \FF', \arity')$ is a language signature and $\PP\subset \PP'$ and $\FF\subset \FF'$ and $\arity\subset \arity'$, we will slightly abuse notation by writing $\L\subset \L'$ meaning that $\L'$ is an extention of $\L$ or $\L$ is a restriction of $\L'$.
@@ -1394,12 +1405,15 @@ Let $\PP^{g}_k$ be an ininite and countable set of special predicate symbols of 
 \end{equation}
 
 \begin{definition}
+\label{signature-of-genericity}
 \begin{equation}
 \L^g \defeq (\FF^g, \PP^g, \arity^g), 
 \end{equation}
 where 
 $\arity^g(p) = k$ for any $p\in \PP^g_k$ and $\arity^g(f) = k$ for any $f\in \FF^g_k$ for any integer $k \geq 0$.
 \end{definition}
+
+It can be constructed in a way that Definition \ref{signature-of-genericity} holds and $\L^g$ is a signature of a language.
 
 \begin{definition}
 Let $\L = (\FF, \PP, \arity)$ be signature of a language and $\FF^g \cap \FF = \emptyset$ and $\PP^g \cap \PP = \emptyset$. We will consider extention of the language with signature

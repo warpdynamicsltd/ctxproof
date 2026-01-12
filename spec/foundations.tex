@@ -1483,6 +1483,50 @@ By the definition of formula evaluation for universal quantification:
 Therefore, $\psi_1^{\M, j} = \psi_2^{\M, j}$, which by Theorem \ref{biconditional-evaluation} means $\M, j\models \psi_1\liff\psi_2$.
 \end{proof}
 
+\begin{corollary}
+\label{replace-corollary-with-quantification-for-rules}
+Let  $\L = (\mathscr{P}, \mathscr{F}, \arity)$ be a signature of a language and $A$ be an arbitrary non-empty mathematical domain. Let $\phi_1, \phi_2, \psi_1, \psi_2\in \B(\L)$ such that $\rep{\phi_1}{\phi_2}{\psi_1}{\psi_2}$.
+Let $k$ be a non-negative integer and $\bm{x}\in\dis{\V}{k}$.
+No free variable of $\forall \bm{x}. (\phi_1\liff\phi_2)$ is under a quantifier which binds any active occurence of $\phi_1$ in $\psi_1$. Let $\M$ be an arbitrary $\L$-structure.
+Then
+\begin{equation}
+\M \models \forall \bm{x}.(\phi_1\liff\phi_2) \to \psi_1 \implies \M \models \forall \bm{x}.(\phi_1\liff\phi_2) \to \psi_2,
+\end{equation}
+and
+\begin{equation}
+\M \models \forall \bm{x}.(\phi_1\liff\phi_2) \to \psi_2 \implies \M \models \forall \bm{x}.(\phi_1\liff\phi_2) \to \psi_1.
+\end{equation}
+\end{corollary}
+
+\begin{proof}
+
+Take an arbitrary assignment $j:\V\to A$.
+
+\textbf{Case 1:} $(\forall \bm{x}.(\phi_1\liff\phi_2))^{\M, j} = 0$.
+
+Then trivially
+
+\begin{equation}
+\big(\forall \bm{x}.(\phi_1\liff\phi_2) \to \psi_1\big)^{\M, j} =
+\big(\forall \bm{x}.(\phi_1\liff\phi_2) \to \psi_2\big)^{\M, j}. 
+\end{equation}
+
+\textbf{Case 2:} $(\forall \bm{x}.(\phi_1\liff\phi_2))^{\M, j} = 1$.
+
+Then $\M, j\models \forall \bm{x}.(\phi_1\liff\phi_2)$.
+
+By Theorem \ref{replace-theorem-with-quantification}, since $\M, j\models \forall \bm{x}.(\phi_1\liff\phi_2)$, we have $\M, j\models \psi_1\liff\psi_2$.
+
+By Theorem \ref{biconditional-evaluation}, this means $\psi_1^{\M, j} = \psi_2^{\M, j}$.
+And thus
+\begin{equation}
+\big(\forall \bm{x}.(\phi_1\liff\phi_2) \to \psi_1\big)^{\M, j} =
+\big(\forall \bm{x}.(\phi_1\liff\phi_2) \to \psi_2\big)^{\M, j}. 
+\end{equation}
+
+This is enough to complete the proof.
+\end{proof}
+
 \begin{lemma}
 \label{general-constant-def}
 Let $\L=(\mathscr{P}, \mathscr{F}, \arity)$ be a signature of a language. Let $c\in \mathscr{F}_0$, and $x\in\V$. Let $\psi\in\F(\L)$ such that $c$ does not occur in $\psi$.
@@ -1599,6 +1643,46 @@ $\text{Rep}_\L^{\psi_1, \psi_2}: \F(\L) \to \F(\L)$ for $\psi_1, \psi_2\in \B(\L
 \psi_1 \liff \psi_2 \text{ for } \phi \sxeq \phi_1 \liff \phi_2 \text{ where }
 \phi_1, \phi_2\in\B(\F) \text{ and }
 \rep{\phi_1}{\phi_2}{\psi_1}{\psi_2},\\
+\truth \text{ otherwise.}
+\end{cases}
+\end{equation}
+\end{definition}
+
+\begin{definition}[\textbf{replacement with quantification}]
+Let $\L = (\FF, \PP, \arity)$ be a signature of a language.
+Let $m$ be a non-negative integer.
+We will define a family of functions
+$\text{RepQ}_\L^{\psi_2, \bm{x}}: \F(\L) \to \F(\L)$ for $\psi_2\in \B(\L)$ and $\bm{x}\in \dis{\V}{m}$.
+\begin{equation}
+\text{RepQ}^{\psi_2, \bm{x}}_{\L}(\phi) \defeq
+\begin{cases}
+\begin{aligned}
+(\forall \bm{x}.(\phi_1 \liff \phi_2)) \to \psi_2 \text{ for } \phi &\sxeq (\forall \bm{x}.(\phi_1 \liff \phi_2)) \to \psi_1 \text{ where }
+\phi_1, \phi_2, \psi_1\in\B(\L), \\
+&\rep{\phi_1}{\phi_2}{\psi_1}{\psi_2}, \\
+&\text{and no free variable of } \forall \bm{x}. (\phi_1\liff\phi_2) \text{ is under a quantifier} \\
+&\text{which binds any active occurence of } \phi_1 \text{ in } \psi_1,
+\end{aligned}\\
+\truth \text{ otherwise.}
+\end{cases}
+\end{equation}
+\end{definition}
+
+\begin{definition}[\textbf{reverse replacement with quantification}]
+Let $\L = (\FF, \PP, \arity)$ be a signature of a language.
+Let $m$ be a non-negative integer.
+We will define a family of functions
+$\text{RepQRev}_\L^{\psi_1, \bm{x}}: \F(\L) \to \F(\L)$ for $\psi_1\in \B(\L)$ and $\bm{x}\in \dis{\V}{m}$.
+\begin{equation}
+\text{RepQRev}^{\psi_1, \bm{x}}_{\L}(\phi) \defeq
+\begin{cases}
+\begin{aligned}
+(\forall \bm{x}.(\phi_1 \liff \phi_2)) \to \psi_1 \text{ for } \phi &\sxeq (\forall \bm{x}.(\phi_1 \liff \phi_2)) \to \psi_2 \text{ where }
+\phi_1, \phi_2, \psi_2\in\B(\L), \\
+&\rep{\phi_1}{\phi_2}{\psi_1}{\psi_2}, \\
+&\text{and no free variable of } \forall \bm{x}. (\phi_1\liff\phi_2) \text{ is under a quantifier} \\
+&\text{which binds any active occurence of } \phi_1 \text{ in } \psi_1,
+\end{aligned}\\
 \truth \text{ otherwise.}
 \end{cases}
 \end{equation}
@@ -1727,7 +1811,47 @@ Since $\M\models \phi_1 \liff \phi_2$, by Theorem \ref{replace-theorem}, we have
 Then $\text{Rep}_\L^{\psi_1, \psi_2}(\phi) = \truth$, which is trivially satisfied by any structure.
 \end{proof}
 
+\begin{theorem}
+\label{replacement-with-quantification-strictly-truth-preserving}
+Let $\L = (\FF, \PP, \arity)$ be a signature of a language, let $\psi_2\in\B(\L)$ and let $m$ be a non-negative integer, $\bm{x}\in \dis{\V}{m}$. Then $\text{RepQ}_\L^{\psi_2, \bm{x}}$ is strictly truth preserving.
+\end{theorem}
 
+\begin{proof}
+Take any $\L$-structure $\M$ and any $\phi\in \F(\L)$ such that $\M\models \phi$.
+
+We need to show that $\M\models \text{RepQ}_\L^{\psi_2, \bm{x}}(\phi)$.
+
+\textbf{Case 1:} $\phi \sxeq (\forall \bm{x}.(\phi_1 \liff \phi_2)) \to \psi_1$ where $\phi_1, \phi_2, \psi_1\in\B(\L)$, $\rep{\phi_1}{\phi_2}{\psi_1}{\psi_2}$, and no free variable of $\forall \bm{x}. (\phi_1\liff\phi_2)$ is under a quantifier which binds any active occurence of $\phi_1$ in $\psi_1$.
+
+Then $\text{RepQ}_\L^{\psi_2, \bm{x}}(\phi) = (\forall \bm{x}.(\phi_1 \liff \phi_2)) \to \psi_2$.
+
+Since $\M\models (\forall \bm{x}.(\phi_1 \liff \phi_2)) \to \psi_1$, by Corollary \ref{replace-corollary-with-quantification-for-rules} (with the replace relation $\rep{\phi_1}{\phi_2}{\psi_1}{\psi_2}$), we have $\M\models (\forall \bm{x}.(\phi_1 \liff \phi_2)) \to \psi_2 = \text{RepQ}_\L^{\psi_2, \bm{x}}(\phi)$.
+
+\textbf{Case 2:} Otherwise.
+
+Then $\text{RepQ}_\L^{\psi_2, \bm{x}}(\phi) = \truth$, which is trivially satisfied by any structure.
+\end{proof}
+
+\begin{theorem}
+\label{reverse-replacement-with-quantification-strictly-truth-preserving}
+Let $\L = (\FF, \PP, \arity)$ be a signature of a language, let $\psi_1\in\B(\L)$ and let $m$ be a non-negative integer, $\bm{x}\in \dis{\V}{m}$. Then $\text{RepQRev}_\L^{\psi_1, \bm{x}}$ is strictly truth preserving.
+\end{theorem}
+
+\begin{proof}
+Take any $\L$-structure $\M$ and any $\phi\in \F(\L)$ such that $\M\models \phi$.
+
+We need to show that $\M\models \text{RepQRev}_\L^{\psi_1, \bm{x}}(\phi)$.
+
+\textbf{Case 1:} $\phi \sxeq (\forall \bm{x}.(\phi_1 \liff \phi_2)) \to \psi_2$ where $\phi_1, \phi_2, \psi_2\in\B(\L)$, $\rep{\phi_1}{\phi_2}{\psi_1}{\psi_2}$, and no free variable of $\forall \bm{x}. (\phi_1\liff\phi_2)$ is under a quantifier which binds any active occurence of $\phi_1$ in $\psi_1$.
+
+Then $\text{RepQRev}_\L^{\psi_1, \bm{x}}(\phi) = (\forall \bm{x}.(\phi_1 \liff \phi_2)) \to \psi_1$.
+
+Since $\M\models (\forall \bm{x}.(\phi_1 \liff \phi_2)) \to \psi_2$, by Corollary \ref{replace-corollary-with-quantification-for-rules} (using the second implication with the replace relation $\rep{\phi_1}{\phi_2}{\psi_1}{\psi_2}$), we have $\M\models (\forall \bm{x}.(\phi_1 \liff \phi_2)) \to \psi_1 = \text{RepQRev}_\L^{\psi_1, \bm{x}}(\phi)$.
+
+\textbf{Case 2:} Otherwise.
+
+Then $\text{RepQRev}_\L^{\psi_1, \bm{x}}(\phi) = \truth$, which is trivially satisfied by any structure.
+\end{proof}
 
 \begin{definition}
 Let $\L=(\mathscr{P}, \mathscr{F}, \arity)$ be a signature of a language. Let $k_1, k_2$ be non-negative integers and let $r: \F(\L^G)^{k_1} \to\F(\L^G)^{k_2}$, we will say that $r$ is \textbf{weakly truth-preserving}

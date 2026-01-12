@@ -1182,8 +1182,13 @@ Let $\M$ be $\L$-structure. Then
 \label{modus-ponens-from-def-v2-implication}
 \M'\models (q(\bm{x}) \liff \phi) \to \psi \text{ for any } \M'\in\MM_q(\M) \implies \M\models \psi.
 \end{equation}
-
 \end{lemma}
+
+\begin{proof}
+By Lemma \ref{biconditional-assignment-satisfable}, $q(\bm{x}) \liff \phi$ is assignment-satisfable.
+
+Since $q$ does not occur in $\psi$, by Lemma \ref{assignment-satisfable-modus-ponens-rule} with $S = \{q\}$ and $\phi$ replaced by $q(\bm{x}) \liff \phi$, we have: if $\M'\models (q(\bm{x}) \liff \phi) \to \psi$ for any $\M'\in\MM_q(\M)$, then $\M\models \psi$.
+\end{proof}
 
 \begin{lemma}
 \label{skolemisation-schema-lemma}
@@ -1252,14 +1257,6 @@ Then
 By Lemma \ref{skolemisation-schema-lemma}, $(\exists x.\phi) \to \phi(x/f(\bm{u}))$ is assignment-satisfable with respect to $\{f\}$.
 
 Since $f$ does not occur in $\psi$, by Lemma \ref{assignment-satisfable-modus-ponens-rule} with $S = \{f\}$ and $\phi$ replaced by $(\exists x.\phi) \to \phi(x/f(\bm{u}))$, we have: if $\M'\models ((\exists x.\phi) \to \phi(x/f(\bm{u}))) \to \psi$ for any $\M'\in\MM_f(\M)$, then $\M\models \psi$.
-\end{proof}
-
-
-
-\begin{proof}
-By Lemma \ref{biconditional-assignment-satisfable}, $q(\bm{x}) \liff \phi$ is assignment-satisfable.
-
-Since $q$ does not occur in $\psi$, by Lemma \ref{assignment-satisfable-modus-ponens-rule} with $S = \{q\}$ and $\phi$ replaced by $q(\bm{x}) \liff \phi$, we have: if $\M'\models (q(\bm{x}) \liff \phi) \to \psi$ for any $\M'\in\MM_q(\M)$, then $\M\models \psi$.
 \end{proof}
 
 Next, we will define a relation $\rep{\phi_1}{\phi_2}{\psi_1}{\psi_2}$. The intuition behind is that $\rep{\phi_1}{\phi_2}{\psi_1}{\psi_2}$ holds when $\psi_2$ is created from $\psi_1$ by replacing some or none $\phi_1$ which occurs in $\psi_1$ by $\phi_2$.

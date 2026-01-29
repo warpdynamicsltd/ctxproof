@@ -1084,9 +1084,11 @@ Since $j_0:\free(\phi)\setminus \bm{x}\to A$ was arbitrarly chosen, (\ref{predic
 
 \section{Preliminaries for Rules}
 
+\section{Generic Rules}
+
 \begin{theorem}[\textbf{modus ponens}]
 \label{modus-ponens}
-Let  $\L = (\mathscr{P}, \mathscr{F}, \arity)$ be a signature of a language and $A$ be an arbitrary non-empty mathematical domain. Let $\M$ be an $\L$-structure with domain $A$ and $j:\V\to A$ be an assignment Let $\alpha, \beta\in\F(\L)$. If $\M, j\models \alpha$ and $\M, j\models \alpha \to \beta$, then $\M,j\models \beta$.
+Let  $\L = (\mathscr{P}, \mathscr{F}, \arity)$ be a signature of a language and $A$ be an arbitrary non-empty mathematical domain. Let $\M$ be an $\L$-structure with domain $A$ and $j:\V\to A$ be an assignment Let $\alpha, \beta\in\B(\L)$. If $\M, j\models \alpha$ and $\M, j\models \alpha \to \beta$, then $\M,j\models \beta$.
 \end{theorem}
 
 \begin{proof}
@@ -1569,6 +1571,39 @@ Therefore, $\M, j\models \psi$.
 Since this holds for any assignment $j:\V\to A$, we have $\M\models \psi$.
 \end{proof}
 
+\section{Context Rules}
+
+\begin{theorem}[\textbf{modus ponens in context}]
+\label{context-modus-ponens}
+Let  $\L = (\mathscr{P}, \mathscr{F}, \arity)$ be a signature of a language and $A$ be an arbitrary non-empty mathematical domain. Let $\M$ be an $\L$-structure with domain $A$ and $j:\V\to A$ be an assignment Let $\alpha, \beta, \gamma\in\F(\L)$. If $\M, j\models \gamma\to \alpha$ and $\M, j\models \gamma\to(\alpha \to \beta)$, then $\M,j\models \gamma\to\beta$.
+\end{theorem}
+
+\begin{proof}
+We need to show $(\gamma \to \beta)^{\M, j} = 1$, i.e., $1 - \gamma^{\M, j}(1 - \beta^{\M, j}) = 1$.
+
+We consider two cases.
+
+\textbf{Case 1:} $\gamma^{\M, j} = 0$. Then
+\begin{equation}
+(\gamma \to \beta)^{\M, j} = 1 - 0 \cdot (1 - \beta^{\M, j}) = 1.
+\end{equation}
+
+\textbf{Case 2:} $\gamma^{\M, j} = 1$, i.e., $\M, j\models \gamma$.
+
+Since $\M, j\models \gamma \to \alpha$ and $\M, j\models \gamma$, by Theorem \ref{modus-ponens}, $\M, j\models \alpha$.
+
+Since $\M, j\models \gamma \to (\alpha \to \beta)$ and $\M, j\models \gamma$, by Theorem \ref{modus-ponens}, $\M, j\models \alpha \to \beta$.
+
+Since $\M, j\models \alpha$ and $\M, j\models \alpha \to \beta$, by Theorem \ref{modus-ponens}, $\M, j\models \beta$, so $\beta^{\M, j} = 1$.
+
+Therefore,
+\begin{equation}
+(\gamma \to \beta)^{\M, j} = 1 - 1 \cdot (1 - 1) = 1.
+\end{equation}
+
+In both cases, $(\gamma \to \beta)^{\M, j} = 1$, hence $\M, j\models \gamma \to \beta$.
+\end{proof}
+
 \chapter{Inference Rules}
 
 Let $\FF^{g}_k$ be an ininite and countable set of special function symbols of arity $k$ for $k=0, \dots$.
@@ -1863,13 +1898,13 @@ iff for any $\L^G$-structure $\M$ and any $\bm{\phi}\in \F(\L^G)^{k_1}$
 
 \begin{corollary}
 \label{strictly-implies-weakly}
-Let $\L=(\mathscr{P}, \mathscr{F}, \arity)$ be a signature of a language. Let $k_1, k_2$ be non-negative integers and let $r: \F(\L)^{k_1} \to\F(\L)^{k_2}$. If $r$ is strictly truth-preserving, then $r$ is weakly truth-preserving.
+Let $\L=(\mathscr{P}, \mathscr{F}, \arity)$ be a signature of a language. Let $k_1, k_2$ be non-negative integers and let $r: \F(\L^G)^{k_1} \to\F(\L^G)^{k_2}$. If $r$ is strictly truth-preserving, then $r$ is weakly truth-preserving.
 \end{corollary}
 
 \begin{proof}
 Assume $r$ is strictly truth-preserving.
 
-Take any $\L^G$-structure $\M$ and any $\bm{\phi}\in \F(\L)^{k_1}$ such that $\M'\models \bm{\phi}$ for all $\L^G$-structure $\M'$ for which $\M|_\L = \M'|_\L$.
+Take any $\L^G$-structure $\M$ and any $\bm{\phi}\in \F(\L^G)^{k_1}$ such that $\M'\models \bm{\phi}$ for all $\L^G$-structure $\M'$ for which $\M|_\L = \M'|_\L$.
 
 In particular, taking $\M' = \M$, we have $\M\models \bm{\phi}$.
 

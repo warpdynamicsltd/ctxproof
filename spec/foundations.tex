@@ -1082,9 +1082,63 @@ M, j\models \psi(q(\bm{x})/\phi).
 Since $j_0:\free(\phi)\setminus \bm{x}\to A$ was arbitrarly chosen, (\ref{predicate-substitution-for-j}) holds for arbirary $j:\V\to A$. This completes the proof.
 \end{proof}
 
+\begin{theorem}
+\label{tautology-equivalence}
+Let  $\L = (\mathscr{P}, \mathscr{F}, \arity)$ be a signature of a language and $\phi_1, \phi_2\in\B(\L)$. Let $\M$ be an $\L$-structure with domain $A$ and $j:\V\to A$ be an assignment.
+\begin{equation}
+\models \phi_1 \liff \phi_2 \implies \big(\M, j\models \phi_1 \text{ iff }  \M, j\models \phi_2\big).
+\end{equation}
+\end{theorem}
+
+\begin{proof}
+Assume $\models \phi_1 \liff \phi_2$. Then for any $\L$-structure and any assignment, in particular for the given $\M$ and $j$, we have $\M, j\models \phi_1 \liff \phi_2$, which means $(\phi_1 \liff \phi_2)^{\M, j} = 1$.
+
+By Theorem \ref{biconditional-evaluation}, $(\phi_1 \liff \phi_2)^{\M, j} = 1$ if and only if $\phi_1^{\M, j} = \phi_2^{\M, j}$.
+
+Therefore $\phi_1^{\M, j} = \phi_2^{\M, j}$, which means $\phi_1^{\M, j} = 1$ if and only if $\phi_2^{\M, j} = 1$, i.e., $\M, j\models \phi_1$ if and only if $\M, j\models \phi_2$.
+\end{proof}
+
+\begin{lemma}
+\label{premisses-comutability}
+Let  $\L = (\mathscr{P}, \mathscr{F}, \arity)$ be a signature of a language and $\alpha, \beta, \gamma \in\B(\L)$.
+Then
+\begin{equation}
+\models \big( \alpha \to (\beta \to \gamma) \big) \liff \big( \beta \to (\alpha \to \gamma)\big).
+\end{equation}
+\end{lemma}
+
+\begin{proof}
+Take any $\L$-structure $\M$ with domain $A$ and any assignment $j:\V\to A$.
+
+By the definition of formula evaluation for implication,
+\begin{align*}
+\big(\alpha \to (\beta \to \gamma)\big)^{\M, j}
+&= 1 - \alpha^{\M, j}\big(1 - (\beta \to \gamma)^{\M, j}\big) \\
+&= 1 - \alpha^{\M, j}\big(1 - (1 - \beta^{\M, j}(1 - \gamma^{\M, j}))\big) \\
+&= 1 - \alpha^{\M, j} \cdot \beta^{\M, j} \cdot (1 - \gamma^{\M, j}).
+\end{align*}
+
+Similarly,
+\begin{align*}
+\big(\beta \to (\alpha \to \gamma)\big)^{\M, j}
+&= 1 - \beta^{\M, j}\big(1 - (\alpha \to \gamma)^{\M, j}\big) \\
+&= 1 - \beta^{\M, j}\big(1 - (1 - \alpha^{\M, j}(1 - \gamma^{\M, j}))\big) \\
+&= 1 - \beta^{\M, j} \cdot \alpha^{\M, j} \cdot (1 - \gamma^{\M, j}).
+\end{align*}
+
+Since multiplication is commutative, $\alpha^{\M, j} \cdot \beta^{\M, j} = \beta^{\M, j} \cdot \alpha^{\M, j}$, and therefore
+\begin{equation}
+\big(\alpha \to (\beta \to \gamma)\big)^{\M, j} = \big(\beta \to (\alpha \to \gamma)\big)^{\M, j}.
+\end{equation}
+
+By Theorem \ref{biconditional-evaluation}, $\M, j\models \big(\alpha \to (\beta \to \gamma)\big) \liff \big(\beta \to (\alpha \to \gamma)\big)$.
+
+Since this holds for any $\M$ and $j$, we conclude $\models \big(\alpha \to (\beta \to \gamma)\big) \liff \big(\beta \to (\alpha \to \gamma)\big)$.
+\end{proof}
+
 \section{Preliminaries for Rules}
 
-\section{Generic Rules}
+\subsection{Generic Rules}
 
 \begin{theorem}[\textbf{modus ponens}]
 \label{modus-ponens}
@@ -1202,8 +1256,8 @@ Since $j$ was arbitrary, we conclude $\M\models \psi$.
 
 \begin{lemma}
 \label{biconditional-weak-tautology}
-Let $\L=(\mathscr{P}, \mathscr{F}, \arity)$ be a signature of a language. Let $k$ be a non-negative integer, let $q\in \mathscr{P}_k$ and $\bm{x}\in \dis{\V}{k}$. Let $\phi\in\B(\L)$ such that $q$ does not occur in $\phi$.
-Then $q(\bm{x}) \liff \phi$ is a weak tautology with respect to $\{q\}$.
+Let $\L=(\mathscr{P}, \mathscr{F}, \arity)$ be a signature of a language. Let $k, l$ be a non-negative integers, let $q\in \mathscr{P}_k$ and $\bm{x} \in \dis{\V}{k}$, and $\bm{u} \in \dis{\V}{l}$ where $l \leq k$ and $\bm{u}\subset\bm{x}$. Let $\phi\in\B(\L)$ such that $q$ does not occur in $\phi$.
+Then $\forall \bm{u}. \big( q(\bm{x}) \liff \phi \big)$ is a weak tautology with respect to $\{q\}$.
 \end{lemma}
 
 \begin{proof}
@@ -1219,36 +1273,44 @@ For all other symbols $s\in (\PP\cup\FF) \setminus \{q\}$, we have $s^{\M'} = s^
 
 Note that $\M'\in\MM_q(\M)$ by construction.
 
-We need to show that $\M', j\models q(\bm{x}) \liff \phi$.
+We show that $\M', j\models \forall \bm{u}.\big(q(\bm{x}) \liff \phi\big)$. Take arbitrary $\bm{b}\in A^l$ and let $j' = j\cfrac{\bm{b}}{\bm{u}}$.
 
 We have
 \begin{equation}
-q(\bm{x})^{\M', j} = q^{\M'}(\bm{x}^{\M', j}) = \phi^{\M, j\cfrac{\bm{x}^{\M', j}}{\bm{x}}}.
+q(\bm{x})^{\M', j'} = q^{\M'}(\bm{x}^{\M', j'}) = \phi^{\M, j\cfrac{\bm{x}^{\M', j'}}{\bm{x}}}.
 \end{equation}
 
-Since $\bm{x}$ are distinct variables, we have $j\cfrac{\bm{x}^{\M', j}}{\bm{x}} = j$, thus
+Since $\bm{u}\subset\bm{x}$, we have 
+$$j\cfrac{\bm{x}^{\M', j'}}{\bm{x}}(u_i) = j'(u_i) = b_i,$$ 
+and for every $v\in\bm{x}\setminus\bm{u}$, we have 
+$$j\cfrac{\bm{x}^{\M', j'}}{\bm{x}}(v) = j'(v) = j(v),$$
+and for every $v\not\in\bm{x}$, we have
+$$j\cfrac{\bm{x}^{\M', j'}}{\bm{x}}(v) = j(v).$$
+Therefore $j\cfrac{\bm{x}^{\M', j'}}{\bm{x}} = j'$, thus
 \begin{equation}
-q(\bm{x})^{\M', j} = \phi^{\M, j}.
+q(\bm{x})^{\M', j'} = \phi^{\M, j'}.
 \end{equation}
 
-Since $q$ does not occur in $\phi$, and $\M'$ agrees with $\M$ on all symbols except $q$, we have $\phi^{\M, j} = \phi^{\M', j}$.
+Since $q$ does not occur in $\phi$, and $\M'$ agrees with $\M$ on all symbols except $q$, we have $\phi^{\M, j'} = \phi^{\M', j'}$.
 
-Therefore $q(\bm{x})^{\M', j} = \phi^{\M', j}$.
+Therefore $q(\bm{x})^{\M', j'} = \phi^{\M', j'}$.
 
-By Theorem \ref{biconditional-evaluation}, this means $\M', j\models q(\bm{x}) \liff \phi$.
+By Theorem \ref{biconditional-evaluation}, this means $\M', j'\models q(\bm{x}) \liff \phi$.
 
-Therefore, $q(\bm{x}) \liff \phi$ is a weak tautology with respect to $\{q\}$.
+Since $\bm{b}$ was arbitrary, $\M', j\models \forall \bm{u}.\big(q(\bm{x}) \liff \phi\big)$.
+
+Therefore, $\forall \bm{u}.\big(q(\bm{x}) \liff \phi\big)$ is a weak tautology with respect to $\{q\}$.
 \end{proof}
 
 \begin{lemma}
 \label{modus-ponens-from-def-v2}
-Let $\L=(\mathscr{P}, \mathscr{F}, \arity)$ be a signature of a language. Let $k$ be a non-negative integer, let $q\in \mathscr{P}_k$ and $\bm{x}\in \dis{\V}{k}$. Let $\phi, \psi\in\B(\L)$ such that $q$ does not occur in both $\phi$ and $\psi$.
+Let $\L=(\mathscr{P}, \mathscr{F}, \arity)$ be a signature of a language. Let $k, l$ be a non-negative integers, let $q\in \mathscr{P}_k$ and $\bm{x} \in \dis{\V}{k}$, and $\bm{u} \in \dis{\V}{l}$ where $l \leq k$ and $\bm{u}\subset\bm{x}$. Let $\phi\in\B(\L)$ such that $q$ does not occur in $\phi$.
 
 Let $\M$ be $\L$-structure. Then
 
 \begin{equation}
 \label{modus-ponens-from-def-v2-implication}
-\M'\models (q(\bm{x}) \liff \phi) \to \psi \text{ for any } \M'\in\MM_q(\M) \implies \M\models \psi.
+\M'\models \big( \forall \bm{u}. (q(\bm{x}) \liff \phi)\big) \to \psi \text{ for any } \M'\in\MM_q(\M) \implies \M\models \psi.
 \end{equation}
 \end{lemma}
 
@@ -1571,7 +1633,7 @@ Therefore, $\M, j\models \psi$.
 Since this holds for any assignment $j:\V\to A$, we have $\M\models \psi$.
 \end{proof}
 
-\section{Context Rules}
+\subsection{Context Rules}
 
 \begin{theorem}[\textbf{modus ponens in context}]
 \label{context-modus-ponens}
@@ -1653,21 +1715,38 @@ Then
 \begin{proof}
 Assume $\M'\models \gamma\to(\phi\to\psi)$ for any $\M'\in\MM_S(\M)$.
 
-Let $A$ be the domain of $\M$. Take an arbitrary assignment $j:\V\to A$. We need to show $(\gamma\to\psi)^{\M, j} = 1$.
+By Lemma \ref{premisses-comutability}, $\models \big(\gamma\to(\phi\to\psi)\big) \liff \big(\phi\to(\gamma\to\psi)\big)$. By Theorem \ref{tautology-equivalence}, $\M'\models \phi\to(\gamma\to\psi)$ for any $\M'\in\MM_S(\M)$.
 
-If $\gamma^{\M, j} = 0$, then $(\gamma\to\psi)^{\M, j} = 1 - 0\cdot(1 - \psi^{\M, j}) = 1$.
+Since no symbol from $S$ occurs in $\psi$ and $\gamma$, no symbol from $S$ occurs in $\gamma\to\psi$. By Lemma \ref{weak-tautology-modus-ponens-rule}, since $\phi$ is a weak tautology with respect to $S$ and no symbol from $S$ occurs in $\gamma\to\psi$, we have $\M\models \gamma\to\psi$.
+\end{proof}
 
-Suppose $\gamma^{\M, j} = 1$, i.e., $\M, j\models \gamma$. Take any $\M'\in\MM_S(\M)$. Since no symbol from $S$ occurs in $\gamma$, and $\M'$ agrees with $\M$ on all symbols outside $S$, we have $\gamma^{\M', j} = \gamma^{\M, j} = 1$.
+\begin{lemma}
+\label{replace-corollary-with-quantification-for-rules-context}
+Let  $\L = (\mathscr{P}, \mathscr{F}, \arity)$ be a signature of a language and $A$ be an arbitrary non-empty mathematical domain. Let $\phi_1, \phi_2, \psi_1, \psi_2, \gamma\in \B(\L)$ such that $\rep{\phi_1}{\phi_2}{\psi_1}{\psi_2}$.
+Let $k$ be a non-negative integer and $\bm{x}\in\dis{\V}{k}$.
+No free variable of $\forall \bm{x}. (\phi_1\liff\phi_2)$ is under a quantifier which binds any active occurence of $\phi_1$ in $\psi_1$. Let $\M$ be an arbitrary $\L$-structure.
+Then
+\begin{equation}
+\M \models \gamma\to\big(\forall \bm{x}.(\phi_1\liff\phi_2) \to \psi_1\big) \implies \M \models \gamma\to \big( \forall \bm{x}.(\phi_1\liff\phi_2) \to \psi_2 \big),
+\end{equation}
+and
+\begin{equation}
+\M \models \gamma\to \big( \forall \bm{x}.(\phi_1\liff\phi_2) \to \psi_2\big) \implies \M \models \gamma\to \big( \forall \bm{x}.(\phi_1\liff\phi_2) \to \psi_1 \big).
+\end{equation}
+\end{lemma}
 
-By assumption, $\M'\models \gamma\to(\phi\to\psi)$, so in particular $\M', j\models \gamma\to(\phi\to\psi)$. Since $\gamma^{\M', j} = 1$, by Theorem \ref{modus-ponens}, $\M', j\models \phi\to\psi$.
+\begin{proof}
+Since $\rep{\phi_1}{\phi_2}{\psi_1}{\psi_2}$, by the definition of the replace relation we have $\rep{\phi_1}{\phi_2}{\gamma\to\psi_1}{\gamma\to\psi_2}$, where the active occurrences of $\phi_1$ in $\gamma\to\psi_1$ are exactly those in $\psi_1$. In particular, no free variable of $\forall \bm{x}.(\phi_1\liff\phi_2)$ is under a quantifier which binds any active occurrence of $\phi_1$ in $\gamma\to\psi_1$.
 
-Since $\M'\in\MM_S(\M)$ was arbitrary, we have $\M', j\models \phi\to\psi$ for any $\M'\in\MM_S(\M)$.
+We prove the first implication; the second is analogous.
 
-By Lemma \ref{weak-tautology-modus-ponens}, since $\phi$ is a weak tautology with respect to $S$ and no symbol from $S$ occurs in $\psi$, we have $\M, j\models \psi$, so $\psi^{\M, j} = 1$.
+Assume $\M \models \gamma\to\big(\forall \bm{x}.(\phi_1\liff\phi_2) \to \psi_1\big)$.
 
-Therefore $(\gamma\to\psi)^{\M, j} = 1 - 1\cdot(1 - 1) = 1$.
+By Lemma \ref{premisses-comutability}, $\models \big(\gamma\to(\forall \bm{x}.(\phi_1\liff\phi_2) \to \psi_1)\big) \liff \big(\forall \bm{x}.(\phi_1\liff\phi_2) \to (\gamma\to\psi_1)\big)$. By Theorem \ref{tautology-equivalence}, $\M\models \forall \bm{x}.(\phi_1\liff\phi_2) \to (\gamma\to\psi_1)$.
 
-Since $j$ was arbitrary, $\M\models \gamma\to\psi$.
+By Corollary \ref{replace-corollary-with-quantification-for-rules} applied with $\gamma\to\psi_1$ and $\gamma\to\psi_2$ in place of $\psi_1$ and $\psi_2$, we have $\M\models \forall \bm{x}.(\phi_1\liff\phi_2) \to (\gamma\to\psi_2)$.
+
+By Lemma \ref{premisses-comutability} and Theorem \ref{tautology-equivalence}, $\M\models \gamma\to\big(\forall \bm{x}.(\phi_1\liff\phi_2) \to \psi_2\big)$.
 \end{proof}
 
 \chapter{Inference Rules}

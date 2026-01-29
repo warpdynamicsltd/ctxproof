@@ -1604,6 +1604,72 @@ Therefore,
 In both cases, $(\gamma \to \beta)^{\M, j} = 1$, hence $\M, j\models \gamma \to \beta$.
 \end{proof}
 
+\begin{theorem}[\textbf{generalization in context}]
+\label{context-generalization}
+Let $\L = (\mathscr{P}, \mathscr{F}, \arity)$ be a signature of a language and let $\M$ be an $\L$-structure. Let $v\in\V$ and $\phi, \gamma\in\B(\L)$ such that $v\not\in\free(\gamma)$. If $\M\models \gamma\to \phi$, then $\M\models \gamma\to\forall v. \phi$.
+\end{theorem}
+
+\begin{proof}
+Let $A$ be the domain of $\M$. Take any assignment $j:\V\to A$. We need to show $(\gamma \to \forall v. \phi)^{\M, j} = 1$.
+
+We consider two cases.
+
+\textbf{Case 1:} $\gamma^{\M, j} = 0$. Then
+\begin{equation}
+(\gamma \to \forall v. \phi)^{\M, j} = 1 - 0 \cdot (1 - (\forall v. \phi)^{\M, j}) = 1.
+\end{equation}
+
+\textbf{Case 2:} $\gamma^{\M, j} = 1$, i.e., $\M, j\models \gamma$.
+
+By the definition of formula evaluation for universal quantification,
+\begin{equation}
+(\forall v. \phi)^{\M, j} = \prod_{a\in A} \phi^{\M, j\cfrac{a}{v}}.
+\end{equation}
+
+Take any $a\in A$ and let $j' = j\cfrac{a}{v}$. Since $v\not\in\free(\gamma)$, for any $w\in\free(\gamma)$ we have $w\neq v$, so $j'(w) = j(w)$. Therefore $j'\big(\free(\gamma)\big) = j\big(\free(\gamma)\big)$, and by Theorem \ref{signature-of-formula}, $\gamma^{\M, j'} = \gamma^{\M, j} = 1$.
+
+Since $\M\models \gamma\to\phi$, in particular $\M, j'\models \gamma\to\phi$. Since $\gamma^{\M, j'} = 1$, by Theorem \ref{modus-ponens}, $\phi^{\M, j'} = 1$.
+
+This holds for all $a\in A$, therefore
+\begin{equation}
+(\forall v. \phi)^{\M, j} = \prod_{a\in A} \phi^{\M, j\cfrac{a}{v}} = \prod_{a\in A} 1 = 1.
+\end{equation}
+
+Hence $(\gamma \to \forall v. \phi)^{\M, j} = 1 - 1 \cdot (1 - 1) = 1$.
+
+Since $j$ was arbitrary, $\M\models \gamma\to\forall v. \phi$.
+\end{proof}
+
+\begin{lemma}
+\label{weak-tautology-modus-ponens-rule-context}
+Let $\L=(\mathscr{P}, \mathscr{F}, \arity)$ be a signature of a language and let $S\subset \PP\cup\FF$. Let $\phi, \psi, \gamma\in \B(\L)$ be such that $\phi$ is a weak tautology with respect to $S$ and no symbol from $S$ occurs in $\psi$ and $\gamma$. Let $\M$ be an $\L$-structure.
+Then
+\begin{equation}
+\M'\models \gamma\to (\phi\to\psi) \text{ for any } \M'\in\MM_S(\M) \implies \M\models\gamma\to\psi.
+\end{equation}
+
+\end{lemma}
+
+\begin{proof}
+Assume $\M'\models \gamma\to(\phi\to\psi)$ for any $\M'\in\MM_S(\M)$.
+
+Let $A$ be the domain of $\M$. Take an arbitrary assignment $j:\V\to A$. We need to show $(\gamma\to\psi)^{\M, j} = 1$.
+
+If $\gamma^{\M, j} = 0$, then $(\gamma\to\psi)^{\M, j} = 1 - 0\cdot(1 - \psi^{\M, j}) = 1$.
+
+Suppose $\gamma^{\M, j} = 1$, i.e., $\M, j\models \gamma$. Take any $\M'\in\MM_S(\M)$. Since no symbol from $S$ occurs in $\gamma$, and $\M'$ agrees with $\M$ on all symbols outside $S$, we have $\gamma^{\M', j} = \gamma^{\M, j} = 1$.
+
+By assumption, $\M'\models \gamma\to(\phi\to\psi)$, so in particular $\M', j\models \gamma\to(\phi\to\psi)$. Since $\gamma^{\M', j} = 1$, by Theorem \ref{modus-ponens}, $\M', j\models \phi\to\psi$.
+
+Since $\M'\in\MM_S(\M)$ was arbitrary, we have $\M', j\models \phi\to\psi$ for any $\M'\in\MM_S(\M)$.
+
+By Lemma \ref{weak-tautology-modus-ponens}, since $\phi$ is a weak tautology with respect to $S$ and no symbol from $S$ occurs in $\psi$, we have $\M, j\models \psi$, so $\psi^{\M, j} = 1$.
+
+Therefore $(\gamma\to\psi)^{\M, j} = 1 - 1\cdot(1 - 1) = 1$.
+
+Since $j$ was arbitrary, $\M\models \gamma\to\psi$.
+\end{proof}
+
 \chapter{Inference Rules}
 
 Let $\FF^{g}_k$ be an ininite and countable set of special function symbols of arity $k$ for $k=0, \dots$.
